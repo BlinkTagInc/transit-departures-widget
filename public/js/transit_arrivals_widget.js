@@ -1,7 +1,7 @@
 /* global $ */
 /* eslint no-var: "off", sno-unused-vars: "off" */
 
-function setupTransitPredictionsTool(routes) {
+function setupTransitArrivalsWidget(routes) {
   $('#real_time_arrivals input[name="arrival_type"]').change(event => {
     const value = $(event.target).val();
 

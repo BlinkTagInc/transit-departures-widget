@@ -20,7 +20,7 @@ gtfs.openDb(config);
  */
 router.get('/', async (request, response, next) => {
   try {
-    const html = await utils.generateTransitPredictionsHtml(config);
+    const html = await utils.generateTransitArrivalsWidgetHtml(config);
     response.send(html);
   } catch (error) {
     next(error);

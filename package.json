@@ -1,6 +1,6 @@
 {
-  "name": "transit-predictions",
-  "description": "Transit arrival predictions tool",
+  "name": "transit-arrivals-widget",
+  "description": "Transit arrivals widget",
   "version": "0.0.1",
   "keywords": [
     "transit",
@@ -18,7 +18,7 @@
     "test": "xo"
   },
   "bin": {
-    "transit-predictions": "bin/transit-predictions.js"
+    "transit-arrivals-widget": "bin/transit-arrivals-widget.js"
   },
   "main": "index",
   "dependencies": {

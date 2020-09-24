@@ -25,7 +25,7 @@ const argv = require('yargs').usage('Usage: $0 --config ./config.json')
 
 const fileUtils = require('../lib/file-utils');
 const logUtils = require('../lib/log-utils');
-const transitPredictions = require('..');
+const transitArrivalsWidget = require('..');
 
 const handleError = err => {
   const text = err || 'Unknown Error';
@@ -36,7 +36,7 @@ const handleError = err => {
 
 const setupImport = async () => {
   const config = await fileUtils.getConfig(argv);
-  await transitPredictions(config);
+  await transitArrivalsWidget(config);
   process.exit();
 };
 

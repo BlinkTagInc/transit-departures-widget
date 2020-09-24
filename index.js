@@ -1,1 +1,1 @@
-module.exports = require('./lib/transit-predictions');
+module.exports = require('./lib/transit-arrivals-widget');
