@@ -38,7 +38,7 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
     $('#loading').show();
   }
 
-  function hideLoadiing() {
+  function hideLoading() {
     $('#loading').hide();
   }
 
@@ -46,10 +46,12 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
     $('#arrival_results .arrival-results-stop').text(stop ? stop.stop_name : 'Unknown Stop');
 
     if (stop && stop.stop_code) {
-      $('#arrival_results .arrival-results-stop-code').addClass('mb-2').text(`Stop ID ${stop.stop_code}`).show();
+      $('#arrival_results .arrival-results-stop-code').text(`Stop ID ${stop.stop_code}`).show();
     } else {
       $('#arrival_results .arrival-results-stop-code').text('').hide();
     }
+
+    $('#arrival_results .arrival-results-fetchtime').text(`As of ${moment().format('h:mm A')}`);
   }
 
   function renderResults(stop, arrivals) {
@@ -104,7 +106,7 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
       }));
     }
 
-    hideLoadiing();
+    hideLoading();
     $('#arrival_results').show();
   }
 
@@ -112,7 +114,7 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
     renderStopInfo(stop);
     $('#arrival_results .arrival-results-container').html($('<div>').addClass('mt-4').text('Unable to fetch arrivals.'));
 
-    hideLoadiing();
+    hideLoading();
     $('#arrival_results').show();
   }
 
@@ -131,8 +133,6 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
   }
 
   async function updateArrivals(stopId, directionId, routeId) {
-    showLoading();
-
     const stop = stops[stopId];
 
     try {
@@ -140,6 +140,7 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
       const filteredArrivals = [];
 
       if (routeId) {
+        // Lookup arrivals by route and direction
         arrivals.forEach(arrival => {
           if (!arrival || !arrival.trip_update || !arrival.trip_update.trip) {
             return;
@@ -169,6 +170,7 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
           });
         });
       } else if (stopId) {
+        // Lookup all arrivals by stop
         arrivals.forEach(arrival => {
           if (!arrival || !arrival.trip_update || !arrival.trip_update.stop_time_update) {
             return;
@@ -179,6 +181,14 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
           if (!stoptime) {
             return;
           }
+
+          const route = routes.find(route => {
+            const direction = route.directions.find(direction => {
+              return direction.trip_ids.includes(arrival.trip_update.trip.trip_id)
+            });
+
+            return !!direction;
+          });
 
           filteredArrivals.push({
             route,
@@ -275,12 +285,14 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
     const routeId = $('#real_time_arrivals #arrival_route').val();
     const directionId = $('#real_time_arrivals #arrival_direction').val();
     const stopId = $(event.target).val();
+
     resetResults();
 
+    showLoading();
     updateArrivals(stopId, directionId, routeId);
 
-    // Every 10 seconds, check for tripupdates
-    arrivalsTimeout = setTimeout(() => updateArrivals(stopId, directionId, routeId), 10000);
+    // Every 20 seconds, check for tripupdates
+    arrivalsTimeout = setInterval(() => updateArrivals(stopId, directionId, routeId), 20000);
   });
 
   $('#stop_id_form').submit(event => {
@@ -298,6 +310,12 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
       return alert('Invalid stop ID');
     }
 
+    resetResults();
+
+    showLoading();
     updateArrivals(stop.stop_id);
+
+    // Every 20 seconds, check for tripupdates
+    arrivalsTimeout = setInterval(() => updateArrivals(stop.stop_id), 20000);
   });
 }

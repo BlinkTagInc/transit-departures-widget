@@ -8,7 +8,6 @@ body {
   background-color: #ffffff;
 }
 
-
 .transit-arrivals-widget {
   max-width: 600px;
 }
@@ -26,6 +25,19 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-top: 8px;
+}
+
+.transit-arrivals-widget .arrival-results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.transit-arrivals-widget .arrival-results-fetchtime {
+  flex-shrink: 0;
+  font-size: 11px;
+  margin-left: 8px;
 }
 
 .transit-arrivals-widget .arrival-result-route-name {
@@ -57,10 +69,14 @@ body {
 
 .transit-arrivals-widget .arrival-result-time-container {
   padding: 0 5px;
+  width: 76px;
   border-left: 1px solid #ddd;
   align-self: stretch;
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  flex-grow: 0;
 }
 
 .transit-arrivals-widget .arrival-result-time {
