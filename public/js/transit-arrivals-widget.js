@@ -1,4 +1,4 @@
-/* global $, _, Pbf, FeedMessage, alert, fetch */
+/* global $, _, moment, Pbf, FeedMessage, alert, fetch */
 /* eslint no-var: "off", no-unused-vars: "off", no-alert: "off" */
 
 function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
@@ -71,15 +71,19 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
 
   function renderResults(stop, arrivals) {
     renderStopInfo(stop);
-    
-    if (arrivals.length === 0) {
-      $('#arrival_results .arrival-results-container').html($('<div>').addClass('mt-4').text('No upcoming arrivals'));
-    } else {
-      const groupedArrivals = _.groupBy(arrivals, 'route.route_id');
 
-      $('#arrival_results .arrival-results-container').html(Object.values(groupedArrivals).map(arrivalGroup => {
-        const div = $('<div>').addClass('arrival-result');
+    if (arrivals.length === 0) {
+      $('#arrival_results .arrival-results-container').html($('<div>').addClass('arrival-results-none').text('No upcoming arrivals'));
+    } else {
+      const arrivalGroups = _.groupBy(arrivals, arrival => `${arrival.route.route_id}||${arrival.direction.direction_id}`);
+      const sortedArrivalGroups = _.sortBy(arrivalGroups, arrivalGroup => {
         const { route } = arrivalGroup[0];
+        return Number.parseInt(route.route_short_name, 10);
+      });
+
+      $('#arrival_results .arrival-results-container').html(sortedArrivalGroups.map(arrivalGroup => {
+        const div = $('<div>').addClass('arrival-result');
+        const { route, direction } = arrivalGroup[0];
 
         const routeNameDiv = $('<div>').addClass('arrival-result-route-name').appendTo(div);
         const arrivalTimesDiv = $('<div>').addClass('arrival-result-times').appendTo(div);
@@ -89,7 +93,7 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
           const routeTextColor = `#${route.route_text_color}` || '#000';
           $('<div>')
             .text(route.route_short_name)
-            .addClass('route-circle')
+            .addClass('arrival-result-route-circle')
             .css({
               'background-color': routeColor,
               color: routeTextColor
@@ -97,12 +101,10 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
             .appendTo(routeNameDiv);
         }
 
-        if (route.route_long_name) {
-          $('<div>')
-            .text(route.route_long_name)
-            .addClass('route-name')
-            .appendTo(routeNameDiv);
-        }
+        $('<div>').html([
+          $('<div>').text(route.route_long_name || route.route_short_name).addClass('arrival-result-route-long-name'),
+          $('<div>').text(`To ${direction.direction}`).addClass('arrival-result-route-direction')
+        ]).appendTo(routeNameDiv);
 
         const sortedArrivals = _.take(_.sortBy(arrivalGroup, 'stoptime.departure.time'), 3);
 
@@ -127,10 +129,34 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
 
   function renderError(stop) {
     renderStopInfo(stop);
-    $('#arrival_results .arrival-results-container').html($('<div>').addClass('mt-4').text('Unable to fetch arrivals.'));
+    $('#arrival_results .arrival-results-container').html($('<div>').addClass('arrival-results-error').text('Unable to fetch arrivals.'));
 
     hideLoading();
     $('#arrival_results').show();
+  }
+
+  function getRouteAndDirectionFromTrip(tripId) {
+    let tripDirection;
+    let tripRoute;
+
+    for (const route of routes) {
+      for (const direction of route.directions) {
+        if (direction.trip_ids.includes(tripId)) {
+          tripDirection = direction;
+          tripRoute = route;
+          break;
+        }
+      }
+
+      if (tripDirection && tripRoute) {
+        break;
+      }
+    }
+
+    return {
+      direction: tripDirection,
+      route: tripRoute
+    };
   }
 
   async function updateArrivals(stopId, directionId, routeId) {
@@ -144,7 +170,7 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
           timestamp: Date.now()
         };
       }
-  
+
       const filteredArrivals = [];
 
       if (routeId) {
@@ -174,6 +200,7 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
 
           filteredArrivals.push({
             route,
+            direction,
             stoptime
           });
         });
@@ -190,16 +217,11 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
             return;
           }
 
-          const route = routes.find(route => {
-            const direction = route.directions.find(direction => {
-              return direction.trip_ids.includes(arrival.trip_update.trip.trip_id)
-            });
-
-            return !!direction;
-          });
+          const { route, direction } = getRouteAndDirectionFromTrip(arrival.trip_update.trip.trip_id);
 
           filteredArrivals.push({
             route,
+            direction,
             stoptime
           });
         });

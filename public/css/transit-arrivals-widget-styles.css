@@ -16,6 +16,15 @@ body {
   display: none;
 }
 
+.transit-arrivals-widget .arrival-results-none {
+  margin-top: 10px;
+}
+
+.transit-arrivals-widget .arrival-results-error {
+  margin-top: 10px;
+  color: #821515;
+}
+
 .transit-arrivals-widget .arrival-results-stop {
   font-size: 28px;
 }
@@ -46,11 +55,16 @@ body {
   line-height: 1;
 }
 
-.transit-arrivals-widget .arrival-result-route-name .route-name {
+.transit-arrivals-widget .arrival-result-route-long-name {
   font-size: 22px;
+  margin-top: 2px;
 }
 
-.transit-arrivals-widget .route-circle {
+.transit-arrivals-widget .arrival-result-route-direction {
+  margin-bottom: 4px;
+}
+
+.transit-arrivals-widget .arrival-result-route-circle {
   margin: 5px 9px 5px;
   width: 30px;
   height: 30px;
@@ -88,13 +102,14 @@ body {
   padding-left: 2px;
 }
 
-.loader,
-.loader:after {
+.transit-arrivals-widget .loader,
+.transit-arrivals-widget .loader:after {
   border-radius: 50%;
   width: 10em;
   height: 10em;
 }
-.loader {
+
+.transit-arrivals-widget .loader {
   margin: 20px auto;
   font-size: 10px;
   position: relative;
@@ -106,11 +121,12 @@ body {
   -webkit-transform: translateZ(0);
   -ms-transform: translateZ(0);
   transform: translateZ(0);
-  -webkit-animation: load8 1.1s infinite linear;
-  animation: load8 1.1s infinite linear;
+  -webkit-animation: transitArrivalsWidgetLoader 1.1s infinite linear;
+  animation: transitArrivalsWidgetLoader 1.1s infinite linear;
   display: none;
 }
-@-webkit-keyframes load8 {
+
+@-webkit-keyframes transitArrivalsWidgetLoader {
   0% {
     -webkit-transform: rotate(0deg);
     transform: rotate(0deg);
@@ -120,7 +136,8 @@ body {
     transform: rotate(360deg);
   }
 }
-@keyframes load8 {
+
+@keyframes transitArrivalsWidgetLoader {
   0% {
     -webkit-transform: rotate(0deg);
     transform: rotate(0deg);
