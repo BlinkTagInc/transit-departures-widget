@@ -31,14 +31,15 @@ body {
 .transit-arrivals-widget .arrival-result-route-name {
   display: flex;
   align-items: center;
+  line-height: 1;
 }
 
 .transit-arrivals-widget .arrival-result-route-name .route-name {
-  font-size: 24px;
+  font-size: 22px;
 }
 
 .transit-arrivals-widget .route-circle {
-  margin: 5px;
+  margin: 5px 9px 5px;
   width: 30px;
   height: 30px;
   border-radius: 50%;
@@ -54,13 +55,16 @@ body {
   align-self: stretch;
 }
 
-.transit-arrivals-widget .arrival-result-time {
+.transit-arrivals-widget .arrival-result-time-container {
   padding: 0 5px;
   border-left: 1px solid #ddd;
-  align-self: center;
-  font-size: 24px;
+  align-self: stretch;
   display: flex;
   align-items: center;
+}
+
+.transit-arrivals-widget .arrival-result-time {
+  font-size: 24px;
 }
 
 .transit-arrivals-widget .arrival-result-time-label {

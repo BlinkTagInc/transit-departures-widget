@@ -46,7 +46,7 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
     $('#arrival_results .arrival-results-stop').text(stop ? stop.stop_name : 'Unknown Stop');
 
     if (stop && stop.stop_code) {
-      $('#arrival_results .arrival-results-stop-code').text(`Stop ID ${stop.stop_code}`).show();
+      $('#arrival_results .arrival-results-stop-code').addClass('mb-2').text(`Stop ID ${stop.stop_code}`).show();
     } else {
       $('#arrival_results .arrival-results-stop-code').text('').hide();
     }
@@ -83,10 +83,16 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
             .appendTo(routeNameDiv);
         }
 
-        for (const arrival of arrivalGroup) {
+        const sortedArrivals = _.take(_.sortBy(arrivalGroup, 'stoptime.departure.time'), 3);
+
+        for (const arrival of sortedArrivals) {
           $('<div>')
-            .html(formatSeconds(arrival.stoptime.departure.time - (Date.now() / 1000)))
-            .addClass('arrival-result-time')
+            .addClass('arrival-result-time-container')
+            .append(
+              $('<div>')
+                .addClass('arrival-result-time')
+                .html(formatSeconds(arrival.stoptime.departure.time - (Date.now() / 1000)))
+            )
             .appendTo(arrivalTimesDiv);
         }
 
