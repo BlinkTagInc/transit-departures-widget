@@ -3,17 +3,20 @@ html
   head
     title= title
     meta(charset="utf-8")
-    link(rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous")
+    link(rel="stylesheet" href="https://unpkg.com/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous")
     link(rel="stylesheet" href=`${config.assetPath}css/transit_arrivals_widget_styles.css`)
     meta(name="viewport" content="initial-scale=1.0, width=device-width")
 
   body
     block content
 
-    script(src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous")
-    script(src="https://cdn.jsdelivr.net/npm/lodash@4.17.20/lodash.min.js" integrity="sha256-ur/YlHMU96MxHEsy3fHGszZHas7NzH4RQlD4tDVvFhw=" crossorigin="anonymous")
-    script(src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous")
-    script(src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous")
+    script(src="https://unpkg.com/jquery@3.5.1/dist/jquery.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous")
+    script(src="https://unpkg.com/lodash@4.17.20/lodash.min.js" integrity="sha384-EnW5v27oxpPV45dNJxtnA2OWfHpDTXuO/EzFl+c1vzZcB1aWeANNH0pFZLJ6Gsbr" crossorigin="anonymous")
+    script(src="https://unpkg.com/moment@2.29.0/min/moment.min.js" integrity="sha384-er1Ru0Oq9TP6KrfBb/VLDN9i3spZ76Uy7+Xx5LLCfpy5wybgM0SZNC32k/bZq5Xd" crossorigin="anonymous")
+    script(src="https://unpkg.com/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous")
+    script(src="https://unpkg.com/bootstrap@4.5.3/dist/js/bootstrap.min.js" integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous")
+    script(src="https://unpkg.com/pbf@3.2.1/dist/pbf.js" integrity="sha384-v0UA1pHhakpSLzilEI4GK9mx/156zhRyC60GB/GgYwHKHQCfjOYKyNKhDGw5DqaO" crossorigin="anonymous")
+    script(src="https://unpkg.com/gtfs-realtime-pbf-js-module@1.0.0/gtfs-realtime.browser.proto.js" integrity="sha256-z/blOP7gdmNvq4KQfxVASnetvUTCcybhhIMIpnCIfa0=" crossorigin="anonymous")
     script(src=`${config.assetPath}js/transit_arrivals_widget.js`)
 
     script.
