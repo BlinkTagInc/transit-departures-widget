@@ -9,6 +9,10 @@ body {
 }
 
 
-.transit-arrivals-widget-container {
+.transit-arrivals-widget {
   max-width: 600px;
+}
+
+.transit-arrivals-widget .arrival-results {
+  display: none;
 }

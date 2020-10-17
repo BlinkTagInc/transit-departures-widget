@@ -4,7 +4,7 @@ html
     title= title
     meta(charset="utf-8")
     link(rel="stylesheet" href="https://unpkg.com/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous")
-    link(rel="stylesheet" href=`${config.assetPath}css/transit_arrivals_widget_styles.css`)
+    link(rel="stylesheet" href=`${config.assetPath}css/transit-arrivals-widget-styles.css`)
     meta(name="viewport" content="initial-scale=1.0, width=device-width")
 
   body
@@ -17,12 +17,13 @@ html
     script(src="https://unpkg.com/bootstrap@4.5.3/dist/js/bootstrap.min.js" integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous")
     script(src="https://unpkg.com/pbf@3.2.1/dist/pbf.js" integrity="sha384-v0UA1pHhakpSLzilEI4GK9mx/156zhRyC60GB/GgYwHKHQCfjOYKyNKhDGw5DqaO" crossorigin="anonymous")
     script(src="https://unpkg.com/gtfs-realtime-pbf-js-module@1.0.0/gtfs-realtime.browser.proto.js" integrity="sha256-z/blOP7gdmNvq4KQfxVASnetvUTCcybhhIMIpnCIfa0=" crossorigin="anonymous")
-    script(src=`${config.assetPath}js/transit_arrivals_widget.js`)
+    script(src=`${config.assetPath}js/transit-arrivals-widget.js`)
 
     script.
       (function() {
         const routes = !{JSON.stringify(routes)};
-        setupTransitArrivalsWidget(routes);
+        const gtfsRtTripupdatesUrl = '#{config.agency.gtfs_rt_tripupdates_url}';
+        setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl);
       })()
 
     
