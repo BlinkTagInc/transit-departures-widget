@@ -4,8 +4,6 @@ const express = require('express');
 const utils = require('../lib/utils');
 const config = require('../config');
 
-// Override noHead config option so full HTML pages are generated
-config.noHead = false;
 config.assetPath = '/';
 config.log = console.log;
 config.logWarning = console.warn;
@@ -16,7 +14,7 @@ const router = new express.Router();
 gtfs.openDb(config);
 
 /*
- * Show all timetable pages
+ * Show transit arrivals widget
  */
 router.get('/', async (request, response, next) => {
   try {
