@@ -29,12 +29,12 @@ block content
 
         form#stop_id_form.d-none
           .form-group.text
-            input.form-control#arrival_stop_id(name="stop_id" placeholder="Enter a stop ID")
+            input.form-control#arrival_stop_code(name="stop_id" placeholder="Enter a stop ID")
 
           .form-group
             button.btn.btn-primary.btn-block(type="submit") Get Arrivals
 
         #arrival_results.arrival-results
-          h3 Realtime Arrivals
           .arrival-results-stop
+          .arrival-results-stop-code
           .arrival-results-container
