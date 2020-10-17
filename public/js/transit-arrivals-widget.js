@@ -42,7 +42,7 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
     $('#loading').hide();
   }
 
-  function renderResults(stop, arrivals) {
+  function renderStopInfo(stop) {
     $('#arrival_results .arrival-results-stop').text(stop ? stop.stop_name : 'Unknown Stop');
 
     if (stop && stop.stop_code) {
@@ -50,7 +50,11 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
     } else {
       $('#arrival_results .arrival-results-stop-code').text('').hide();
     }
+  }
 
+  function renderResults(stop, arrivals) {
+    renderStopInfo(stop);
+    
     if (arrivals.length === 0) {
       $('#arrival_results .arrival-results-container').html($('<div>').addClass('mt-4').text('No upcoming arrivals'));
     } else {
@@ -104,6 +108,14 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
     $('#arrival_results').show();
   }
 
+  function renderError(stop) {
+    renderStopInfo(stop);
+    $('#arrival_results .arrival-results-container').html($('<div>').addClass('mt-4').text('Unable to fetch arrivals.'));
+
+    hideLoadiing();
+    $('#arrival_results').show();
+  }
+
   async function fetchTripUpdates() {
     const url = `${gtfsRtTripupdatesUrl}?cacheBust=was ${new Date().getTime()}`;
     const response = await fetch(url);
@@ -115,64 +127,71 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
       return object.entity;
     }
 
-    console.error(response.status);
+    throw new Error(response.status);
   }
 
   async function updateArrivals(stopId, directionId, routeId) {
     showLoading();
-    const arrivals = await fetchTripUpdates();
-    const filteredArrivals = [];
+
     const stop = stops[stopId];
 
-    if (routeId) {
-      arrivals.forEach(arrival => {
-        if (!arrival || !arrival.trip_update || !arrival.trip_update.trip) {
-          return;
-        }
+    try {
+      const arrivals = await fetchTripUpdates();
+      const filteredArrivals = [];
 
-        const route = routes.find(route => route.route_id === routeId);
+      if (routeId) {
+        arrivals.forEach(arrival => {
+          if (!arrival || !arrival.trip_update || !arrival.trip_update.trip) {
+            return;
+          }
 
-        if (!route) {
-          return;
-        }
+          const route = routes.find(route => route.route_id === routeId);
 
-        const direction = route.directions.find(direction => direction.direction_id.toString() === directionId);
+          if (!route) {
+            return;
+          }
 
-        if (!direction || !direction.trip_ids.includes(arrival.trip_update.trip.trip_id)) {
-          return;
-        }
+          const direction = route.directions.find(direction => direction.direction_id.toString() === directionId);
 
-        const stoptime = arrival.trip_update.stop_time_update.find(stopTimeUpdate => stopTimeUpdate.stop_id === stopId);
+          if (!direction || !direction.trip_ids.includes(arrival.trip_update.trip.trip_id)) {
+            return;
+          }
 
-        if (!stoptime) {
-          return;
-        }
+          const stoptime = arrival.trip_update.stop_time_update.find(stopTimeUpdate => stopTimeUpdate.stop_id === stopId);
 
-        filteredArrivals.push({
-          route,
-          stoptime
+          if (!stoptime) {
+            return;
+          }
+
+          filteredArrivals.push({
+            route,
+            stoptime
+          });
         });
-      });
-    } else if (stopId) {
-      arrivals.forEach(arrival => {
-        if (!arrival || !arrival.trip_update || !arrival.trip_update.stop_time_update) {
-          return;
-        }
+      } else if (stopId) {
+        arrivals.forEach(arrival => {
+          if (!arrival || !arrival.trip_update || !arrival.trip_update.stop_time_update) {
+            return;
+          }
 
-        const stoptime = arrival.trip_update.stop_time_update.find(stopTimeUpdate => stopTimeUpdate.stop_id === stopId);
+          const stoptime = arrival.trip_update.stop_time_update.find(stopTimeUpdate => stopTimeUpdate.stop_id === stopId);
 
-        if (!stoptime) {
-          return;
-        }
+          if (!stoptime) {
+            return;
+          }
 
-        filteredArrivals.push({
-          route,
-          stoptime
+          filteredArrivals.push({
+            route,
+            stoptime
+          });
         });
-      });
+      }
+
+      renderResults(stop, filteredArrivals);
+    } catch (error) {
+      console.error(error);
+      renderError(stop);
     }
-
-    renderResults(stop, filteredArrivals);
   }
 
   $('#real_time_arrivals input[name="arrival_type"]').change(event => {
