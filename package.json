@@ -10,8 +10,7 @@
   ],
   "private": false,
   "author": "Brendan Nee <brendan@blinktag.com>",
-  "contributors": [
-  ],
+  "contributors": [],
   "license": "MIT",
   "scripts": {
     "start": "node ./app",
@@ -25,17 +24,17 @@
     "chalk": "^4.1.0",
     "express": "^4.17.1",
     "fs-extra": "^9.0.1",
-    "gtfs": "^2.0.4",
+    "gtfs": "^2.0.8",
     "js-beautify": "^1.13.0",
     "lodash": "^4.17.20",
-    "moment": "^2.29.0",
+    "moment": "^2.29.1",
     "morgan": "^1.10.0",
     "pretty-error": "^2.1.1",
     "pug": "^3.0.0",
     "sanitize-filename": "^1.6.3",
     "timer-machine": "^1.1.0",
     "untildify": "^4.0.0",
-    "yargs": "^16.0.3"
+    "yargs": "^16.1.0"
   },
   "devDependencies": {
     "xo": "^0.33.1"
