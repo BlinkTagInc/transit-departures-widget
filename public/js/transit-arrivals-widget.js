@@ -34,6 +34,14 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
     return Math.floor(seconds / 60) + '<span class="arrival-result-time-label">min</span>';
   }
 
+  function showLoading() {
+    $('#loading').show();
+  }
+
+  function hideLoadiing() {
+    $('#loading').hide();
+  }
+
   function renderResults(stop, arrivals) {
     $('#arrival_results .arrival-results-stop').text(stop ? stop.stop_name : 'Unknown Stop');
 
@@ -86,6 +94,7 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
       }));
     }
 
+    hideLoadiing();
     $('#arrival_results').show();
   }
 
@@ -104,6 +113,7 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
   }
 
   async function updateArrivals(stopId, directionId, routeId) {
+    showLoading();
     const arrivals = await fetchTripUpdates();
     const filteredArrivals = [];
     const stop = stops[stopId];
