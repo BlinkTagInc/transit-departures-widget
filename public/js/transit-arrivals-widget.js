@@ -1,7 +1,7 @@
-/* global $, _, moment, Pbf, FeedMessage, alert, fetch */
+/* global $, _, Pbf, FeedMessage, alert, fetch */
 /* eslint no-var: "off", no-unused-vars: "off", no-alert: "off" */
 
-function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
+function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl, refreshIntervalSeconds) {
   const stops = generateStopList(routes);
   let arrivalsResponse;
   let arrivalsTimeout;
@@ -57,6 +57,21 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
     $('#loading').hide();
   }
 
+  function timeStamp() {
+    const now = new Date();
+    let hours = now.getHours();
+    let minutes = now.getMinutes();
+    const suffix = ( hours < 12 ) ? 'AM' : 'PM';
+    hours = hours < 12 ? hours : hours - 12;
+    hours = hours || 12;
+  
+    if (minutes < 10) {
+      minutes = '0' + minutes;
+    }
+    
+    return `${hours}:${minutes} ${suffix}`;
+  }
+
   function renderStopInfo(stop) {
     $('#arrival_results .arrival-results-stop').text(stop ? stop.stop_name : 'Unknown Stop');
 
@@ -66,7 +81,7 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
       $('#arrival_results .arrival-results-stop-code').text('').hide();
     }
 
-    $('#arrival_results .arrival-results-fetchtime').text(`As of ${moment().format('h:mm A')}`);
+    $('#arrival_results .arrival-results-fetchtime').text(`As of ${timeStamp()}`);
   }
 
   function renderResults(stop, arrivals) {
@@ -163,8 +178,8 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
     const stop = stops[stopId];
 
     try {
-      // Use existing data if less than 20 seconds old
-      if (!arrivalsResponse || arrivalsResponse.timestamp < Date.now() - 20000) {
+      // Use existing data if less than the refresh interval seconds old
+      if (!arrivalsResponse || arrivalsResponse.timestamp < Date.now() - (refreshIntervalSeconds * 1000)) {
         arrivalsResponse = {
           arrivals: await fetchTripUpdates(),
           timestamp: Date.now()
@@ -321,8 +336,8 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
     showLoading();
     updateArrivals(stopId, directionId, routeId);
 
-    // Every 20 seconds, check for tripupdates
-    arrivalsTimeout = setInterval(() => updateArrivals(stopId, directionId, routeId), 20000);
+    // Every refresh interval seconds, check for tripupdates
+    arrivalsTimeout = setInterval(() => updateArrivals(stopId, directionId, routeId), refreshIntervalSeconds * 1000);
   });
 
   $('#stop_id_form').submit(event => {
@@ -345,7 +360,7 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
     showLoading();
     updateArrivals(stop.stop_id);
 
-    // Every 20 seconds, check for tripupdates
-    arrivalsTimeout = setInterval(() => updateArrivals(stop.stop_id), 20000);
+    // Every refresh interval seconds, check for tripupdates
+    arrivalsTimeout = setInterval(() => updateArrivals(stop.stop_id), refreshIntervalSeconds * 1000);
   });
 }

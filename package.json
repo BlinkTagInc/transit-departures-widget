@@ -27,7 +27,6 @@
     "gtfs": "^2.0.8",
     "js-beautify": "^1.13.0",
     "lodash": "^4.17.20",
-    "moment": "^2.29.1",
     "morgan": "^1.10.0",
     "pretty-error": "^2.1.1",
     "pug": "^3.0.0",
@@ -38,7 +37,7 @@
     "yargs": "^16.1.0"
   },
   "devDependencies": {
-    "xo": "^0.33.1"
+    "xo": "^0.34.0"
   },
   "engines": {
     "node": ">= 12.14.0"
