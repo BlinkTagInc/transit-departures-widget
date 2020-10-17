@@ -3,7 +3,22 @@
 
 function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
   const stops = generateStopList(routes);
+  let arrivalsResponse;
   let arrivalsTimeout;
+
+  async function fetchTripUpdates() {
+    const url = `${gtfsRtTripupdatesUrl}?cacheBust=was ${new Date().getTime()}`;
+    const response = await fetch(url);
+    if (response.ok) {
+      const bufferResponse = await response.arrayBuffer();
+      const pbf = new Pbf(new Uint8Array(bufferResponse));
+      const object = FeedMessage.read(pbf);
+
+      return object.entity;
+    }
+
+    throw new Error(response.status);
+  }
 
   function generateStopList(routes) {
     const stops = {};
@@ -118,30 +133,23 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
     $('#arrival_results').show();
   }
 
-  async function fetchTripUpdates() {
-    const url = `${gtfsRtTripupdatesUrl}?cacheBust=was ${new Date().getTime()}`;
-    const response = await fetch(url);
-    if (response.ok) {
-      const bufferResponse = await response.arrayBuffer();
-      const pbf = new Pbf(new Uint8Array(bufferResponse));
-      const object = FeedMessage.read(pbf);
-
-      return object.entity;
-    }
-
-    throw new Error(response.status);
-  }
-
   async function updateArrivals(stopId, directionId, routeId) {
     const stop = stops[stopId];
 
     try {
-      const arrivals = await fetchTripUpdates();
+      // Use existing data if less than 20 seconds old
+      if (!arrivalsResponse || arrivalsResponse.timestamp < Date.now() - 20000) {
+        arrivalsResponse = {
+          arrivals: await fetchTripUpdates(),
+          timestamp: Date.now()
+        };
+      }
+  
       const filteredArrivals = [];
 
       if (routeId) {
         // Lookup arrivals by route and direction
-        arrivals.forEach(arrival => {
+        arrivalsResponse.arrivals.forEach(arrival => {
           if (!arrival || !arrival.trip_update || !arrival.trip_update.trip) {
             return;
           }
@@ -171,7 +179,7 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl) {
         });
       } else if (stopId) {
         // Lookup all arrivals by stop
-        arrivals.forEach(arrival => {
+        arrivalsResponse.arrivals.forEach(arrival => {
           if (!arrival || !arrival.trip_update || !arrival.trip_update.stop_time_update) {
             return;
           }
