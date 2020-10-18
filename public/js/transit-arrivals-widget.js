@@ -363,4 +363,34 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl, refreshInterva
     // Every refresh interval seconds, check for tripupdates
     arrivalsTimeout = setInterval(() => updateArrivals(stop.stop_id), refreshIntervalSeconds * 1000);
   });
+  
+  accessibleAutocomplete({
+    element: document.querySelector('#arrival_stop_code_container'),
+    id: 'arrival_stop_code',
+    source: (query, populateResults) => {
+      const filteredResults = Object.values(stops).filter(stop => {
+        if (stop.stop_id === query.trim()) {
+          return true;
+        }
+
+        return stop.stop_name.toLowerCase().includes(query.toLowerCase());
+      });
+      populateResults(filteredResults)
+    },
+    minLength: 2,
+    autoselect: true,
+    placeholder: 'Enter a stop ID',
+    templates: {
+      inputValue: result => result && result.stop_code,
+      suggestion: result => result && `<strong>${result.stop_name}</strong> (${result.stop_id})`
+    },
+    onConfirm: selectedStop => {
+      if (!selectedStop) {
+        return;
+      }
+
+      $('#arrival_stop_code').val(selectedStop.stop_code);
+      $('#stop_id_form').trigger('submit');
+    }
+  })
 }

@@ -147,3 +147,31 @@ body {
     transform: rotate(360deg);
   }
 }
+
+.autocomplete {
+  background: white;
+  z-index: 1000;
+  overflow: auto;
+  box-sizing: border-box;
+  border: 1px solid rgba(0,0,0,.125);
+}
+
+.autocomplete * {
+  font: inherit;
+}
+
+.autocomplete > div {
+  padding: 4px 4px;
+}
+
+.autocomplete .group {
+  background: #eee;
+}
+
+.autocomplete > div:hover:not(.group),
+.autocomplete > div.selected {
+  background: #007bff;
+  color: #FFF;
+  font-weight: bold;
+  cursor: pointer;
+}
