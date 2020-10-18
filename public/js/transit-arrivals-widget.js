@@ -160,9 +160,25 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
     };
   }
 
-  async function updateArrivals(stopId, directionId, routeId) {
-    const stop = stops.find(stop => stop.stop_id === stopId);
+  function selectStop({ stopId, stopCode, directionId, routeId }) {
+    const stop = stops.find(stop => stop.stop_id === stopId || stop.stop_code === stopCode);
+    const route = routes.find(route => route.route_id === routeId);
+    const direction = route ? route.directions.find(direction => direction.direction_id.toString() === directionId) : undefined;
 
+    if (!stop) {
+      return alert('Invalid stop ID');
+    }
+
+    resetResults();
+
+    showLoading();
+    updateArrivals({ stop, direction, route });
+
+    // Every refresh interval seconds, check for tripupdates
+    arrivalsTimeout = setInterval(() => updateArrivals({ stop, direction, route }), refreshIntervalSeconds * 1000);
+  }
+
+  async function updateArrivals({ stop, direction, route }) {
     try {
       // Use existing data if less than the refresh interval seconds old
       if (!arrivalsResponse || arrivalsResponse.timestamp < Date.now() - (refreshIntervalSeconds * 1000)) {
@@ -174,26 +190,18 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
 
       const filteredArrivals = [];
 
-      if (routeId) {
+      if (route) {
         // Lookup arrivals by route and direction
         arrivalsResponse.arrivals.forEach(arrival => {
           if (!arrival || !arrival.trip_update || !arrival.trip_update.trip) {
             return;
           }
 
-          const route = routes.find(route => route.route_id === routeId);
-
-          if (!route) {
-            return;
-          }
-
-          const direction = route.directions.find(direction => direction.direction_id.toString() === directionId);
-
           if (!direction || !direction.trip_ids.includes(arrival.trip_update.trip.trip_id)) {
             return;
           }
 
-          const stoptime = arrival.trip_update.stop_time_update.find(stopTimeUpdate => stopTimeUpdate.stop_id === stopId);
+          const stoptime = arrival.trip_update.stop_time_update.find(stopTimeUpdate => stopTimeUpdate.stop_id === stop.stop_id);
 
           if (!stoptime) {
             return;
@@ -205,14 +213,14 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
             stoptime
           });
         });
-      } else if (stopId) {
+      } else if (stop) {
         // Lookup all arrivals by stop
         arrivalsResponse.arrivals.forEach(arrival => {
           if (!arrival || !arrival.trip_update || !arrival.trip_update.stop_time_update) {
             return;
           }
 
-          const stoptime = arrival.trip_update.stop_time_update.find(stopTimeUpdate => stopTimeUpdate.stop_id === stopId);
+          const stoptime = arrival.trip_update.stop_time_update.find(stopTimeUpdate => stopTimeUpdate.stop_id === stop.stop_id);
 
           if (!stoptime) {
             return;
@@ -318,13 +326,11 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
     const directionId = $('#real_time_arrivals #arrival_direction').val();
     const stopId = $(event.target).val();
 
-    resetResults();
-
-    showLoading();
-    updateArrivals(stopId, directionId, routeId);
-
-    // Every refresh interval seconds, check for tripupdates
-    arrivalsTimeout = setInterval(() => updateArrivals(stopId, directionId, routeId), refreshIntervalSeconds * 1000);
+    selectStop({
+      stopId,
+      routeId,
+      directionId
+    });
   });
 
   $('#stop_id_form').submit(event => {
@@ -336,19 +342,9 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
       return alert('Please enter a stop ID');
     }
 
-    const stop = stops.find(stop => stop.stop_code === stopCode);
-
-    if (!stop) {
-      return alert('Invalid stop ID');
-    }
-
-    resetResults();
-
-    showLoading();
-    updateArrivals(stop.stop_id);
-
-    // Every refresh interval seconds, check for tripupdates
-    arrivalsTimeout = setInterval(() => updateArrivals(stop.stop_id), refreshIntervalSeconds * 1000);
+    selectStop({
+      stopCode
+    });
   });
 
   accessibleAutocomplete({
