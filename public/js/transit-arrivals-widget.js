@@ -1,8 +1,7 @@
-/* global $, _, Pbf, FeedMessage, alert, fetch */
+/* global $, _, Pbf, FeedMessage, alert, fetch, accessibleAutocomplete,  */
 /* eslint no-var: "off", no-unused-vars: "off", no-alert: "off" */
 
-function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl, refreshIntervalSeconds) {
-  const stops = generateStopList(routes);
+function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refreshIntervalSeconds) {
   let arrivalsResponse;
   let arrivalsTimeout;
 
@@ -18,19 +17,6 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl, refreshInterva
     }
 
     throw new Error(response.status);
-  }
-
-  function generateStopList(routes) {
-    const stops = {};
-    for (const route of routes) {
-      for (const direction of route.directions) {
-        for (const stop of direction.stops) {
-          stops[stop.stop_id] = stop;
-        }
-      }
-    }
-
-    return stops;
   }
 
   function resetResults() {
@@ -61,14 +47,14 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl, refreshInterva
     const now = new Date();
     let hours = now.getHours();
     let minutes = now.getMinutes();
-    const suffix = ( hours < 12 ) ? 'AM' : 'PM';
+    const suffix = (hours < 12) ? 'AM' : 'PM';
     hours = hours < 12 ? hours : hours - 12;
     hours = hours || 12;
-  
+
     if (minutes < 10) {
       minutes = '0' + minutes;
     }
-    
+
     return `${hours}:${minutes} ${suffix}`;
   }
 
@@ -175,7 +161,7 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl, refreshInterva
   }
 
   async function updateArrivals(stopId, directionId, routeId) {
-    const stop = stops[stopId];
+    const stop = stops.find(stop => stop.stop_id === stopId);
 
     try {
       // Use existing data if less than the refresh interval seconds old
@@ -320,7 +306,8 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl, refreshInterva
 
       const direction = route.directions.find(direction => direction.direction_id.toString() === directionId);
 
-      $('#real_time_arrivals #arrival_stop').append(direction.stops.map(stop => {
+      $('#real_time_arrivals #arrival_stop').append(direction.stopIds.map(stopId => {
+        const stop = stops.find(stop => stop.stop_id === stopId);
         return $('<option>').val(stop.stop_id).text(stop.stop_name);
       }));
     }
@@ -349,7 +336,7 @@ function setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl, refreshInterva
       return alert('Please enter a stop ID');
     }
 
-    const stop = _.find(stops, { stop_code: stopCode });
+    const stop = stops.find(stop => stop.stop_code === stopCode);
 
     if (!stop) {
       return alert('Invalid stop ID');

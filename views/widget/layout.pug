@@ -23,9 +23,10 @@ html
     script.
       (function() {
         const routes = !{JSON.stringify(routes)};
+        const stops = !{JSON.stringify(stops)};
         const gtfsRtTripupdatesUrl = '#{config.agency.gtfs_rt_tripupdates_url}';
         const refreshIntervalSeconds = #{config.refreshIntervalSeconds || 20};
-        setupTransitArrivalsWidget(routes, gtfsRtTripupdatesUrl, refreshIntervalSeconds);
+        setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refreshIntervalSeconds);
       })()
 
     
