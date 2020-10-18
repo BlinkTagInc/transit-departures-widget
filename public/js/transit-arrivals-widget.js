@@ -366,7 +366,15 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
     showNoOptionsFound: false,
     templates: {
       inputValue: result => result && result.stop_code,
-      suggestion: result => result && `<strong>${result.stop_name}</strong> (${result.stop_code})`
+      suggestion: result => {
+        if (!result) {
+          return
+        }
+
+        const stopCode = result.is_parent_station ? 'all' : result.stop_code;
+
+        return `<strong>${result.stop_name}</strong> (${stopCode})`;
+      }
     },
     onConfirm: selectedStop => {
       if (!selectedStop) {
