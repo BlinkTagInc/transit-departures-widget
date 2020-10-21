@@ -1,9 +1,35 @@
-/* global $, _, Pbf, FeedMessage, alert, fetch, accessibleAutocomplete,  */
+/* global window, $, _, Pbf, FeedMessage, alert, fetch, accessibleAutocomplete,  */
 /* eslint no-var: "off", no-unused-vars: "off", no-alert: "off" */
 
 function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refreshIntervalSeconds) {
   let arrivalsResponse;
   let arrivalsTimeout;
+  let initialStopCode;
+
+  // Read URL parameters on load
+  readUrlWithParameters();
+
+  function updateUrlWithParameters(stopCode) {
+    const url = new URL(window.location.origin + window.location.pathname);
+    if (stopCode) {
+      url.searchParams.append('stop_id', stopCode);
+    }
+
+    window.history.pushState(null, null, url);
+  }
+
+  function readUrlWithParameters() {
+    const url = new URL(window.location.href);
+    initialStopCode = url.searchParams.get('stop_id') || undefined;
+
+    if (initialStopCode) {
+      // Wait for bootstrap js to initialize before triggering click
+      setTimeout(() => {
+        $('#stop_id_form').trigger('submit');
+        $('#real_time_arrivals input[name="arrival_type"][value="stop_id"]').trigger('click');
+      }, 100);
+    }
+  }
 
   async function fetchTripUpdates() {
     const url = `${gtfsRtTripupdatesUrl}?cacheBust=was ${new Date().getTime()}`;
@@ -236,6 +262,9 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
       }
 
       renderResults(stop, filteredArrivals);
+      if (stop.stop_id) {
+        updateUrlWithParameters(stop.stop_code);
+      }
     } catch (error) {
       console.error(error);
       renderError(stop);
@@ -243,10 +272,10 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
   }
 
   $('#real_time_arrivals input[name="arrival_type"]').change(event => {
-    const value = $(event.target).val();
+    const type = $(event.target).val();
 
-    $('#real_time_arrivals #route_form').toggleClass('d-none', value !== 'route');
-    $('#real_time_arrivals #stop_id_form').toggleClass('d-none', value !== 'stop_id');
+    $('#real_time_arrivals #route_form').toggleClass('d-none', type !== 'route');
+    $('#real_time_arrivals #stop_id_form').toggleClass('d-none', type !== 'stop_id');
 
     $('#real_time_arrivals #arrival_stop')
       .val('')
@@ -367,7 +396,7 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
       inputValue: result => result && result.stop_code,
       suggestion: result => {
         if (!result) {
-          return
+          return;
         }
 
         const stopCode = result.is_parent_station ? 'all' : result.stop_code;
@@ -382,6 +411,7 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
 
       $('#arrival_stop_code').val(selectedStop.stop_code);
       $('#stop_id_form').trigger('submit');
-    }
+    },
+    defaultValue: initialStopCode
   });
 }
