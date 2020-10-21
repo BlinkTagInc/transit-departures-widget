@@ -27,12 +27,12 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
     $('#arrival_results').hide();
   }
 
-  function formatSeconds(seconds) {
+  function formatMinutes(seconds) {
     if (seconds < 60) {
-      return Math.floor(seconds) + '<span class="arrival-result-time-label">sec</span>';
+      return '&#60;1';
     }
 
-    return Math.floor(seconds / 60) + '<span class="arrival-result-time-label">min</span>';
+    return Math.floor(seconds / 60);
   }
 
   function showLoading() {
@@ -70,6 +70,44 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
     $('#arrival_results .arrival-results-fetchtime').text(`As of ${timeStamp()}`);
   }
 
+  function formatArrivalGroup(arrivalGroup) {
+    const div = $('<div>').addClass('arrival-result');
+    const { route, direction } = arrivalGroup[0];
+
+    const routeNameDiv = $('<div>').addClass('arrival-result-route-name').appendTo(div);
+    const arrivalTimesDiv = $('<div>').addClass('arrival-result-times').appendTo(div);
+
+    if (route.route_short_name) {
+      const routeColor = `#${route.route_color}` || '#ccc';
+      const routeTextColor = `#${route.route_text_color}` || '#000';
+      $('<div>')
+        .text(route.route_short_name)
+        .addClass('arrival-result-route-circle')
+        .css({
+          'background-color': routeColor,
+          color: routeTextColor
+        })
+        .appendTo(routeNameDiv);
+    }
+
+    $('<div>').text(`To ${direction.direction}`).addClass('arrival-result-route-direction').appendTo(routeNameDiv);
+
+    const sortedArrivals = _.take(_.sortBy(arrivalGroup, 'stoptime.departure.time'), 3);
+
+    for (const arrival of sortedArrivals) {
+      $('<div>')
+        .addClass('arrival-result-time-container')
+        .append(
+          $('<div>')
+            .addClass('arrival-result-time')
+            .html(formatMinutes(arrival.stoptime.departure.time - (Date.now() / 1000)) + '<span class="arrival-result-time-label">min</span>')
+        )
+        .appendTo(arrivalTimesDiv);
+    }
+
+    return div;
+  }
+
   function renderResults(stop, arrivals) {
     renderStopInfo(stop);
 
@@ -82,46 +120,7 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
         return Number.parseInt(route.route_short_name, 10);
       });
 
-      $('#arrival_results .arrival-results-container').html(sortedArrivalGroups.map(arrivalGroup => {
-        const div = $('<div>').addClass('arrival-result');
-        const { route, direction } = arrivalGroup[0];
-
-        const routeNameDiv = $('<div>').addClass('arrival-result-route-name').appendTo(div);
-        const arrivalTimesDiv = $('<div>').addClass('arrival-result-times').appendTo(div);
-
-        if (route.route_short_name) {
-          const routeColor = `#${route.route_color}` || '#ccc';
-          const routeTextColor = `#${route.route_text_color}` || '#000';
-          $('<div>')
-            .text(route.route_short_name)
-            .addClass('arrival-result-route-circle')
-            .css({
-              'background-color': routeColor,
-              color: routeTextColor
-            })
-            .appendTo(routeNameDiv);
-        }
-
-        $('<div>').html([
-          $('<div>').text(route.route_long_name || route.route_short_name).addClass('arrival-result-route-long-name'),
-          $('<div>').text(`To ${direction.direction}`).addClass('arrival-result-route-direction')
-        ]).appendTo(routeNameDiv);
-
-        const sortedArrivals = _.take(_.sortBy(arrivalGroup, 'stoptime.departure.time'), 3);
-
-        for (const arrival of sortedArrivals) {
-          $('<div>')
-            .addClass('arrival-result-time-container')
-            .append(
-              $('<div>')
-                .addClass('arrival-result-time')
-                .html(formatSeconds(arrival.stoptime.departure.time - (Date.now() / 1000)))
-            )
-            .appendTo(arrivalTimesDiv);
-        }
-
-        return div;
-      }));
+      $('#arrival_results .arrival-results-container').html(sortedArrivalGroups.map(arrivalGroup => formatArrivalGroup(arrivalGroup)));
     }
 
     hideLoading();

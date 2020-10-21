@@ -55,13 +55,9 @@ body {
   line-height: 1;
 }
 
-.transit-arrivals-widget .arrival-result-route-long-name {
+.transit-arrivals-widget .arrival-result-route-direction {
   font-size: 22px;
   margin-top: 2px;
-}
-
-.transit-arrivals-widget .arrival-result-route-direction {
-  margin-bottom: 4px;
 }
 
 .transit-arrivals-widget .arrival-result-route-circle {
