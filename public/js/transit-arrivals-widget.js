@@ -232,6 +232,10 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
           continue;
         }
 
+        // Hide arrivals more than 90 minutes in the future
+        if ((filteredArrival.stoptime.departure.time - (Date.now() / 1000)) > (90 * 60)) {
+          continue;
+        }
 
         filteredArrivals.push(filteredArrival);
       }
