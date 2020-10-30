@@ -161,30 +161,6 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
     $('#arrival_results').show();
   }
 
-  function getRouteAndDirectionFromTrip(tripId) {
-    let tripDirection;
-    let tripRoute;
-
-    for (const route of routes) {
-      for (const direction of route.directions) {
-        if (direction.trip_ids.includes(tripId)) {
-          tripDirection = direction;
-          tripRoute = route;
-          break;
-        }
-      }
-
-      if (tripDirection && tripRoute) {
-        break;
-      }
-    }
-
-    return {
-      direction: tripDirection,
-      route: tripRoute
-    };
-  }
-
   function selectStop({ stopId, stopCode, directionId, routeId }) {
     const stop = stops.find(stop => stop.stop_id === stopId || stop.stop_code === stopCode);
     const route = routes.find(route => route.route_id === routeId);
@@ -215,50 +191,49 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
 
       const filteredArrivals = [];
 
-      if (route) {
-        // Lookup arrivals by route and direction
-        arrivalsResponse.arrivals.forEach(arrival => {
+      for (const arrival of arrivalsResponse.arrivals) {
+        const filteredArrival = {};
+  
+        if (route) {
           if (!arrival || !arrival.trip_update || !arrival.trip_update.trip) {
-            return;
+            continue;
           }
 
           if (!direction || !direction.trip_ids.includes(arrival.trip_update.trip.trip_id)) {
-            return;
+            continue;
           }
 
-          const stoptime = arrival.trip_update.stop_time_update.find(stopTimeUpdate => stopTimeUpdate.stop_id === stop.stop_id);
-
-          if (!stoptime) {
-            return;
-          }
-
-          filteredArrivals.push({
-            route,
-            direction,
-            stoptime
-          });
-        });
-      } else if (stop) {
-        // Lookup all arrivals by stop
-        arrivalsResponse.arrivals.forEach(arrival => {
+          filteredArrival.route = route;
+          filteredArrival.direction = direction;
+        } else if (stop) {
           if (!arrival || !arrival.trip_update || !arrival.trip_update.stop_time_update) {
-            return;
+            continue;
           }
 
-          const stoptime = arrival.trip_update.stop_time_update.find(stopTimeUpdate => stopTimeUpdate.stop_id === stop.stop_id);
+          // Get route  and  direction from trip_id
+          for (const route of routes) {
+            for (const direction of route.directions) {
+              if (direction.trip_ids.includes(arrival.trip_update.trip.trip_id)) {
+                filteredArrival.direction = direction;
+                filteredArrival.route = route;
+                break;
+              }
+            }
 
-          if (!stoptime) {
-            return;
+            if (filteredArrival.direction && filteredArrival.route) {
+              break;
+            }
           }
+        }
 
-          const { route, direction } = getRouteAndDirectionFromTrip(arrival.trip_update.trip.trip_id);
+        filteredArrival.stoptime = arrival.trip_update.stop_time_update.find(stopTimeUpdate => stopTimeUpdate.stop_id === stop.stop_id);
 
-          filteredArrivals.push({
-            route,
-            direction,
-            stoptime
-          });
-        });
+        if (!filteredArrival.stoptime) {
+          continue;
+        }
+
+
+        filteredArrivals.push(filteredArrival);
       }
 
       renderResults(stop, filteredArrivals);
