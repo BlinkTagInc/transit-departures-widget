@@ -399,6 +399,10 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
           return;
         }
 
+        if (typeof(result) === 'string') {
+          return result;
+        }
+
         const stopCode = result.is_parent_station ? 'all' : result.stop_code;
 
         return `<strong>${result.stop_name}</strong> (${stopCode})`;
