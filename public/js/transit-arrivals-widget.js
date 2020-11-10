@@ -32,7 +32,7 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
   }
 
   async function fetchTripUpdates() {
-    const url = `${gtfsRtTripupdatesUrl}?cacheBust=was ${new Date().getTime()}`;
+    const url = `${gtfsRtTripupdatesUrl}?cacheBust=${new Date().getTime()}`;
     const response = await fetch(url);
     if (response.ok) {
       const bufferResponse = await response.arrayBuffer();
@@ -179,21 +179,49 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
     arrivalsTimeout = setInterval(() => updateArrivals({ stop, direction, route }), refreshIntervalSeconds * 1000);
   }
 
+  function getRouteAndDirectionFromTrip(tripId) {
+    let tripRoute;
+    let tripDirection;
+    for (const route of routes) {
+      for (const direction of route.directions) {
+        if (direction.trip_ids.includes(tripId)) {
+          tripDirection = direction;
+          tripRoute = route;
+          break;
+        }
+      }
+
+      if (tripDirection && tripRoute) {
+        break;
+      }
+    }
+
+    return {
+      route: tripRoute,
+      direction: tripDirection
+    };
+  }
+
   async function updateArrivals({ stop, direction, route }) {
     try {
       // Use existing data if less than the refresh interval seconds old
       if (!arrivalsResponse || arrivalsResponse.timestamp < Date.now() - (refreshIntervalSeconds * 1000)) {
-        arrivalsResponse = {
-          arrivals: await fetchTripUpdates(),
-          timestamp: Date.now()
-        };
+        const arrivals = await fetchTripUpdates();
+
+        // Don't use new arrival info if nothing is returned.
+        if (arrivals && arrivals.length > 0) {
+          arrivalsResponse = {
+            arrivals,
+            timestamp: Date.now()
+          };
+        }
       }
 
       const filteredArrivals = [];
 
       for (const arrival of arrivalsResponse.arrivals) {
-        const filteredArrival = {};
-  
+        let filteredArrival = {};
+
         if (route) {
           if (!arrival || !arrival.trip_update || !arrival.trip_update.trip) {
             continue;
@@ -210,20 +238,8 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
             continue;
           }
 
-          // Get route  and  direction from trip_id
-          for (const route of routes) {
-            for (const direction of route.directions) {
-              if (direction.trip_ids.includes(arrival.trip_update.trip.trip_id)) {
-                filteredArrival.direction = direction;
-                filteredArrival.route = route;
-                break;
-              }
-            }
-
-            if (filteredArrival.direction && filteredArrival.route) {
-              break;
-            }
-          }
+          // Get route and direction from trip_id
+          filteredArrival = getRouteAndDirectionFromTrip(arrival.trip_update.trip.trip_id);
         }
 
         filteredArrival.stoptime = arrival.trip_update.stop_time_update.find(stopTimeUpdate => stopTimeUpdate.stop_id === stop.stop_id);
@@ -378,7 +394,7 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
           return;
         }
 
-        if (typeof(result) === 'string') {
+        if (typeof (result) === 'string') {
           return result;
         }
 
