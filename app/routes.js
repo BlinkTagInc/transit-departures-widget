@@ -2,8 +2,11 @@ const gtfs = require('gtfs');
 const express = require('express');
 
 const utils = require('../lib/utils');
-const config = require('../config');
+const selectedConfig = require('../config');
 
+const config = utils.setDefaultConfig(selectedConfig);
+// Override noHead config option so full HTML pages are generated
+config.noHead = false;
 config.assetPath = '/';
 config.log = console.log;
 config.logWarning = console.warn;
