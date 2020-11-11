@@ -12,6 +12,10 @@ body {
   max-width: 600px;
 }
 
+.transit-arrivals-widget .hidden-form {
+  display: none;
+}
+
 .transit-arrivals-widget .arrival-results {
   display: none;
 }
