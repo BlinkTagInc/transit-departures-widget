@@ -52,6 +52,7 @@ Copy `config-sample.json` to `config.json` and then add your projects configurat
 | option | type | description |
 | ------ | ---- | ----------- |
 | [`agency`](#agency) | array | Information about the GTFS and GTFS-RT to be used. |
+| [`beautify`](#beautify) | boolean | Whether or not to beautify the HTML output. |
 | [`noHead`](#nohead) | boolean | Whether or not to skip the header and footer of the HTML document. |
 | [`refreshIntervalSeconds`](#refreshIntervalSeconds) | integer | How often the widget should refresh arrival data in seconds. Optional, defaults to 20 seconds. |
 | [`skipImport`](#skipimport) | boolean | Whether or not to skip importing GTFS data into SQLite. |
@@ -100,6 +101,14 @@ Copy `config-sample.json` to `config.json` and then add your projects configurat
     "gtfs_rt_tripupdates_url": "https://marintransit.net/gtfs-rt/tripupdates"
   }
 }
+```
+
+### beautify
+
+{Boolean} Whether or not to beautify the HTML output. Defaults to `false`.
+
+```
+    "beautify": false
 ```
 
 ### noHead
