@@ -8,16 +8,12 @@ html
     link(rel="stylesheet" href=`${config.assetPath}css/transit-arrivals-widget-styles.css`)
     meta(name="viewport" content="initial-scale=1.0, width=device-width")
 
-  body
-    block content
-
     script(src="https://unpkg.com/jquery@3.5.1/dist/jquery.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous")
     script(src="https://unpkg.com/lodash@4.17.20/lodash.min.js" integrity="sha384-EnW5v27oxpPV45dNJxtnA2OWfHpDTXuO/EzFl+c1vzZcB1aWeANNH0pFZLJ6Gsbr" crossorigin="anonymous")
-    script(src="https://unpkg.com/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous")
-    script(src="https://unpkg.com/bootstrap@4.5.3/dist/js/bootstrap.min.js" integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous")
     script(src="https://unpkg.com/pbf@3.2.1/dist/pbf.js" integrity="sha384-v0UA1pHhakpSLzilEI4GK9mx/156zhRyC60GB/GgYwHKHQCfjOYKyNKhDGw5DqaO" crossorigin="anonymous")
     script(src="https://unpkg.com/gtfs-realtime-pbf-js-module@1.0.0/gtfs-realtime.browser.proto.js" integrity="sha256-z/blOP7gdmNvq4KQfxVASnetvUTCcybhhIMIpnCIfa0=" crossorigin="anonymous")
     script(src="https://unpkg.com/accessible-autocomplete@2.0.3/dist/accessible-autocomplete.min.js" integrity="sha384-lA2U/4JpLCszKZ0EJQwuGmVQHQqQbaBxnWcSgfeVNA9wZrMwjwCxVKYlMnT7u/DD" crossorigin="anonymous")
     script(src=`${config.assetPath}js/transit-arrivals-widget.js`)
 
-    
+  body
+    block content
