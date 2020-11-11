@@ -56,6 +56,7 @@ Copy `config-sample.json` to `config.json` and then add your projects configurat
 | [`refreshIntervalSeconds`](#refreshIntervalSeconds) | integer | How often the widget should refresh arrival data in seconds. Optional, defaults to 20 seconds. |
 | [`skipImport`](#skipimport) | boolean | Whether or not to skip importing GTFS data into SQLite. |
 | [`sqlitePath`](#sqlitepath) | string | A path to an SQLite database. Optional, defaults to using an in-memory database. |
+| [`templatePath`](#templatepath) | string | Path to custom pug template for rendering widget. |
 
 ### agency
 
@@ -131,6 +132,14 @@ Copy `config-sample.json` to `config.json` and then add your projects configurat
 
 ```
     "sqlitePath": "/tmp/gtfs"
+```
+
+### templatePath
+
+{String} Path to a folder containing (pug)[https://pugjs.org/] template for rendering the widget widget. This is optional. Defaults to using the templates provided in `views/widget`. All files within the `/views/custom` folder will be .gitignored, so you can copy the `views/widget` folder to `views/custom/myagency` and make any modifications needed. Any custom views folder should contain pug templates called `widget.pug` and `widget_full.pug`.
+
+```
+    "templatePath": "views/custom/my-agency/"
 ```
 
 ## Previewing HTML output

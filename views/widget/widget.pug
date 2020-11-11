@@ -41,11 +41,11 @@
         .arrival-results-stop-code
         .arrival-results-container
   
-  script.
-    (function() {
-      const routes = !{JSON.stringify(routes)};
-      const stops = !{JSON.stringify(stops)};
-      const gtfsRtTripupdatesUrl = '#{config.agency.gtfs_rt_tripupdates_url}';
-      const refreshIntervalSeconds = #{config.refreshIntervalSeconds};
-      setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refreshIntervalSeconds);
-    })()
+script.
+  (function() {
+    const routes = !{JSON.stringify(routes)};
+    const stops = !{JSON.stringify(stops)};
+    const gtfsRtTripupdatesUrl = '#{config.agency.gtfs_rt_tripupdates_url}';
+    const refreshIntervalSeconds = #{config.refreshIntervalSeconds};
+    setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refreshIntervalSeconds);
+  })()

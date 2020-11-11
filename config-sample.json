@@ -5,5 +5,6 @@
     "gtfs_rt_tripupdates_url": "https://marintransit.net/gtfs-rt/tripupdates"
   },
   "refreshIntervalSeconds": 20,
-  "noHead": false
+  "noHead": false,
+  "templatePath": "views/widget"
 }
