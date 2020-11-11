@@ -31,6 +31,7 @@ body {
 
 .transit-arrivals-widget .arrival-results-stop {
   font-size: 28px;
+  line-height: 1;
 }
 
 .transit-arrivals-widget .arrival-result {
