@@ -16,6 +16,33 @@ An demo of the widget is available at https://transit-arrivals-widget.blinktag.c
 
 Arrival information is refreshed every 20 seconds by default, but can be set with the `refreshIntervalSeconds` config parameter.
 
+## Command Line Usage
+
+The `transit-arrivals-widget` command-line utility will download the GTFS file specified in `config.js` and then build the transit arrivals widget and save the  HTML, CSS and JS in `html/:agency_key`.
+
+If you would like to use this library as a command-line utility, you can install it globally directly from [npm](https://npmjs.org):
+
+    npm install transit-arrivals-widget -g
+
+Then you can run `transit-arrivals-widget`.
+
+    transit-arrivals-widget
+
+### Command-line options
+
+`configPath`
+
+Allows specifying a path to a configuration json file. By default, `transit-arrivals-widget` will look for a `config.json` file in the directory it is being run from.
+
+    transit-arrivals-widget --configPath /path/to/your/custom-config.json
+
+`skipImport`
+
+Skips importing GTFS into SQLite. Useful if you are rerunning with an unchanged GTFS file. If you use this option and the GTFS file hasn't been imported, you'll get an error.
+
+    transit-arrivals-widget --skipImport
+
+
 ## Configuration
 
 Copy `config-sample.json` to `config.json` and then add your projects configuration to `config.json`.
@@ -39,7 +66,7 @@ Copy `config-sample.json` to `config.json` and then add your projects configurat
 
 `gtfs_static_path` is the local path to an agency's static GTFS on your local machine. Either `gtfs_static_url` or `gtfs_static_path` is required.
 
-`gtfs_rt_tripupdates_url` is the URL of an agency's GTFS-RT trip updates.
+`gtfs_rt_tripupdates_url` is the URL of an agency's GTFS-RT trip updates. Note that the GTFS-RT URL must support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) in order for the widget to work.
 
 * Specify a download URL for static GTFS:
 ```
@@ -97,3 +124,26 @@ Copy `config-sample.json` to `config.json` and then add your projects configurat
     "sqlitePath": "/tmp/gtfs"
 ```
 
+## Previewing HTML output
+
+It can be useful to run the example Express application included in the `app` folder as a way to quickly preview all routes or see changes you are making to custom template.
+
+After an initial run of `transit-arrivals-widget`, the GTFS data will be downloaded and loaded into SQLite.
+
+You can view an individual route HTML on demand by running the included Express app:
+
+    node app
+
+By default, `transit-arrivals-widget` will look for a `config.json` file in the project root. To specify a different path for the configuration file:
+
+    node app --configPath /path/to/your/custom-config.json
+
+Once running, you can view the HTML in your browser at [localhost:3000](http://localhost:3000)
+
+## Notes
+
+`transit-arrivals-widget` uses the [`node-gtfs`](https://github.com/blinktaginc/node-gtfs) library to handle importing and querying GTFS data.
+
+## Contributing
+
+Pull requests are welcome, as is feedback and [reporting issues](https://github.com/blinktaginc/transit-arrivals-widget/issues).
