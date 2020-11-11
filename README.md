@@ -12,9 +12,9 @@ Transit Arrivals Widget generates a user-friendly transit realtime arrival widge
 
 Users can lookup arrivals by choosing a route, direction and stop or by entering stop id directly.  If a stop id is entered, arrivals for all routes serving that stop are shown.
 
+An demo of the widget is available at https://transit-arrivals-widget.blinktag.com/. Note that this demo will only return arrivals during hours where vehicles for the demo agency is operating, roughly 7 AM to 10 PM Pacific time.
+
 Arrival information is refreshed every 20 seconds by default, but can be set with the `refreshIntervalSeconds` config parameter.
-
-
 
 ## Configuration
 
