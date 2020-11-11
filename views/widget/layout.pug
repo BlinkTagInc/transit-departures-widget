@@ -20,13 +20,4 @@ html
     script(src="https://unpkg.com/accessible-autocomplete@2.0.3/dist/accessible-autocomplete.min.js" integrity="sha384-lA2U/4JpLCszKZ0EJQwuGmVQHQqQbaBxnWcSgfeVNA9wZrMwjwCxVKYlMnT7u/DD" crossorigin="anonymous")
     script(src=`${config.assetPath}js/transit-arrivals-widget.js`)
 
-    script.
-      (function() {
-        const routes = !{JSON.stringify(routes)};
-        const stops = !{JSON.stringify(stops)};
-        const gtfsRtTripupdatesUrl = '#{config.agency.gtfs_rt_tripupdates_url}';
-        const refreshIntervalSeconds = #{config.refreshIntervalSeconds || 20};
-        setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refreshIntervalSeconds);
-      })()
-
     

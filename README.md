@@ -52,9 +52,10 @@ Copy `config-sample.json` to `config.json` and then add your projects configurat
 | option | type | description |
 | ------ | ---- | ----------- |
 | [`agency`](#agency) | array | Information about the GTFS and GTFS-RT to be used. |
+| [`noHead`](#nohead) | boolean | Whether or not to skip the header and footer of the HTML document. |
 | [`refreshIntervalSeconds`](#refreshIntervalSeconds) | integer | How often the widget should refresh arrival data in seconds. Optional, defaults to 20 seconds. |
-| [`skipImport`](#skipImport) | boolean | Whether or not to skip importing GTFS data into SQLite. |
-| [`sqlitePath`](#sqlitePath) | string | A path to an SQLite database. Optional, defaults to using an in-memory database. |
+| [`skipImport`](#skipimport) | boolean | Whether or not to skip importing GTFS data into SQLite. |
+| [`sqlitePath`](#sqlitepath) | string | A path to an SQLite database. Optional, defaults to using an in-memory database. |
 
 ### agency
 
@@ -98,6 +99,14 @@ Copy `config-sample.json` to `config.json` and then add your projects configurat
     "gtfs_rt_tripupdates_url": "https://marintransit.net/gtfs-rt/tripupdates"
   }
 }
+```
+
+### noHead
+
+{Boolean} Whether or not to skip the HTML head and footer when generating the HTML for the widget. This is useful for creating embeddable HTML without `<html>`, `<head>` or `<body>` tags. Defaults to `false`.
+
+```
+    "noHead": false
 ```
 
 ### refreshIntervalSeconds
