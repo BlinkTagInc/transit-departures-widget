@@ -117,7 +117,7 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
           .appendTo(routeNameDiv);
       }
 
-      $('<div>').text(`To ${direction.direction}`).addClass('arrival-result-route-direction').appendTo(routeNameDiv);
+      $('<div>').text(direction.direction).addClass('arrival-result-route-direction').appendTo(routeNameDiv);
 
       const sortedArrivals = _.take(_.sortBy(arrivalGroup, arrival => arrival.stoptime.departure.time), 3);
 
