@@ -4,13 +4,21 @@
       h2 Realtime Arrivals
       .form-group
         .btn-group.btn-group-toggle(data-toggle="buttons")  
-          label.btn.btn-primary.active
-            input(type="radio" name="arrival_type" value="route" checked)
-            span By Route
-          label.btn.btn-primary(title="Stop IDs are displayed on all bus stop signs")
-            input(type="radio" name="arrival_type" value="stop_id")
+          label.btn.btn-primary.active(title="Stop IDs are displayed on all bus stop signs")
+            input(type="radio" name="arrival_type" value="stop_id" checked)
             span By Stop ID
-      form#route_form
+          label.btn.btn-primary
+            input(type="radio" name="arrival_type" value="route")
+            span By Route
+
+      form#stop_id_form
+        .form-group.text
+          #arrival_stop_code_container
+
+        .form-group
+          button.btn.btn-primary.btn-block(type="submit") Get Arrivals
+
+      form#route_form.hidden-form
         .form-group.select
           select.form-control#arrival_route(name="route")
             option(value="") Choose a route
@@ -24,13 +32,6 @@
         .form-group.select
           select.form-control#arrival_stop(name="stop" disabled)
             option(value="") Choose a stop
-
-      form#stop_id_form.hidden-form
-        .form-group.text
-          #arrival_stop_code_container
-
-        .form-group
-          button.btn.btn-primary.btn-block(type="submit") Get Arrivals
 
       #loading.loader Loading...
 

@@ -386,7 +386,7 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
       },
       minLength: 2,
       autoselect: true,
-      placeholder: 'Enter a stop ID',
+      placeholder: 'Search by stop name or id',
       showNoOptionsFound: false,
       templates: {
         inputValue: result => result && result.stop_code,
