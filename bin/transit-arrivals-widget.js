@@ -15,12 +15,6 @@ const argv = require('yargs').usage('Usage: $0 --config ./config.json')
     type: 'boolean'
   })
   .default('skipImport', undefined)
-  .option('t', {
-    alias: 'showOnlyTimepoint',
-    describe: 'Show only stops with a `timepoint` value in `stops.txt`',
-    type: 'boolean'
-  })
-  .default('showOnlyTimepoint', undefined)
   .argv;
 
 const fileUtils = require('../lib/file-utils');
