@@ -1,4 +1,4 @@
-/* global window, $, _, Pbf, FeedMessage, alert, fetch, accessibleAutocomplete,  */
+/* global window, $, jQuery, _, Pbf, FeedMessage, alert, fetch, accessibleAutocomplete,  */
 /* eslint no-var: "off", no-unused-vars: "off", no-alert: "off" */
 
 function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refreshIntervalSeconds) {
@@ -16,7 +16,7 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
   }
 
   async function fetchTripUpdates() {
-    const url = `${gtfsRtTripupdatesUrl}?cacheBust=${new Date().getTime()}`;
+    const url = `${gtfsRtTripupdatesUrl}?cacheBust=${Date.now()}`;
     const response = await fetch(url);
     if (response.ok) {
       const bufferResponse = await response.arrayBuffer();
@@ -52,7 +52,7 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
     return `${hours}:${minutes} ${suffix}`;
   }
 
-  jQuery(function($) {
+  jQuery($ => {
     // Read URL parameters on load
     readUrlWithParameters();
 
@@ -68,7 +68,7 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
         }, 100);
       }
     }
-  
+
     function resetResults() {
       if (arrivalsTimeout) {
         clearTimeout(arrivalsTimeout);
