@@ -10,6 +10,22 @@
 
 Transit Arrivals Widget generates a user-friendly transit realtime arrival widget in HTML format directly from [GTFS and GTFS-RT transit data](http://gtfs.org/). Most transit agencies have schedule data in GTFS format and many publish realtime arrivals using GTFS-RT. This project generates HTML, JS and CSS for use on a transit agency website to allow users to see when the next vehicle is arriving at a specific stop.
 
+<figure class="image">
+  <img width="593" alt="transit-arrivals-widget1" src="https://user-images.githubusercontent.com/96217/115478598-5fbcbd00-a1fb-11eb-833c-4005bfa442d8.png">
+  <figcaption>Lookup by route, direction and stop</figcaption>
+</figure>
+
+<figure class="image">
+  <img width="618" alt="transit-arrivals-widget2" src="https://user-images.githubusercontent.com/96217/115478607-63504400-a1fb-11eb-9ca6-548d1f27230f.png">
+  <figcaption>Lookup by stop name</figcaption>
+</figure>
+
+
+<figure class="image">
+  <img width="597" alt="transit-arrivals-widget3" src="https://user-images.githubusercontent.com/96217/115478620-677c6180-a1fb-11eb-9349-431cc82cfe3f.png">
+  <figcaption>Lookup by stop id</figcaption>
+</figure>
+
 Users can lookup arrivals by choosing a route, direction and stop or by entering stop id directly.  If a stop id is entered, arrivals for all routes serving that stop are shown.
 
 Features:
