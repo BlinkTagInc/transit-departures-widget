@@ -10,6 +10,11 @@
   ],
   "private": false,
   "author": "Brendan Nee <brendan@blinktag.com>",
+  "homepage": "https://github.com/BlinkTagInc/transit-arrivals-widget",
+  "bugs": {
+    "url": "https://github.com/BlinkTagInc/transit-arrivals-widget"
+  },
+  "repository": "git://github.com/BlinkTagInc/transit-arrivals-widget",
   "contributors": [],
   "license": "MIT",
   "scripts": {
