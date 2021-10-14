@@ -1,0 +1,50 @@
+.card.mx-auto.my-5
+  .card-body
+    h2 Przyjazdy w czasie rzeczywistym
+    .form-group
+      .btn-group.btn-group-toggle(data-toggle="buttons")  
+        label.btn.btn-primary.active
+          input(type="radio" name="arrival_type" value="stop_id" checked)
+          span Wg przystanku
+        label.btn.btn-primary
+          input(type="radio" name="arrival_type" value="route")
+          span Wg linii
+
+    form#stop_id_form
+      .form-group.text
+        #arrival_stop_code_container
+
+      .stop-code-invalid Invalid stop ID
+      .form-group
+        button.btn.btn-primary.btn-block(type="submit") Uzyskaj przyjazdy
+
+    form#route_form.hidden-form
+      .form-group.select
+        select.form-control#arrival_route(name="route")
+          option(value="") Wybierz linię
+          each route in routes
+            option(value=route.route_id)= route.route_full_name
+      
+      .form-group.select
+        select.form-control#arrival_direction(name="direction" disabled)
+          option(value="") Wybierz kierunek
+      
+      .form-group.select
+        select.form-control#arrival_stop(name="stop" disabled)
+          option(value="") Wybierz przystanek
+
+    #loading.loader Ładowanie...
+
+    #arrival_results.arrival-results
+      .arrival-results-header
+        .arrival-results-stop
+        .arrival-results-stop-unknown Unknown Stop
+        .arrival-results-fetchtime
+          | As of&nbsp;
+          span.arrival-results-fetchtime-time
+      .arrival-results-stop-code-container
+        | Stop ID&nbsp;
+        span.arrival-results-stop-code
+      .arrival-results-container
+      .arrival-results-none No upcoming arrivals
+      .arrival-results-error Unable to fetch arrivals.

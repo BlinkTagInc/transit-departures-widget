@@ -1,47 +1,9 @@
 #real_time_arrivals.container.transit-arrivals-widget
-  .card.mx-auto.my-5
-    .card-body
-      h2 Realtime Arrivals
-      .form-group
-        .btn-group.btn-group-toggle(data-toggle="buttons")  
-          label.btn.btn-primary.active(title="Stop IDs are displayed on all bus stop signs")
-            input(type="radio" name="arrival_type" value="stop_id" checked)
-            span By Stop ID
-          label.btn.btn-primary
-            input(type="radio" name="arrival_type" value="route")
-            span By Route
+  if config.languageCode === 'pl'
+    include content/content_pl.pug
+  else
+    include content/content_en.pug
 
-      form#stop_id_form
-        .form-group.text
-          #arrival_stop_code_container
-
-        .form-group
-          button.btn.btn-primary.btn-block(type="submit") Get Arrivals
-
-      form#route_form.hidden-form
-        .form-group.select
-          select.form-control#arrival_route(name="route")
-            option(value="") Choose a route
-            each route in routes
-              option(value=route.route_id)= route.route_full_name
-        
-        .form-group.select
-          select.form-control#arrival_direction(name="direction" disabled)
-            option(value="") Choose a direction
-        
-        .form-group.select
-          select.form-control#arrival_stop(name="stop" disabled)
-            option(value="") Choose a stop
-
-      #loading.loader Loading...
-
-      #arrival_results.arrival-results
-        .arrival-results-header
-          .arrival-results-stop
-          .arrival-results-fetchtime
-        .arrival-results-stop-code
-        .arrival-results-container
-  
 script.
   (function() {
     const routes = !{JSON.stringify(routes)};

@@ -86,15 +86,22 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
     }
 
     function renderStopInfo(stop) {
-      $('#arrival_results .arrival-results-stop').text(stop ? stop.stop_name : 'Unknown Stop');
-
-      if (stop && stop.stop_code) {
-        $('#arrival_results .arrival-results-stop-code').text(`Stop ID ${stop.stop_code}`).show();
+      if (stop) {
+        $('#arrival_results .arrival-results-stop-unknown').hide();
+        $('#arrival_results .arrival-results-stop').text(stop.stop_name).show();
       } else {
-        $('#arrival_results .arrival-results-stop-code').text('').hide();
+        $('#arrival_results .arrival-results-stop').hide();
+        $('#arrival_results .arrival-results-stop-unknown').show();
       }
 
-      $('#arrival_results .arrival-results-fetchtime').text(`As of ${timeStamp()}`);
+      if (stop && stop.stop_code) {
+        $('#arrival_results .arrival-results-stop-code').text(stop.stop_code);
+        $('#arrival_results .arrival-results-stop-code-container').show();
+      } else {
+        $('#arrival_results .arrival-results-stop-code-container').hide();
+      }
+
+      $('#arrival_results .arrival-results-fetchtime-time').text(timeStamp());
     }
 
     function formatArrivalGroup(arrivalGroup) {
@@ -139,14 +146,17 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
       renderStopInfo(stop);
 
       if (arrivals.length === 0) {
-        $('#arrival_results .arrival-results-container').html($('<div>').addClass('arrival-results-none').text('No upcoming arrivals'));
+        $('#arrival_results .arrival-results-container').hide();
+        $('#arrival_results .arrival-results-error').hide();
+        $('#arrival_results .arrival-results-none').show();
       } else {
         const arrivalGroups = _.groupBy(arrivals, arrival => `${arrival.route.route_id}||${arrival.direction.direction_id}`);
         const sortedArrivalGroups = _.sortBy(arrivalGroups, arrivalGroup => {
           const { route } = arrivalGroup[0];
           return Number.parseInt(route.route_short_name, 10);
         });
-
+        $('#arrival_results .arrival-results-none').hide();
+        $('#arrival_results .arrival-results-error').hide();
         $('#arrival_results .arrival-results-container').html(sortedArrivalGroups.map(arrivalGroup => formatArrivalGroup(arrivalGroup)));
       }
 
@@ -156,19 +166,21 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
 
     function renderError(stop) {
       renderStopInfo(stop);
-      $('#arrival_results .arrival-results-container').html($('<div>').addClass('arrival-results-error').text('Unable to fetch arrivals.'));
+      $('#arrival_results .arrival-results-error').show();
 
       hideLoading();
       $('#arrival_results').show();
     }
 
     function selectStop({ stopId, stopCode, directionId, routeId }) {
+      $('.stop-code-invalid').hide();
       const stop = stops.find(stop => stop.stop_id === stopId || stop.stop_code === stopCode);
       const route = routes.find(route => route.route_id === routeId);
       const direction = route ? route.directions.find(direction => direction.direction_id.toString() === directionId) : undefined;
 
       if (!stop) {
-        return alert('Invalid stop ID');
+        $('.stop-code-invalid').show();
+        return;
       }
 
       resetResults();
@@ -359,11 +371,13 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
 
     $('#stop_id_form').submit(event => {
       event.preventDefault();
+      $('.stop-code-invalid').hide();
 
       const stopCode = $('#arrival_stop_code').val();
 
       if (stopCode === '') {
-        return alert('Please enter a stop ID');
+        $('.stop-code-invalid').show();
+        return;
       }
 
       selectStop({

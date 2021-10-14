@@ -15,7 +15,9 @@
     "url": "https://github.com/BlinkTagInc/transit-arrivals-widget"
   },
   "repository": "git://github.com/BlinkTagInc/transit-arrivals-widget",
-  "contributors": [],
+  "contributors": [
+    "Wojciech Kulesza <wojciech.kulesza@goeuropa.eu>"
+  ],
   "license": "MIT",
   "scripts": {
     "start": "node ./app",

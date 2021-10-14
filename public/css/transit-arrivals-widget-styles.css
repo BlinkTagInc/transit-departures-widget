@@ -16,20 +16,29 @@ body {
   display: none;
 }
 
+.transit-arrivals-widget .stop-code-invalid {
+  display: none;
+  color: #821515;
+  padding-bottom: 10px;
+}
+
 .transit-arrivals-widget .arrival-results {
   display: none;
 }
 
 .transit-arrivals-widget .arrival-results-none {
+  display: none;
   margin-top: 10px;
 }
 
 .transit-arrivals-widget .arrival-results-error {
+  display: none;
   margin-top: 10px;
   color: #821515;
 }
 
-.transit-arrivals-widget .arrival-results-stop {
+.transit-arrivals-widget .arrival-results-stop,
+.transit-arrivals-widget .arrival-results-stop-unknown {
   font-size: 28px;
   line-height: 1;
 }
