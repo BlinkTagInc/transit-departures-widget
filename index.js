@@ -1,1 +1,1 @@
-module.exports = require('./lib/transit-arrivals-widget');
+export { default } from './lib/transit-arrivals-widget.js';

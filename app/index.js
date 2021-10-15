@@ -1,63 +1,63 @@
-const path = require('path');
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
+import yargs from 'yargs';
+import { openDb } from 'gtfs';
 
-const express = require('express');
-const logger = require('morgan');
+import express from 'express';
+import logger from 'morgan';
 
-const routes = require('./routes');
+import { setDefaultConfig, generateTransitArrivalsWidgetHtml } from '../lib/utils.js';
+
+const { argv } = yargs(process.argv)
+  .option('c', {
+    alias: 'configPath',
+    describe: 'Path to config file',
+    default: './config.json',
+    type: 'string'
+  });
 
 const app = express();
+const router = new express.Router();
 
-// View engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
+const configPath = argv.configPath || new URL('../config.json', import.meta.url);
+const selectedConfig = JSON.parse(readFileSync(configPath));
 
-app.use(logger('dev'));
-app.use(express.static(path.join(__dirname, '../public')));
+const config = setDefaultConfig(selectedConfig);
+// Override noHead config option so full HTML pages are generated
+config.noHead = false;
+config.assetPath = '/';
+config.log = console.log;
+config.logWarning = console.warn;
+config.logError = console.error;
 
-app.use('/', routes);
+openDb(config).catch(error => {
+  if (error instanceof Error && error.code === 'SQLITE_CANTOPEN') {
+    config.logError(`Unable to open sqlite database "${config.sqlitePath}" defined as \`sqlitePath\` config.json. Ensure the parent directory exists or remove \`sqlitePath\` from config.json.`);
+  }
 
-// Error handlers
+  throw error;
+});
 
-// 404 error handler
-app.use((request, response) => {
-  const error = {
-    message: 'Not Found',
-    status: 404
-  };
-  response.status(404);
-  if (request.xhr) {
-    response.send({
-      message: error.message,
-      error
-    });
-  } else {
-    response.render('error', {
-      message: error.message,
-      error
-    });
+/*
+ * Show the transit arrivals widget
+ */
+router.get('/', async (request, response, next) => {
+  try {
+    const html = await generateTransitArrivalsWidgetHtml(config);
+    response.send(html);
+  } catch (error) {
+    next(error);
   }
 });
 
-// Development error handler: will print stacktrace
-if (process.env.NODE_ENV === 'development') {
-  app.use((error, request, response) => {
-    response.status(error.status || 500);
-    response.render('error', {
-      message: error.message,
-      error
-    });
-  });
-}
+app.set('views', path.join(fileURLToPath(import.meta.url), '../../views'));
+app.set('view engine', 'pug');
 
-// Production error handler: no stacktraces leaked to user
-app.use((error, request, response) => {
-  response.status(error.status || 500);
-  response.render('error', {
-    message: error.message,
-    error: {}
-  });
-});
+app.use(logger('dev'));
+app.use(express.static(path.join(fileURLToPath(import.meta.url), '../../public')));
 
+app.use('/', router);
 app.set('port', process.env.PORT || 3000);
 
 const server = app.listen(app.get('port'), () => {

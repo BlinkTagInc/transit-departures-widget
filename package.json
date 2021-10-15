@@ -26,14 +26,15 @@
   "bin": {
     "transit-arrivals-widget": "bin/transit-arrivals-widget.js"
   },
-  "main": "index",
+  "type": "module",
+  "main": "index.js",
   "dependencies": {
     "chalk": "^4.1.2",
+    "copy-dir": "^1.3.0",
     "express": "^4.17.1",
-    "fs-extra": "^10.0.0",
     "gtfs": "^3.1.2",
     "js-beautify": "^1.14.0",
-    "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
     "morgan": "^1.10.0",
     "pretty-error": "^3.0.4",
     "pug": "^3.0.2",
