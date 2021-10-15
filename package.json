@@ -1,7 +1,7 @@
 {
   "name": "transit-arrivals-widget",
   "description": "Build a realtime transit arrival tool from GTFS and GTFS-RT.",
-  "version": "0.1.4",
+  "version": "1.0.0",
   "keywords": [
     "transit",
     "gtfs",
