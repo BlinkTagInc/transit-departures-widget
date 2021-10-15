@@ -1,7 +1,7 @@
 /* global window, $, jQuery, _, Pbf, FeedMessage, alert, fetch, accessibleAutocomplete,  */
 /* eslint no-var: "off", no-unused-vars: "off", no-alert: "off" */
 
-function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refreshIntervalSeconds) {
+function setupTransitArrivalsWidget(routes, stops, config) {
   let arrivalsResponse;
   let arrivalsTimeout;
   let initialStopCode;
@@ -16,7 +16,7 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
   }
 
   async function fetchTripUpdates() {
-    const url = `${gtfsRtTripupdatesUrl}?cacheBust=${Date.now()}`;
+    const url = `${config.gtfsRtTripupdatesUrl}?cacheBust=${Date.now()}`;
     const response = await fetch(url);
     if (response.ok) {
       const bufferResponse = await response.arrayBuffer();
@@ -41,13 +41,18 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
     const now = new Date();
     let hours = now.getHours();
     let minutes = now.getMinutes();
-    const suffix = (hours < 12) ? 'AM' : 'PM';
-    hours = hours < 12 ? hours : hours - 12;
-    hours = hours || 12;
 
     if (minutes < 10) {
       minutes = '0' + minutes;
     }
+
+    if (config.timeFormat === '24hour') {
+      return `${hours}:${minutes}`;
+    }
+
+    const suffix = (hours < 12) ? 'AM' : 'PM';
+    hours = hours < 12 ? hours : hours - 12;
+    hours = hours || 12;
 
     return `${hours}:${minutes} ${suffix}`;
   }
@@ -189,7 +194,7 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
       updateArrivals({ stop, direction, route });
 
       // Every refresh interval seconds, check for tripupdates
-      arrivalsTimeout = setInterval(() => updateArrivals({ stop, direction, route }), refreshIntervalSeconds * 1000);
+      arrivalsTimeout = setInterval(() => updateArrivals({ stop, direction, route }), config.refreshIntervalSeconds * 1000);
     }
 
     function getRouteAndDirectionFromTrip(tripId) {
@@ -218,7 +223,7 @@ function setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refresh
     async function updateArrivals({ stop, direction, route }) {
       try {
         // Use existing data if less than the refresh interval seconds old
-        if (!arrivalsResponse || arrivalsResponse.timestamp < Date.now() - (refreshIntervalSeconds * 1000)) {
+        if (!arrivalsResponse || arrivalsResponse.timestamp < Date.now() - (config.refreshIntervalSeconds * 1000)) {
           const arrivals = await fetchTripUpdates();
 
           // Don't use new arrival info if nothing is returned.

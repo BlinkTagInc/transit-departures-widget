@@ -6,7 +6,8 @@
   },
   "beautify": true,
   "languageCode": "en",
-  "refreshIntervalSeconds": 20,
   "noHead": false,
-  "templatePath": "views/widget"
+  "refreshIntervalSeconds": 20,
+  "templatePath": "views/widget",
+  "timeFormat": "12hour"
 }

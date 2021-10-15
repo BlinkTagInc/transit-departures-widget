@@ -89,6 +89,7 @@ Copy `config-sample.json` to `config.json` and then add your projects configurat
 | [`skipImport`](#skipimport) | boolean | Whether or not to skip importing GTFS data into SQLite. |
 | [`sqlitePath`](#sqlitepath) | string | A path to an SQLite database. Optional, defaults to using an in-memory database. |
 | [`templatePath`](#templatepath) | string | Path to custom pug template for rendering widget. |
+| [`timeFormat`](#timeFormat) | string | The format (12hour or 24hour) for the "as of" display. |
 
 ### agency
 
@@ -188,6 +189,14 @@ Copy `config-sample.json` to `config.json` and then add your projects configurat
 
 ```
     "templatePath": "views/custom/my-agency/"
+```
+
+### timeFormat
+
+{String} The format (`12hour` or `24hour`) for the "as of" display. Defaults to `12hour`.
+
+```
+    "timeFormat": "12hour"
 ```
 
 ## Previewing HTML output

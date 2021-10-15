@@ -8,7 +8,10 @@ script.
   (function() {
     const routes = !{JSON.stringify(routes)};
     const stops = !{JSON.stringify(stops)};
-    const gtfsRtTripupdatesUrl = '#{config.agency.gtfs_rt_tripupdates_url}';
-    const refreshIntervalSeconds = #{config.refreshIntervalSeconds};
-    setupTransitArrivalsWidget(routes, stops, gtfsRtTripupdatesUrl, refreshIntervalSeconds);
+    const config = {
+      gtfsRtTripupdatesUrl: '#{config.agency.gtfs_rt_tripupdates_url}',
+      refreshIntervalSeconds: #{config.refreshIntervalSeconds},
+      timeFormat: '#{config.timeFormat}'
+    }
+    setupTransitArrivalsWidget(routes, stops, config);
   })()
