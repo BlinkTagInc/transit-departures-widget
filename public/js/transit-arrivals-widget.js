@@ -146,15 +146,20 @@ function setupTransitArrivalsWidget(routes, stops, config) {
       );
 
       for (const arrival of sortedArrivals) {
+        const minutes = formatMinutes(
+          arrival.stoptime.departure.time - Date.now() / 1000
+        );
+        const minutesLabel = $(
+          '#arrival_results .arrival-results-container'
+        ).data('minutes-label');
+
         $('<div>')
           .addClass('arrival-result-time-container')
           .append(
             $('<div>')
               .addClass('arrival-result-time')
               .html(
-                formatMinutes(
-                  arrival.stoptime.departure.time - Date.now() / 1000
-                ) + '<span class="arrival-result-time-label">min</span>'
+                `${minutes}<span class="arrival-result-time-label">${minutesLabel}</span>`
               )
           )
           .appendTo(arrivalTimesDiv);
@@ -460,7 +465,7 @@ function setupTransitArrivalsWidget(routes, stops, config) {
       },
       minLength: 2,
       autoselect: true,
-      placeholder: 'Search by stop name or id',
+      placeholder: $('#arrival_stop_code_container').data('placeholder'),
       showNoOptionsFound: false,
       templates: {
         inputValue: (result) => result && result.stop_code,
@@ -473,7 +478,9 @@ function setupTransitArrivalsWidget(routes, stops, config) {
             return result;
           }
 
-          const stopCode = result.is_parent_station ? 'all' : result.stop_code;
+          const stopCode = result.is_parent_station
+            ? $('#arrival_stop_code_container').data('stop-code-all')
+            : result.stop_code;
 
           return `<strong>${result.stop_name}</strong> (${stopCode})`;
         },
