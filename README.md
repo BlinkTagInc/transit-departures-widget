@@ -1,4 +1,3 @@
-
 # Transit Arrivals Widget
 
 [![NPM version](https://img.shields.io/npm/v/transit-arrivals-widget.svg?style=flat)](https://www.npmjs.com/package/transit-arrivals-widget)
@@ -19,36 +18,37 @@ Transit Arrivals Widget generates a user-friendly transit realtime arrival widge
 <img width="597" alt="transit-arrivals-widget3" src="https://user-images.githubusercontent.com/96217/115478620-677c6180-a1fb-11eb-9349-431cc82cfe3f.png">
 <p>Lookup by stop id</p>
 
-Users can lookup arrivals by choosing a route, direction and stop or by entering stop id directly.  If a stop id is entered, arrivals for all routes serving that stop are shown.
+Users can lookup arrivals by choosing a route, direction and stop or by entering stop id directly. If a stop id is entered, arrivals for all routes serving that stop are shown.
 
 Features:
 
-* Auto-refreshes arrivals every 20 seconds. (configurable with the `refreshIntervalSeconds` parameter)
+- Auto-refreshes arrivals every 20 seconds. (configurable with the `refreshIntervalSeconds` parameter)
 
-* Caches arrivals so looking up additional stops is instantaneous.
+- Caches arrivals so looking up additional stops is instantaneous.
 
-* Typeahead autocomplete of stop names makes it easy to look up stops by name.
+- Typeahead autocomplete of stop names makes it easy to look up stops by name.
 
-* Appends stop_id to URL to support linking to arrivals for a specific stop or bookmarking the page.
+- Appends stop_id to URL to support linking to arrivals for a specific stop or bookmarking the page.
 
-* Uses `route_color` and `route_text_color` for a stop circle in results.
+- Uses `route_color` and `route_text_color` for a stop circle in results.
 
-* Fetches GTFS-RT data directly - no server-side code is needed.
+- Fetches GTFS-RT data directly - no server-side code is needed.
 
-* Supports creation of custom HTML templates for complete control over how the widget is rendered.
+- Supports creation of custom HTML templates for complete control over how the widget is rendered.
 
 ## Demo
 
 An demo of the widget is available at https://transit-arrivals-widget.blinktag.com/. Note that this demo will only return arrivals during hours where vehicles for the demo agency is operating, roughly 7 AM to 10 PM Pacific time.
 
 ## Current Usage
+
 The following transit agencies use `transit-arrivals-widget` as the arrivals tool on their websites:
 
-* [Marin Transit](https://marintransit.org/)
+- [Marin Transit](https://marintransit.org/)
 
 ## Command Line Usage
 
-The `transit-arrivals-widget` command-line utility will download the GTFS file specified in `config.js` and then build the transit arrivals widget and save the  HTML, CSS and JS in `html/:agency_key`.
+The `transit-arrivals-widget` command-line utility will download the GTFS file specified in `config.js` and then build the transit arrivals widget and save the HTML, CSS and JS in `html/:agency_key`.
 
 If you would like to use this library as a command-line utility, you can install it globally directly from [npm](https://npmjs.org):
 
@@ -72,24 +72,23 @@ Skips importing GTFS into SQLite. Useful if you are rerunning with an unchanged 
 
     transit-arrivals-widget --skipImport
 
-
 ## Configuration
 
 Copy `config-sample.json` to `config.json` and then add your projects configuration to `config.json`.
 
     cp config-sample.json config.json
 
-| option | type | description |
-| ------ | ---- | ----------- |
-| [`agency`](#agency) | object | Information about the GTFS and GTFS-RT to be used. |
-| [`beautify`](#beautify) | boolean | Whether or not to beautify the HTML output. |
-| [`languageCode`](#languageCode) | string | The 2-letter code of the language to use for the interface. |
-| [`noHead`](#nohead) | boolean | Whether or not to skip the header and footer of the HTML document. |
+| option                                              | type    | description                                                                                    |
+| --------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------------- |
+| [`agency`](#agency)                                 | object  | Information about the GTFS and GTFS-RT to be used.                                             |
+| [`beautify`](#beautify)                             | boolean | Whether or not to beautify the HTML output.                                                    |
+| [`languageCode`](#languageCode)                     | string  | The 2-letter code of the language to use for the interface.                                    |
+| [`noHead`](#nohead)                                 | boolean | Whether or not to skip the header and footer of the HTML document.                             |
 | [`refreshIntervalSeconds`](#refreshIntervalSeconds) | integer | How often the widget should refresh arrival data in seconds. Optional, defaults to 20 seconds. |
-| [`skipImport`](#skipimport) | boolean | Whether or not to skip importing GTFS data into SQLite. |
-| [`sqlitePath`](#sqlitepath) | string | A path to an SQLite database. Optional, defaults to using an in-memory database. |
-| [`templatePath`](#templatepath) | string | Path to custom pug template for rendering widget. |
-| [`timeFormat`](#timeFormat) | string | The format (12hour or 24hour) for the "as of" display. |
+| [`skipImport`](#skipimport)                         | boolean | Whether or not to skip importing GTFS data into SQLite.                                        |
+| [`sqlitePath`](#sqlitepath)                         | string  | A path to an SQLite database. Optional, defaults to using an in-memory database.               |
+| [`templatePath`](#templatepath)                     | string  | Path to custom pug template for rendering widget.                                              |
+| [`timeFormat`](#timeFormat)                         | string  | The format (12hour or 24hour) for the "as of" display.                                         |
 
 ### agency
 
@@ -103,7 +102,8 @@ Copy `config-sample.json` to `config.json` and then add your projects configurat
 
 `gtfs_rt_tripupdates_url` is the URL of an agency's GTFS-RT trip updates. Note that the GTFS-RT URL must support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) in order for the widget to work.
 
-* Specify a download URL for static GTFS:
+- Specify a download URL for static GTFS:
+
 ```
 {
   "agency": {
@@ -114,7 +114,8 @@ Copy `config-sample.json` to `config.json` and then add your projects configurat
 }
 ```
 
-* Specify a path to a zipped GTFS file:
+- Specify a path to a zipped GTFS file:
+
 ```
 {
   "agency": {
@@ -124,7 +125,9 @@ Copy `config-sample.json` to `config.json` and then add your projects configurat
   }
 }
 ```
-* Specify a path to an unzipped GTFS file:
+
+- Specify a path to an unzipped GTFS file:
+
 ```
 {
   "agency": {

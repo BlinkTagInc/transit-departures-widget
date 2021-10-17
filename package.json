@@ -20,8 +20,9 @@
   ],
   "license": "MIT",
   "scripts": {
-    "start": "node ./app",
-    "test": "xo"
+    "lint": "eslint \"./**/*.js\"",
+    "lint-fix": "eslint \"./**/*.js\" --fix",
+    "test": "eslint \"./**/*.js\""
   },
   "bin": {
     "transit-arrivals-widget": "bin/transit-arrivals-widget.js"
@@ -45,7 +46,12 @@
     "yargs": "^17.2.1"
   },
   "devDependencies": {
-    "xo": "^0.45.0"
+    "eslint": "^8.0.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-xo": "^0.39.0",
+    "husky": "^7.0.2",
+    "prettier": "^2.4.1",
+    "pretty-quick": "^3.1.1"
   },
   "engines": {
     "node": ">= 14.15.4"
@@ -75,5 +81,11 @@
         "filename": "CHANGELOG.md"
       }
     }
-  }
+  },
+  "prettier": {
+    "singleQuote": true
+  },
+  "eslintIgnore": [
+    "node_modules/*"
+  ]
 }

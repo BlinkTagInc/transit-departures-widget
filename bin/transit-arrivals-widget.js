@@ -13,16 +13,16 @@ const { argv } = yargs(hideBin(process.argv))
     alias: 'configPath',
     describe: 'Path to config file',
     default: './config.json',
-    type: 'string'
+    type: 'string',
   })
   .option('s', {
     alias: 'skipImport',
     describe: 'Don’t import GTFS file.',
-    type: 'boolean'
+    type: 'boolean',
   })
   .default('skipImport', undefined);
 
-const handleError = error => {
+const handleError = (error) => {
   const text = error || 'Unknown Error';
   process.stdout.write(`\n${formatError(text)}\n`);
   console.error(error);
@@ -35,5 +35,4 @@ const setupImport = async () => {
   process.exit();
 };
 
-setupImport()
-  .catch(handleError);
+setupImport().catch(handleError);
