@@ -22,7 +22,8 @@
   "scripts": {
     "lint": "eslint \"./**/*.js\"",
     "lint-fix": "eslint \"./**/*.js\" --fix",
-    "test": "eslint \"./**/*.js\""
+    "test": "eslint \"./**/*.js\"",
+    "start": "node app"
   },
   "bin": {
     "transit-arrivals-widget": "bin/transit-arrivals-widget.js"
