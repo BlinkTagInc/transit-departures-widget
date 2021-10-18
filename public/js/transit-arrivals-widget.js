@@ -123,8 +123,10 @@ function setupTransitArrivalsWidget(routes, stops, config) {
         .appendTo(div);
 
       if (route.route_short_name) {
-        const routeColor = `#${route.route_color}` || '#ccc';
-        const routeTextColor = `#${route.route_text_color}` || '#000';
+        const routeColor = route.route_color ? `#${route.route_color}` : '#ccc';
+        const routeTextColor = route.route_text_color
+          ? `#${route.route_text_color}`
+          : '#000';
         $('<div>')
           .text(route.route_short_name)
           .addClass('arrival-result-route-circle')
