@@ -1,0 +1,19 @@
+{
+  "Realtime Arrivals": "Przyjazdy w czasie rzeczywistym",
+  "By Stop ID": "Wg przystanku",
+  "By Route": "Wg linii",
+  "Search by stop name or id": "Wyszukaj po nazwie lub identyfikatorze",
+  "all": "wszystkie",
+  "Invalid stop ID": "Invalid stop ID",
+  "Get Arrivals": "Uzyskaj przyjazdy",
+  "Choose a route": "Wybierz linię",
+  "Choose a direction": "Wybierz kierunek",
+  "Choose a stop": "Wybierz przystanek",
+  "Loading": "Ładowanie",
+  "Unknown Stop": "Nieznany przystanek",
+  "As of": "Aktualizacja",
+  "Stop ID": "Przystanek",
+  "min": "min",
+  "No upcoming arrivals": "Brak nadchodzących przyjazdów",
+  "Unable to fetch arrivals": "Nie można było pobrać przyjazdów"
+}

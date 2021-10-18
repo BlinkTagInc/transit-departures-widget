@@ -10,8 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Changed
 
 - Move text out of JS into template
+- Add i18n and support for locale translation file
+
 ## Fixed
 
+- Fix for routes with no colors defined
 
 ## [1.0.1] - 2021-10-17
 

@@ -1,0 +1,19 @@
+{
+  "Realtime Arrivals": "Realtime Arrivals",
+  "By Stop ID": "By Stop ID",
+  "By Route": "By Route",
+  "Search by stop name or id": "Search by stop name or id",
+  "all": "all",
+  "Invalid stop ID": "Invalid stop ID",
+  "Get Arrivals": "Get Arrivals",
+  "Choose a route": "Choose a route",
+  "Choose a direction": "Choose a direction",
+  "Choose a stop": "Choose a stop",
+  "Loading": "Loading",
+  "Unknown Stop": "Unknown Stop",
+  "As of": "As of",
+  "Stop ID": "Stop ID",
+  "min": "min",
+  "No upcoming arrivals": "No upcoming arrivals",
+  "Unable to fetch arrivals": "Unable to fetch arrivals"
+}

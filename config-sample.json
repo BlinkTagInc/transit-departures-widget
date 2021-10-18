@@ -5,7 +5,7 @@
     "gtfs_rt_tripupdates_url": "https://marintransit.net/gtfs-rt/tripupdates"
   },
   "beautify": true,
-  "languageCode": "en",
+  "locale": "en",
   "noHead": false,
   "refreshIntervalSeconds": 20,
   "templatePath": "views/widget",
