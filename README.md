@@ -1,11 +1,22 @@
-# Transit Arrivals Widget
+<p align="center">
+  ➡️
+  <a href="#command-line-usage">Command Line Usage</a> |
+  <a href="#configuration">Configuration</a>
+  ⬅️
+  <br /><br />
+  <img src="docs/images/transit-arrivals-widget-logo.svg" alt="Transit Arrivals Widget" />
+  <br /><br />
+  <a href="https://www.npmjs.com/package/transit-arrivals-widget" rel="nofollow"><img src="https://img.shields.io/npm/v/transit-arrivals-widget.svg?style=flat" style="max-width: 100%;"></a>
+  <a href="https://www.npmjs.com/package/transit-arrivals-widget" rel="nofollow"><img src="https://img.shields.io/npm/dm/transit-arrivals-widget.svg?style=flat" style="max-width: 100%;"></a>
+  <a href="https://github.com/BlinkTagInc/transit-arrivals-widget/actions?query=workflow%3A%22Node+CI%22"><img src="https://img.shields.io/github/workflow/status/BlinkTagInc/transit-arrivals-widget/Node%20CI.svg" alt="CircleCI" style="max-width: 100%;"></a>
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg">
+  <br /><br />
+  Build a realtime transit arrival tool from GTFS and GTFS-RT.
+  <br /><br />
+  <a href="https://nodei.co/npm/transit-arrivals-widget/" rel="nofollow"><img src="https://nodei.co/npm/transit-arrivals-widget.png?downloads=true" alt="NPM" style="max-width: 100%;"></a>
+</p>
 
-[![NPM version](https://img.shields.io/npm/v/transit-arrivals-widget.svg?style=flat)](https://www.npmjs.com/package/transit-arrivals-widget)
-[![David](https://img.shields.io/david/blinktaginc/transit-arrivals-widget.svg)]()
-[![npm](https://img.shields.io/npm/dm/transit-arrivals-widget.svg?style=flat)]()
-[![XO code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/sindresorhus/xo)
-
-[![NPM](https://nodei.co/npm/transit-arrivals-widget.png?downloads=true)](https://nodei.co/npm/transit-arrivals-widget/)
+<hr>
 
 Transit Arrivals Widget generates a user-friendly transit realtime arrival widget in HTML format directly from [GTFS and GTFS-RT transit data](http://gtfs.org/). Most transit agencies have schedule data in GTFS format and many publish realtime arrivals using GTFS-RT. This project generates HTML, JS and CSS for use on a transit agency website to allow users to see when the next vehicle is arriving at a specific stop.
 
