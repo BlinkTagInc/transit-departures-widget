@@ -271,11 +271,13 @@ function setupTransitArrivalsWidget(routes, stops, config) {
           const arrivals = await fetchTripUpdates();
 
           // Don't use new arrival info if nothing is returned.
-          if (arrivals && arrivals.length > 0) {
+          if (arrivals && arrivals.length > 0 && arrivalsResponse) {
             arrivalsResponse = {
               arrivals,
               timestamp: Date.now(),
             };
+          } else {
+            console.log('error');
           }
         }
 
@@ -317,7 +319,10 @@ function setupTransitArrivalsWidget(routes, stops, config) {
             (stopTimeUpdate) => stopTimeUpdate.stop_id === stop.stop_id
           );
 
-          if (!filteredArrival.stoptime) {
+          if (
+            !filteredArrival.stoptime ||
+            !filteredArrival.stoptime.departure
+          ) {
             continue;
           }
 
