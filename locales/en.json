@@ -16,5 +16,5 @@
   "min": "min",
   "No upcoming arrivals": "No upcoming arrivals",
   "Unable to fetch arrivals": "Unable to fetch arrivals",
-  "To {{headsign}}": "To {{headsign}}"
+  "To {{{headsign}}}": "To {{{headsign}}}"
 }

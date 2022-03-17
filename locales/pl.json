@@ -16,5 +16,5 @@
   "min": "min",
   "No upcoming arrivals": "Brak nadchodzących przyjazdów",
   "Unable to fetch arrivals": "Nie można było pobrać przyjazdów",
-  "To {{headsign}}": "Do {{headsign}}"
+  "To {{{headsign}}}": "Do {{{headsign}}}"
 }
