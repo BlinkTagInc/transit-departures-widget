@@ -271,13 +271,13 @@ function setupTransitArrivalsWidget(routes, stops, config) {
           const arrivals = await fetchTripUpdates();
 
           // Don't use new arrival info if nothing is returned.
-          if (arrivals && arrivals.length > 0 && arrivalsResponse) {
+          if (arrivals && arrivals.length > 0) {
             arrivalsResponse = {
               arrivals,
               timestamp: Date.now(),
             };
           } else {
-            console.log('error');
+            console.error('No arrivals returned');
           }
         }
 
