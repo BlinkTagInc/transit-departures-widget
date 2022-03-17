@@ -260,84 +260,84 @@ function setupTransitArrivalsWidget(routes, stops, config) {
       };
     }
 
+    function filterArrivals(arrivals, { stop, direction, route }) {
+      const filteredArrivals = [];
+
+      for (const arrival of arrivals) {
+        let filteredArrival = {};
+
+        if (route) {
+          if (!arrival || !arrival.trip_update || !arrival.trip_update.trip) {
+            continue;
+          }
+
+          if (
+            !direction ||
+            !direction.trip_ids.includes(arrival.trip_update.trip.trip_id)
+          ) {
+            continue;
+          }
+
+          filteredArrival.route = route;
+          filteredArrival.direction = direction;
+        } else if (stop) {
+          if (
+            !arrival ||
+            !arrival.trip_update ||
+            !arrival.trip_update.stop_time_update
+          ) {
+            continue;
+          }
+
+          // Get route and direction from trip_id
+          filteredArrival = getRouteAndDirectionFromTrip(
+            arrival.trip_update.trip.trip_id
+          );
+        }
+
+        filteredArrival.stoptime = arrival.trip_update.stop_time_update.find(
+          (stopTimeUpdate) => stopTimeUpdate.stop_id === stop.stop_id
+        );
+
+        if (!filteredArrival.stoptime || !filteredArrival.stoptime.departure) {
+          continue;
+        }
+
+        // Hide arrivals more than 90 minutes in the future
+        if (
+          filteredArrival.stoptime.departure.time - Date.now() / 1000 >
+          90 * 60
+        ) {
+          continue;
+        }
+
+        filteredArrivals.push(filteredArrival);
+      }
+
+      return filteredArrivals;
+    }
+
     async function updateArrivals({ stop, direction, route }) {
       try {
         // Use existing data if less than the refresh interval seconds old
-        if (
-          !arrivalsResponse ||
-          arrivalsResponse.timestamp <
-            Date.now() - config.refreshIntervalSeconds * 1000
-        ) {
+        const minimumAge = Date.now() - config.refreshIntervalSeconds * 1000;
+        if (!arrivalsResponse || arrivalsResponse.timestamp < minimumAge) {
           const arrivals = await fetchTripUpdates();
 
           // Don't use new arrival info if nothing is returned.
-          if (arrivals && arrivals.length > 0) {
-            arrivalsResponse = {
-              arrivals,
-              timestamp: Date.now(),
-            };
-          } else {
+          if (!arrivals || arrivals.length === 0) {
             console.error('No arrivals returned');
+            return;
           }
+
+          arrivalsResponse = { arrivals, timestamp: Date.now() };
         }
 
-        const filteredArrivals = [];
+        renderResults(
+          stop,
+          filterArrivals(arrivalsResponse.arrivals, { stop, direction, route })
+        );
 
-        for (const arrival of arrivalsResponse.arrivals) {
-          let filteredArrival = {};
-
-          if (route) {
-            if (!arrival || !arrival.trip_update || !arrival.trip_update.trip) {
-              continue;
-            }
-
-            if (
-              !direction ||
-              !direction.trip_ids.includes(arrival.trip_update.trip.trip_id)
-            ) {
-              continue;
-            }
-
-            filteredArrival.route = route;
-            filteredArrival.direction = direction;
-          } else if (stop) {
-            if (
-              !arrival ||
-              !arrival.trip_update ||
-              !arrival.trip_update.stop_time_update
-            ) {
-              continue;
-            }
-
-            // Get route and direction from trip_id
-            filteredArrival = getRouteAndDirectionFromTrip(
-              arrival.trip_update.trip.trip_id
-            );
-          }
-
-          filteredArrival.stoptime = arrival.trip_update.stop_time_update.find(
-            (stopTimeUpdate) => stopTimeUpdate.stop_id === stop.stop_id
-          );
-
-          if (
-            !filteredArrival.stoptime ||
-            !filteredArrival.stoptime.departure
-          ) {
-            continue;
-          }
-
-          // Hide arrivals more than 90 minutes in the future
-          if (
-            filteredArrival.stoptime.departure.time - Date.now() / 1000 >
-            90 * 60
-          ) {
-            continue;
-          }
-
-          filteredArrivals.push(filteredArrival);
-        }
-
-        renderResults(stop, filteredArrivals);
         if (stop.stop_id) {
           updateUrlWithParameters(stop.stop_code);
         }
@@ -460,7 +460,7 @@ function setupTransitArrivalsWidget(routes, stops, config) {
     accessibleAutocomplete({
       element: $('#arrival_stop_code_container').get(0),
       id: 'arrival_stop_code',
-      source: (query, populateResults) => {
+      source(query, populateResults) {
         const filteredResults = stops.filter((stop) => {
           if (stop.stop_code.startsWith(query.trim())) {
             return true;
@@ -476,7 +476,7 @@ function setupTransitArrivalsWidget(routes, stops, config) {
       showNoOptionsFound: false,
       templates: {
         inputValue: (result) => result && result.stop_code,
-        suggestion: (result) => {
+        suggestion(result) {
           if (!result) {
             return;
           }
@@ -492,7 +492,7 @@ function setupTransitArrivalsWidget(routes, stops, config) {
           return `<strong>${result.stop_name}</strong> (${stopCode})`;
         },
       },
-      onConfirm: (selectedStop) => {
+      onConfirm(selectedStop) {
         if (!selectedStop) {
           return;
         }
