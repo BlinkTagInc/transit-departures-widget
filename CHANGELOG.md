@@ -14,7 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Fixed
 
+- Fix issue with initial arrivals load
 - Fix for routes with no colors defined
+- Fix HTML escape for headsign in dropdown
+
+## Updated
+
+- Dependency updates
 
 ## [1.0.1] - 2021-10-17
 

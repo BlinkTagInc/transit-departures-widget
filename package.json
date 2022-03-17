@@ -31,29 +31,29 @@
   "type": "module",
   "main": "index.js",
   "dependencies": {
-    "chalk": "^4.1.2",
+    "chalk": "^5.0.1",
     "copy-dir": "^1.3.0",
-    "express": "^4.17.1",
-    "gtfs": "^3.1.4",
-    "i18n": "^0.13.3",
+    "express": "^4.17.3",
+    "gtfs": "^3.2.4",
+    "i18n": "^0.14.2",
     "js-beautify": "^1.14.0",
     "lodash-es": "^4.17.21",
     "morgan": "^1.10.0",
-    "pretty-error": "^3.0.4",
+    "pretty-error": "^4.0.0",
     "pug": "^3.0.2",
     "sanitize-filename": "^1.6.3",
     "timer-machine": "^1.1.0",
     "toposort": "^2.0.2",
     "untildify": "^4.0.0",
-    "yargs": "^17.2.1"
+    "yargs": "^17.3.1"
   },
   "devDependencies": {
-    "eslint": "^8.0.1",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-config-xo": "^0.39.0",
-    "husky": "^7.0.2",
-    "prettier": "^2.4.1",
-    "pretty-quick": "^3.1.1"
+    "eslint": "^8.11.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-xo": "^0.40.0",
+    "husky": "^7.0.4",
+    "prettier": "^2.6.0",
+    "pretty-quick": "^3.1.3"
   },
   "engines": {
     "node": ">= 14.15.4"
