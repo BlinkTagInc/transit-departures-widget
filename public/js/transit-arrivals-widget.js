@@ -5,6 +5,7 @@ function setupTransitArrivalsWidget(routes, stops, config) {
   let arrivalsResponse;
   let arrivalsTimeout;
   let initialStopCode;
+  let selectedArrivalParameters;
 
   function updateUrlWithParameters(stopCode) {
     const url = new URL(window.location.origin + window.location.pathname);
@@ -225,14 +226,15 @@ function setupTransitArrivalsWidget(routes, stops, config) {
         return;
       }
 
-      resetResults();
+      selectedArrivalParameters = { stop, direction, route };
 
+      resetResults();
       showLoading();
-      updateArrivals({ stop, direction, route });
+      updateArrivals();
 
       // Every refresh interval seconds, check for tripupdates
       arrivalsTimeout = setInterval(
-        () => updateArrivals({ stop, direction, route }),
+        () => updateArrivals(),
         config.refreshIntervalSeconds * 1000
       );
     }
@@ -317,11 +319,16 @@ function setupTransitArrivalsWidget(routes, stops, config) {
       return filteredArrivals;
     }
 
-    async function updateArrivals({ stop, direction, route }) {
+    async function updateArrivals(forceRefresh) {
       try {
+        const { stop, direction, route } = selectedArrivalParameters;
         // Use existing data if less than the refresh interval seconds old
         const minimumAge = Date.now() - config.refreshIntervalSeconds * 1000;
-        if (!arrivalsResponse || arrivalsResponse.timestamp < minimumAge) {
+        if (
+          !arrivalsResponse ||
+          arrivalsResponse.timestamp < minimumAge ||
+          forceRefresh === true
+        ) {
           const arrivals = await fetchTripUpdates();
 
           // Don't use new arrival info if nothing is returned.
@@ -343,7 +350,7 @@ function setupTransitArrivalsWidget(routes, stops, config) {
         }
       } catch (error) {
         console.error(error);
-        renderError(stop);
+        renderError(selectedArrivalParameters?.stop);
       }
     }
 
@@ -455,6 +462,13 @@ function setupTransitArrivalsWidget(routes, stops, config) {
       selectStop({
         stopCode,
       });
+    });
+
+    $('#arrival_results .arrival-results-fetchtime').click((event) => {
+      event.preventDefault();
+      resetResults();
+      showLoading();
+      updateArrivals(true);
     });
 
     accessibleAutocomplete({
