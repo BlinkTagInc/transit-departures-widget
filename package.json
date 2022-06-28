@@ -20,9 +20,9 @@
   ],
   "license": "MIT",
   "scripts": {
-    "lint": "eslint \"./**/*.js\"",
-    "lint-fix": "eslint \"./**/*.js\" --fix",
-    "test": "eslint \"./**/*.js\"",
+    "lint": "eslint app/**/*.js bin/**/*.js lib/**/*.js public/**/*.js",
+    "lint-fix": "eslint app/**/*.js bin/**/*.js lib/**/*.js public/**/*.js --fix",
+    "test": "eslint app/**/*.js bin/**/*.js lib/**/*.js public/**/*.js",
     "start": "node app"
   },
   "bin": {
