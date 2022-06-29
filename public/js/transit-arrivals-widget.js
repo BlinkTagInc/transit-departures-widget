@@ -1,4 +1,4 @@
-/* global window, $, jQuery, _, Pbf, FeedMessage, alert, fetch, accessibleAutocomplete,  */
+/* global window, $, jQuery, _, Pbf, FeedMessage, alert, accessibleAutocomplete,  */
 /* eslint no-var: "off", no-unused-vars: "off", no-alert: "off" */
 
 function setupTransitArrivalsWidget(routes, stops, config) {
@@ -263,9 +263,21 @@ function setupTransitArrivalsWidget(routes, stops, config) {
     }
 
     function filterArrivals(arrivals, { stop, direction, route }) {
+      // Remove departure information for last stoptime by stop_sequence if it has any
+      const cleanedArrivals = arrivals.map((arrival) => {
+        const stopTimeUpdates = arrival?.trip_update?.stop_time_update;
+
+        if (stopTimeUpdates && stopTimeUpdates.length >= 2) {
+          delete stopTimeUpdates[0].arrival;
+          delete stopTimeUpdates[stopTimeUpdates.length - 1].departure;
+        }
+
+        return arrival;
+      });
+
       const filteredArrivals = [];
 
-      for (const arrival of arrivals) {
+      for (const arrival of cleanedArrivals) {
         let filteredArrival = {};
 
         if (route) {
