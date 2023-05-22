@@ -31,12 +31,12 @@
   "type": "module",
   "main": "index.js",
   "dependencies": {
-    "chalk": "^5.0.1",
+    "chalk": "^5.2.0",
     "copy-dir": "^1.3.0",
-    "express": "^4.18.1",
-    "gtfs": "^3.4.0",
-    "i18n": "^0.15.0",
-    "js-beautify": "^1.14.4",
+    "express": "^4.18.2",
+    "gtfs": "^4.3.0",
+    "i18n": "^0.15.1",
+    "js-beautify": "^1.14.7",
     "lodash-es": "^4.17.21",
     "morgan": "^1.10.0",
     "pretty-error": "^4.0.0",
@@ -45,14 +45,14 @@
     "timer-machine": "^1.1.0",
     "toposort": "^2.0.2",
     "untildify": "^4.0.0",
-    "yargs": "^17.5.1"
+    "yargs": "^17.7.2"
   },
   "devDependencies": {
-    "eslint": "^8.18.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-config-xo": "^0.41.0",
-    "husky": "^8.0.1",
-    "prettier": "^2.7.1",
+    "eslint": "^8.41.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-config-xo": "^0.43.1",
+    "husky": "^8.0.3",
+    "prettier": "^2.8.8",
     "pretty-quick": "^3.1.3"
   },
   "engines": {
