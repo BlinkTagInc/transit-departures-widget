@@ -20,9 +20,6 @@
   ],
   "license": "MIT",
   "scripts": {
-    "lint": "eslint app/**/*.js bin/**/*.js lib/**/*.js public/**/*.js",
-    "lint-fix": "eslint app/**/*.js bin/**/*.js lib/**/*.js public/**/*.js --fix",
-    "test": "eslint app/**/*.js bin/**/*.js lib/**/*.js public/**/*.js",
     "start": "node app"
   },
   "bin": {
@@ -31,12 +28,11 @@
   "type": "module",
   "main": "index.js",
   "dependencies": {
-    "chalk": "^5.2.0",
     "copy-dir": "^1.3.0",
     "express": "^4.18.2",
-    "gtfs": "^4.3.0",
+    "gtfs": "^4.4.3",
     "i18n": "^0.15.1",
-    "js-beautify": "^1.14.7",
+    "js-beautify": "^1.14.9",
     "lodash-es": "^4.17.21",
     "morgan": "^1.10.0",
     "pretty-error": "^4.0.0",
@@ -44,35 +40,17 @@
     "sanitize-filename": "^1.6.3",
     "timer-machine": "^1.1.0",
     "toposort": "^2.0.2",
-    "untildify": "^4.0.0",
-    "yargs": "^17.7.2"
+    "untildify": "^5.0.0",
+    "yargs": "^17.7.2",
+    "yoctocolors": "^1.0.0"
   },
   "devDependencies": {
-    "eslint": "^8.41.0",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-config-xo": "^0.43.1",
     "husky": "^8.0.3",
-    "prettier": "^2.8.8",
-    "pretty-quick": "^3.1.3"
+    "lint-staged": "^13.2.3",
+    "prettier": "^3.0.1"
   },
   "engines": {
     "node": ">= 14.15.4"
-  },
-  "xo": {
-    "esnext": true,
-    "space": true,
-    "rules": {
-      "camelcase": [
-        "error",
-        {
-          "properties": "never"
-        }
-      ],
-      "object-curly-spacing": [
-        "error",
-        "always"
-      ]
-    }
   },
   "release-it": {
     "github": {
@@ -87,7 +65,8 @@
   "prettier": {
     "singleQuote": true
   },
-  "eslintIgnore": [
-    "node_modules/*"
-  ]
+  "lint-staged": {
+    "*.js": "prettier --write",
+    "*.json": "prettier --write"
+  }
 }
