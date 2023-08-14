@@ -36,6 +36,14 @@ function setuptransitDeparturesWidget(routes, stops, config) {
     return Math.floor(seconds / 60)
   }
 
+  function formatDirectionId(directionId) {
+    if (directionId === null) {
+      return '0'
+    }
+
+    return directionId
+  }
+
   function timeStamp() {
     const now = new Date()
     let hours = now.getHours()
@@ -243,7 +251,8 @@ function setuptransitDeparturesWidget(routes, stops, config) {
       const route = routes.find((route) => route.route_id === routeId)
       const direction = route
         ? route.directions.find(
-            (direction) => direction.direction_id.toString() === directionId,
+            (direction) =>
+              formatDirectionId(direction.direction_id) === directionId,
           )
         : undefined
 
@@ -457,9 +466,21 @@ function setuptransitDeparturesWidget(routes, stops, config) {
 
         $('#real_time_departures #departure_direction').append(
           route.directions.map((direction) =>
-            $('<option>').val(direction.direction_id).text(direction.direction),
+            $('<option>')
+              .val(formatDirectionId(direction.direction_id))
+              .text(direction.direction),
           ),
         )
+
+        if (route.directions.length === 1) {
+          $('#real_time_departures #departure_direction').hide()
+          $('#real_time_departures #departure_direction').val(
+            formatDirectionId(route.directions[0].direction_id),
+          )
+          $('#real_time_departures #departure_direction').trigger('change')
+        } else {
+          $('#real_time_departures #departure_direction').show()
+        }
       }
     })
 
@@ -486,7 +507,8 @@ function setuptransitDeparturesWidget(routes, stops, config) {
         }
 
         const direction = route.directions.find(
-          (direction) => direction.direction_id.toString() === directionId,
+          (direction) =>
+            formatDirectionId(direction.direction_id) === directionId,
         )
 
         $('#real_time_departures #departure_stop').append(
