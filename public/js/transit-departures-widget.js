@@ -221,11 +221,13 @@ function setuptransitDeparturesWidget(routes, stops, config) {
         )
         $('#departure_results .departure-results-none').hide()
         $('#departure_results .departure-results-error').hide()
-        $('#departure_results .departure-results-container').html(
-          sortedDepartureGroups.map((departureGroup) =>
-            formatDepartureGroup(departureGroup),
-          ),
-        )
+        $('#departure_results .departure-results-container')
+          .html(
+            sortedDepartureGroups.map((departureGroup) =>
+              formatDepartureGroup(departureGroup),
+            ),
+          )
+          .show()
       }
 
       hideLoading()
