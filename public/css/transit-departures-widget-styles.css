@@ -24,6 +24,7 @@ body {
 
 .transit-departures-widget .departure-results {
   display: none;
+  margin-top: 25px;
 }
 
 .transit-departures-widget .departure-results-none {
@@ -39,7 +40,7 @@ body {
 
 .transit-departures-widget .departure-results-stop,
 .transit-departures-widget .departure-results-stop-unknown {
-  font-size: 28px;
+  font-size: 24px;
   line-height: 1;
 }
 
