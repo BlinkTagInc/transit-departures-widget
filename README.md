@@ -27,9 +27,9 @@ Transit Arrivals Widget generates a user-friendly transit realtime arrival widge
 <p>Lookup by stop name</p>
 
 <img width="597" alt="transit-arrivals-widget3" src="https://user-images.githubusercontent.com/96217/115478620-677c6180-a1fb-11eb-9349-431cc82cfe3f.png">
-<p>Lookup by stop id</p>
+<p>Lookup by stop code</p>
 
-Users can lookup arrivals by choosing a route, direction and stop or by entering stop id directly. If a stop id is entered, arrivals for all routes serving that stop are shown.
+Users can lookup arrivals by choosing a route, direction and stop or by entering stop id directly. If a stop code is entered, arrivals for all routes serving that stop are shown.
 
 Features:
 

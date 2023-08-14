@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Fixed
 
-- Handle empty direction_id
+- Handle empty direction_id in GTFS
+
+## Updated
+
+- Reword input to "stop" and "Stop code"
 
 ## [1.2.1] - 2023-08-14
 

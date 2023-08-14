@@ -6,16 +6,16 @@
         .btn-group.btn-group-toggle(data-toggle="buttons")  
           label.btn.btn-primary.active
             input(type="radio" name="arrival_type" value="stop_id" checked)
-            span= __('By Stop ID')
+            span= __('By Stop')
           label.btn.btn-primary
             input(type="radio" name="arrival_type" value="route")
             span= __('By Route') 
 
       form#stop_id_form
         .form-group.text
-          #arrival_stop_code_container(data-placeholder=__('Search by stop name or id') data-stop-code-all=__('all'))
+          #arrival_stop_code_container(data-placeholder=__('Search by stop name or stop code') data-stop-code-all=__('all'))
 
-        .stop-code-invalid= __('Invalid stop ID')  
+        .stop-code-invalid= __('Invalid stop code')  
         .form-group
           button.btn.btn-primary.btn-block(type="submit")= __('Get Arrivals')
 
@@ -44,7 +44,7 @@
             span #{__('As of')}&nbsp;
             span.arrival-results-fetchtime-time
         .arrival-results-stop-code-container
-          span #{__('Stop ID')}&nbsp;
+          span #{__('Stop Code')}&nbsp;
           span.arrival-results-stop-code
         .arrival-results-container(data-minutes-label=__('min'))
         .arrival-results-none= __('No upcoming arrivals')
