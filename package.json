@@ -65,7 +65,8 @@
     }
   },
   "prettier": {
-    "singleQuote": true
+    "singleQuote": true,
+    "semi": false
   },
   "lint-staged": {
     "*.js": "prettier --write",

@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Updated
 
 - Reword input to "stop" and "Stop code"
+- Add support for GTFS without stop codes
 
 ## [1.2.1] - 2023-08-14
 

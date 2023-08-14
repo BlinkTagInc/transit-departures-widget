@@ -5,13 +5,13 @@
       .form-group
         .btn-group.btn-group-toggle(data-toggle="buttons")  
           label.btn.btn-primary.active
-            input(type="radio" name="arrival_type" value="stop_id" checked)
+            input(type="radio" name="arrival_type" value="stop" checked)
             span= __('By Stop')
           label.btn.btn-primary
             input(type="radio" name="arrival_type" value="route")
             span= __('By Route') 
 
-      form#stop_id_form
+      form#stop_form
         .form-group.text
           #arrival_stop_code_container(data-placeholder=__('Search by stop name or stop code') data-stop-code-all=__('all'))
 
