@@ -359,6 +359,14 @@ function setuptransitDeparturesWidget(routes, stops, config) {
           continue
         }
 
+        // Hide departures more than 1 minute in the past
+        if (
+          filteredDeparture.stoptime.departure.time - Date.now() / 1000 <
+          -60
+        ) {
+          continue
+        }
+
         filteredDepartures.push(filteredDeparture)
       }
 
