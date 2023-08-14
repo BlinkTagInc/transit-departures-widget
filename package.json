@@ -20,6 +20,7 @@
   ],
   "license": "MIT",
   "scripts": {
+    "prepare": "husky install",
     "start": "node app"
   },
   "bin": {
