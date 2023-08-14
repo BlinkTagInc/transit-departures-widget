@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Fixed
 
 - Handle empty direction_id in GTFS
+- Hide overflow in route circle
 
 ## Updated
 
