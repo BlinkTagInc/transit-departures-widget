@@ -1,54 +1,54 @@
-#real_time_arrivals.container.transit-arrivals-widget
+#real_time_departures.container.transit-departures-widget
   .card.mx-auto.my-5
     .card-body
-      h2= __('Realtime Arrivals')
+      h2= __('Realtime Departures')
       .form-group
         .btn-group.btn-group-toggle(data-toggle="buttons")  
           label.btn.btn-primary.active
-            input(type="radio" name="arrival_type" value="stop" checked)
+            input(type="radio" name="departure_type" value="stop" checked)
             span= __('By Stop')
           label.btn.btn-primary
-            input(type="radio" name="arrival_type" value="route")
+            input(type="radio" name="departure_type" value="route")
             span= __('By Route') 
 
       form#stop_form
         .form-group.text
-          #arrival_stop_code_container(data-placeholder=__('Search by stop name or stop code') data-stop-code-all=__('all'))
+          #departure_stop_code_container(data-placeholder=__('Search by stop name or stop code') data-stop-code-all=__('all'))
 
         .stop-code-invalid= __('Invalid stop code')  
         .form-group
-          button.btn.btn-primary.btn-block(type="submit")= __('Get Arrivals')
+          button.btn.btn-primary.btn-block(type="submit")= __('Get Departures')
 
       form#route_form.hidden-form
         .form-group.select
-          select.form-control#arrival_route(name="route")
+          select.form-control#departure_route(name="route")
             option(value="")= __('Choose a route')
             each route in routes
               option(value=route.route_id)= route.route_full_name
         
         .form-group.select
-          select.form-control#arrival_direction(name="direction" disabled)
+          select.form-control#departure_direction(name="direction" disabled)
             option(value="")= __('Choose a direction')
         
         .form-group.select
-          select.form-control#arrival_stop(name="stop" disabled)
+          select.form-control#departure_stop(name="stop" disabled)
             option(value="")= __('Choose a stop')
 
       #loading.loader #{__('Loading')}...
 
-      #arrival_results.arrival-results
-        .arrival-results-header
-          .arrival-results-stop
-          .arrival-results-stop-unknown= __('Unknown Stop')
-          button.arrival-results-fetchtime(title=__('Refresh'))
+      #departure_results.departure-results
+        .departure-results-header
+          .departure-results-stop
+          .departure-results-stop-unknown= __('Unknown Stop')
+          button.departure-results-fetchtime(title=__('Refresh'))
             span #{__('As of')}&nbsp;
-            span.arrival-results-fetchtime-time
-        .arrival-results-stop-code-container
+            span.departure-results-fetchtime-time
+        .departure-results-stop-code-container
           span #{__('Stop Code')}&nbsp;
-          span.arrival-results-stop-code
-        .arrival-results-container(data-minutes-label=__('min'))
-        .arrival-results-none= __('No upcoming arrivals')
-        .arrival-results-error= __('Unable to fetch arrivals')
+          span.departure-results-stop-code
+        .departure-results-container(data-minutes-label=__('min'))
+        .departure-results-none= __('No upcoming departures')
+        .departure-results-error= __('Unable to fetch departures')
 
 script.
   (function() {
@@ -59,5 +59,5 @@ script.
       refreshIntervalSeconds: #{config.refreshIntervalSeconds},
       timeFormat: '#{config.timeFormat}'
     }
-    setupTransitArrivalsWidget(routes, stops, config);
+    setuptransitDeparturesWidget(routes, stops, config);
   })()

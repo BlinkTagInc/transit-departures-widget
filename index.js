@@ -1,1 +1,1 @@
-export { default } from './lib/transit-arrivals-widget.js';
+export { default } from './lib/transit-departures-widget.js'

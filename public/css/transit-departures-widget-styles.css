@@ -8,42 +8,42 @@ body {
   background-color: #ffffff;
 }
 
-.transit-arrivals-widget {
+.transit-departures-widget {
   max-width: 600px;
 }
 
-.transit-arrivals-widget .hidden-form {
+.transit-departures-widget .hidden-form {
   display: none;
 }
 
-.transit-arrivals-widget .stop-code-invalid {
+.transit-departures-widget .stop-code-invalid {
   display: none;
   color: #821515;
   padding-bottom: 10px;
 }
 
-.transit-arrivals-widget .arrival-results {
+.transit-departures-widget .departure-results {
   display: none;
 }
 
-.transit-arrivals-widget .arrival-results-none {
+.transit-departures-widget .departure-results-none {
   display: none;
   margin-top: 10px;
 }
 
-.transit-arrivals-widget .arrival-results-error {
+.transit-departures-widget .departure-results-error {
   display: none;
   margin-top: 10px;
   color: #821515;
 }
 
-.transit-arrivals-widget .arrival-results-stop,
-.transit-arrivals-widget .arrival-results-stop-unknown {
+.transit-departures-widget .departure-results-stop,
+.transit-departures-widget .departure-results-stop-unknown {
   font-size: 28px;
   line-height: 1;
 }
 
-.transit-arrivals-widget .arrival-result {
+.transit-departures-widget .departure-result {
   background-color: #eee;
   display: flex;
   align-items: center;
@@ -51,13 +51,13 @@ body {
   margin-top: 8px;
 }
 
-.transit-arrivals-widget .arrival-results-header {
+.transit-departures-widget .departure-results-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
 }
 
-.transit-arrivals-widget .arrival-results-fetchtime {
+.transit-departures-widget .departure-results-fetchtime {
   flex-shrink: 0;
   font-size: 12px;
   margin-left: 8px;
@@ -70,22 +70,22 @@ body {
   background-position-y: 1px;
 }
 
-.transit-arrivals-widget .arrival-results-fetchtime:hover {
+.transit-departures-widget .departure-results-fetchtime:hover {
   text-decoration: underline;
 }
 
-.transit-arrivals-widget .arrival-result-route-name {
+.transit-departures-widget .departure-result-route-name {
   display: flex;
   align-items: center;
   line-height: 1;
 }
 
-.transit-arrivals-widget .arrival-result-route-direction {
+.transit-departures-widget .departure-result-route-direction {
   font-size: 22px;
   margin-top: 2px;
 }
 
-.transit-arrivals-widget .arrival-result-route-circle {
+.transit-departures-widget .departure-result-route-circle {
   margin: 5px 9px 5px;
   width: 30px;
   height: 30px;
@@ -96,14 +96,14 @@ body {
   overflow: hidden;
 }
 
-.transit-arrivals-widget .arrival-result-times {
+.transit-departures-widget .departure-result-times {
   display: flex;
   align-items: stretch;
   flex-shrink: 0;
   align-self: stretch;
 }
 
-.transit-arrivals-widget .arrival-result-time-container {
+.transit-departures-widget .departure-result-time-container {
   padding: 0 5px;
   width: 76px;
   border-left: 1px solid #ddd;
@@ -115,23 +115,23 @@ body {
   flex-grow: 0;
 }
 
-.transit-arrivals-widget .arrival-result-time {
+.transit-departures-widget .departure-result-time {
   font-size: 24px;
 }
 
-.transit-arrivals-widget .arrival-result-time-label {
+.transit-departures-widget .departure-result-time-label {
   font-size: 14px;
   padding-left: 2px;
 }
 
-.transit-arrivals-widget .loader,
-.transit-arrivals-widget .loader:after {
+.transit-departures-widget .loader,
+.transit-departures-widget .loader:after {
   border-radius: 50%;
   width: 10em;
   height: 10em;
 }
 
-.transit-arrivals-widget .loader {
+.transit-departures-widget .loader {
   margin: 20px auto;
   font-size: 10px;
   position: relative;
@@ -143,12 +143,12 @@ body {
   -webkit-transform: translateZ(0);
   -ms-transform: translateZ(0);
   transform: translateZ(0);
-  -webkit-animation: transitArrivalsWidgetLoader 1.1s infinite linear;
-  animation: transitArrivalsWidgetLoader 1.1s infinite linear;
+  -webkit-animation: transitDeparturesWidgetLoader 1.1s infinite linear;
+  animation: transitDeparturesWidgetLoader 1.1s infinite linear;
   display: none;
 }
 
-@-webkit-keyframes transitArrivalsWidgetLoader {
+@-webkit-keyframes transitDeparturesWidgetLoader {
   0% {
     -webkit-transform: rotate(0deg);
     transform: rotate(0deg);
@@ -159,7 +159,7 @@ body {
   }
 }
 
-@keyframes transitArrivalsWidgetLoader {
+@keyframes transitDeparturesWidgetLoader {
   0% {
     -webkit-transform: rotate(0deg);
     transform: rotate(0deg);

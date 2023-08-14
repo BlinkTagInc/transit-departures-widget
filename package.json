@@ -1,6 +1,6 @@
 {
-  "name": "transit-arrivals-widget",
-  "description": "Build a realtime transit arrival tool from GTFS and GTFS-RT.",
+  "name": "transit-departures-widget",
+  "description": "Build a realtime transit departures tool from GTFS and GTFS-Realtime.",
   "version": "1.2.1",
   "keywords": [
     "transit",
@@ -10,11 +10,11 @@
   ],
   "private": false,
   "author": "Brendan Nee <brendan@blinktag.com>",
-  "homepage": "https://github.com/BlinkTagInc/transit-arrivals-widget",
+  "homepage": "https://github.com/BlinkTagInc/transit-departures-widget",
   "bugs": {
-    "url": "https://github.com/BlinkTagInc/transit-arrivals-widget"
+    "url": "https://github.com/BlinkTagInc/transit-departures-widget"
   },
-  "repository": "git://github.com/BlinkTagInc/transit-arrivals-widget",
+  "repository": "git://github.com/BlinkTagInc/transit-departures-widget",
   "contributors": [
     "Wojciech Kulesza <wojciech.kulesza@goeuropa.eu>"
   ],
@@ -24,7 +24,7 @@
     "start": "node app"
   },
   "bin": {
-    "transit-arrivals-widget": "bin/transit-arrivals-widget.js"
+    "transit-departures-widget": "bin/transit-departures-widget.js"
   },
   "type": "module",
   "main": "index.js",

@@ -1,11 +1,11 @@
 /* global window, $, jQuery, _, Pbf, FeedMessage, alert, accessibleAutocomplete,  */
 /* eslint no-var: "off", no-unused-vars: "off", no-alert: "off" */
 
-function setupTransitArrivalsWidget(routes, stops, config) {
-  let arrivalsResponse
-  let arrivalsTimeout
+function setuptransitDeparturesWidget(routes, stops, config) {
+  let departuresResponse
+  let departuresTimeout
   let initialStop
-  let selectedArrivalParameters
+  let selectedParameters
 
   function updateUrlWithStop(stop) {
     const url = new URL(window.location.origin + window.location.pathname)
@@ -83,17 +83,17 @@ function setupTransitArrivalsWidget(routes, stops, config) {
       setTimeout(() => {
         $('#stop_form').trigger('submit')
         $(
-          '#real_time_arrivals input[name="arrival_type"][value="stop"]',
+          '#real_time_departures input[name="departure_type"][value="stop"]',
         ).trigger('click')
       }, 100)
     }
 
     function resetResults() {
-      if (arrivalsTimeout) {
-        clearTimeout(arrivalsTimeout)
+      if (departuresTimeout) {
+        clearTimeout(departuresTimeout)
       }
 
-      $('#arrival_results').hide()
+      $('#departure_results').hide()
     }
 
     function showLoading() {
@@ -106,32 +106,38 @@ function setupTransitArrivalsWidget(routes, stops, config) {
 
     function renderStopInfo(stop) {
       if (stop) {
-        $('#arrival_results .arrival-results-stop-unknown').hide()
-        $('#arrival_results .arrival-results-stop').text(stop.stop_name).show()
+        $('#departure_results .departure-results-stop-unknown').hide()
+        $('#departure_results .departure-results-stop')
+          .text(stop.stop_name)
+          .show()
       } else {
-        $('#arrival_results .arrival-results-stop').hide()
-        $('#arrival_results .arrival-results-stop-unknown').show()
+        $('#departure_results .departure-results-stop').hide()
+        $('#departure_results .departure-results-stop-unknown').show()
       }
 
       if (stop && stop.stop_code) {
-        $('#arrival_results .arrival-results-stop-code').text(stop.stop_code)
-        $('#arrival_results .arrival-results-stop-code-container').show()
+        $('#departure_results .departure-results-stop-code').text(
+          stop.stop_code,
+        )
+        $('#departure_results .departure-results-stop-code-container').show()
       } else {
-        $('#arrival_results .arrival-results-stop-code-container').hide()
+        $('#departure_results .departure-results-stop-code-container').hide()
       }
 
-      $('#arrival_results .arrival-results-fetchtime-time').text(timeStamp())
+      $('#departure_results .departure-results-fetchtime-time').text(
+        timeStamp(),
+      )
     }
 
-    function formatArrivalGroup(arrivalGroup) {
-      const div = $('<div>').addClass('arrival-result')
-      const { route, direction } = arrivalGroup[0]
+    function formatDepartureGroup(departureGroup) {
+      const div = $('<div>').addClass('departure-result')
+      const { route, direction } = departureGroup[0]
 
       const routeNameDiv = $('<div>')
-        .addClass('arrival-result-route-name')
+        .addClass('departure-result-route-name')
         .appendTo(div)
-      const arrivalTimesDiv = $('<div>')
-        .addClass('arrival-result-times')
+      const departureTimesDiv = $('<div>')
+        .addClass('departure-result-times')
         .appendTo(div)
 
       if (route.route_short_name) {
@@ -141,7 +147,7 @@ function setupTransitArrivalsWidget(routes, stops, config) {
           : '#000'
         $('<div>')
           .text(route.route_short_name)
-          .addClass('arrival-result-route-circle')
+          .addClass('departure-result-route-circle')
           .css({
             'background-color': routeColor,
             color: routeTextColor,
@@ -151,73 +157,79 @@ function setupTransitArrivalsWidget(routes, stops, config) {
 
       $('<div>')
         .text(direction.direction)
-        .addClass('arrival-result-route-direction')
+        .addClass('departure-result-route-direction')
         .appendTo(routeNameDiv)
 
-      const sortedArrivals = _.take(
-        _.sortBy(arrivalGroup, (arrival) => arrival.stoptime.departure.time),
+      const sortedDepartures = _.take(
+        _.sortBy(
+          departureGroup,
+          (departure) => departure.stoptime.departure.time,
+        ),
         3,
       )
 
-      for (const arrival of sortedArrivals) {
+      for (const departure of sortedDepartures) {
         const minutes = formatMinutes(
-          arrival.stoptime.departure.time - Date.now() / 1000,
+          departure.stoptime.departure.time - Date.now() / 1000,
         )
         const minutesLabel = $(
-          '#arrival_results .arrival-results-container',
+          '#departure_results .departure-results-container',
         ).data('minutes-label')
 
         $('<div>')
-          .addClass('arrival-result-time-container')
+          .addClass('departure-result-time-container')
           .append(
             $('<div>')
-              .addClass('arrival-result-time')
+              .addClass('departure-result-time')
               .html(
-                `${minutes}<span class="arrival-result-time-label">${minutesLabel}</span>`,
+                `${minutes}<span class="departure-result-time-label">${minutesLabel}</span>`,
               ),
           )
-          .appendTo(arrivalTimesDiv)
+          .appendTo(departureTimesDiv)
       }
 
       return div
     }
 
-    function renderResults(stop, arrivals) {
+    function renderResults(stop, departures) {
       renderStopInfo(stop)
 
-      if (arrivals.length === 0) {
-        $('#arrival_results .arrival-results-container').hide()
-        $('#arrival_results .arrival-results-error').hide()
-        $('#arrival_results .arrival-results-none').show()
+      if (departures.length === 0) {
+        $('#departure_results .departure-results-container').hide()
+        $('#departure_results .departure-results-error').hide()
+        $('#departure_results .departure-results-none').show()
       } else {
-        const arrivalGroups = _.groupBy(
-          arrivals,
-          (arrival) =>
-            `${arrival.route.route_id}||${arrival.direction.direction_id}`,
+        const departureGroups = _.groupBy(
+          departures,
+          (departure) =>
+            `${departure.route.route_id}||${departure.direction.direction_id}`,
         )
-        const sortedArrivalGroups = _.sortBy(arrivalGroups, (arrivalGroup) => {
-          const { route } = arrivalGroup[0]
-          return Number.parseInt(route.route_short_name, 10)
-        })
-        $('#arrival_results .arrival-results-none').hide()
-        $('#arrival_results .arrival-results-error').hide()
-        $('#arrival_results .arrival-results-container').html(
-          sortedArrivalGroups.map((arrivalGroup) =>
-            formatArrivalGroup(arrivalGroup),
+        const sortedDepartureGroups = _.sortBy(
+          departureGroups,
+          (departureGroup) => {
+            const { route } = departureGroup[0]
+            return Number.parseInt(route.route_short_name, 10)
+          },
+        )
+        $('#departure_results .departure-results-none').hide()
+        $('#departure_results .departure-results-error').hide()
+        $('#departure_results .departure-results-container').html(
+          sortedDepartureGroups.map((departureGroup) =>
+            formatDepartureGroup(departureGroup),
           ),
         )
       }
 
       hideLoading()
-      $('#arrival_results').show()
+      $('#departure_results').show()
     }
 
     function renderError(stop) {
       renderStopInfo(stop)
-      $('#arrival_results .arrival-results-error').show()
+      $('#departure_results .departure-results-error').show()
 
       hideLoading()
-      $('#arrival_results').show()
+      $('#departure_results').show()
     }
 
     function selectStop({ stopId, stopName, directionId, routeId }) {
@@ -240,15 +252,15 @@ function setupTransitArrivalsWidget(routes, stops, config) {
         return
       }
 
-      selectedArrivalParameters = { stop, direction, route }
+      selectedParameters = { stop, direction, route }
 
       resetResults()
       showLoading()
-      updateArrivals()
+      updateDepartures()
 
       // Every refresh interval seconds, check for tripupdates
-      arrivalsTimeout = setInterval(
-        () => updateArrivals(),
+      departuresTimeout = setInterval(
+        () => updateDepartures(),
         config.refreshIntervalSeconds * 1000,
       )
     }
@@ -276,99 +288,111 @@ function setupTransitArrivalsWidget(routes, stops, config) {
       }
     }
 
-    function filterArrivals(arrivals, { stop, direction, route }) {
+    function filterDepartures(departures, { stop, direction, route }) {
       // Remove departure information for last stoptime by stop_sequence if it has any
-      const cleanedArrivals = arrivals.map((arrival) => {
-        const stopTimeUpdates = arrival?.trip_update?.stop_time_update
+      const cleanedDepartures = departures.map((departure) => {
+        const stopTimeUpdates = departure?.trip_update?.stop_time_update
 
         if (stopTimeUpdates && stopTimeUpdates.length >= 2) {
           delete stopTimeUpdates[0].arrival
           delete stopTimeUpdates[stopTimeUpdates.length - 1].departure
         }
 
-        return arrival
+        return departure
       })
 
-      const filteredArrivals = []
+      const filteredDepartures = []
 
-      for (const arrival of cleanedArrivals) {
-        let filteredArrival = {}
+      for (const departure of cleanedDepartures) {
+        let filteredDeparture = {}
 
         if (route) {
-          if (!arrival || !arrival.trip_update || !arrival.trip_update.trip) {
+          if (
+            !departure ||
+            !departure.trip_update ||
+            !departure.trip_update.trip
+          ) {
             continue
           }
 
           if (
             !direction ||
-            !direction.trip_ids.includes(arrival.trip_update.trip.trip_id)
+            !direction.trip_ids.includes(departure.trip_update.trip.trip_id)
           ) {
             continue
           }
 
-          filteredArrival.route = route
-          filteredArrival.direction = direction
+          filteredDeparture.route = route
+          filteredDeparture.direction = direction
         } else if (stop) {
           if (
-            !arrival ||
-            !arrival.trip_update ||
-            !arrival.trip_update.stop_time_update
+            !departure ||
+            !departure.trip_update ||
+            !departure.trip_update.stop_time_update
           ) {
             continue
           }
 
           // Get route and direction from trip_id
-          filteredArrival = getRouteAndDirectionFromTrip(
-            arrival.trip_update.trip.trip_id,
+          filteredDeparture = getRouteAndDirectionFromTrip(
+            departure.trip_update.trip.trip_id,
           )
         }
 
-        filteredArrival.stoptime = arrival.trip_update.stop_time_update.find(
-          (stopTimeUpdate) => stopTimeUpdate.stop_id === stop.stop_id,
-        )
+        filteredDeparture.stoptime =
+          departure.trip_update.stop_time_update.find(
+            (stopTimeUpdate) => stopTimeUpdate.stop_id === stop.stop_id,
+          )
 
-        if (!filteredArrival.stoptime || !filteredArrival.stoptime.departure) {
+        if (
+          !filteredDeparture.stoptime ||
+          !filteredDeparture.stoptime.departure
+        ) {
           continue
         }
 
-        // Hide arrivals more than 90 minutes in the future
+        // Hide departures more than 90 minutes in the future
         if (
-          filteredArrival.stoptime.departure.time - Date.now() / 1000 >
+          filteredDeparture.stoptime.departure.time - Date.now() / 1000 >
           90 * 60
         ) {
           continue
         }
 
-        filteredArrivals.push(filteredArrival)
+        filteredDepartures.push(filteredDeparture)
       }
 
-      return filteredArrivals
+      return filteredDepartures
     }
 
-    async function updateArrivals(forceRefresh) {
+    async function updateDepartures(forceRefresh) {
       try {
-        const { stop, direction, route } = selectedArrivalParameters
+        const { stop, direction, route } = selectedParameters
         // Use existing data if less than the refresh interval seconds old
         const minimumAge = Date.now() - config.refreshIntervalSeconds * 1000
         if (
-          !arrivalsResponse ||
-          arrivalsResponse.timestamp < minimumAge ||
+          !departuresResponse ||
+          departuresResponse.timestamp < minimumAge ||
           forceRefresh === true
         ) {
-          const arrivals = await fetchTripUpdates()
+          const departures = await fetchTripUpdates()
 
-          // Don't use new arrival info if nothing is returned.
-          if (!arrivals || arrivals.length === 0) {
-            console.error('No arrivals returned')
+          // Don't use new departure info if nothing is returned.
+          if (!departures || departures.length === 0) {
+            console.error('No departures returned')
             return
           }
 
-          arrivalsResponse = { arrivals, timestamp: Date.now() }
+          departuresResponse = { departures, timestamp: Date.now() }
         }
 
         renderResults(
           stop,
-          filterArrivals(arrivalsResponse.arrivals, { stop, direction, route }),
+          filterDepartures(departuresResponse.departures, {
+            stop,
+            direction,
+            route,
+          }),
         )
 
         if (stop.stop_id) {
@@ -376,44 +400,44 @@ function setupTransitArrivalsWidget(routes, stops, config) {
         }
       } catch (error) {
         console.error(error)
-        renderError(selectedArrivalParameters?.stop)
+        renderError(selectedParameters?.stop)
       }
     }
 
-    $('#real_time_arrivals input[name="arrival_type"]').change((event) => {
+    $('#real_time_departures input[name="departure_type"]').change((event) => {
       const type = $(event.target).val()
 
-      $('#real_time_arrivals #route_form').toggleClass(
+      $('#real_time_departures #route_form').toggleClass(
         'hidden-form',
         type !== 'route',
       )
-      $('#real_time_arrivals #stop_form').toggleClass(
+      $('#real_time_departures #stop_form').toggleClass(
         'hidden-form',
         type !== 'stop',
       )
 
-      $('#real_time_arrivals #arrival_stop').val('').prop('disabled', true)
+      $('#real_time_departures #departure_stop').val('').prop('disabled', true)
 
-      $('#real_time_arrivals #arrival_direction option:gt(0)').remove()
-      $('#real_time_arrivals #arrival_stop option:gt(0)').remove()
+      $('#real_time_departures #departure_direction option:gt(0)').remove()
+      $('#real_time_departures #departure_stop option:gt(0)').remove()
       resetResults()
     })
 
-    $('#real_time_arrivals #arrival_route').change((event) => {
+    $('#real_time_departures #departure_route').change((event) => {
       const routeId = $(event.target).val()
 
-      $('#real_time_arrivals #arrival_stop').val('').prop('disabled', true)
+      $('#real_time_departures #departure_stop').val('').prop('disabled', true)
 
-      $('#real_time_arrivals #arrival_direction option:gt(0)').remove()
-      $('#real_time_arrivals #arrival_stop option:gt(0)').remove()
+      $('#real_time_departures #departure_direction option:gt(0)').remove()
+      $('#real_time_departures #departure_stop option:gt(0)').remove()
       resetResults()
 
       if (routeId === '') {
-        $('#real_time_arrivals #arrival_direction')
+        $('#real_time_departures #departure_direction')
           .val('')
           .prop('disabled', true)
       } else {
-        $('#real_time_arrivals #arrival_direction')
+        $('#real_time_departures #departure_direction')
           .val('')
           .prop('disabled', false)
 
@@ -423,7 +447,7 @@ function setupTransitArrivalsWidget(routes, stops, config) {
           return console.warn(`Unable to find route ${routeId}`)
         }
 
-        $('#real_time_arrivals #arrival_direction').append(
+        $('#real_time_departures #departure_direction').append(
           route.directions.map((direction) =>
             $('<option>').val(direction.direction_id).text(direction.direction),
           ),
@@ -431,17 +455,21 @@ function setupTransitArrivalsWidget(routes, stops, config) {
       }
     })
 
-    $('#real_time_arrivals #arrival_direction').change((event) => {
-      const routeId = $('#real_time_arrivals #arrival_route').val()
+    $('#real_time_departures #departure_direction').change((event) => {
+      const routeId = $('#real_time_departures #departure_route').val()
       const directionId = $(event.target).val()
 
-      $('#real_time_arrivals #arrival_stop option:gt(0)').remove()
+      $('#real_time_departures #departure_stop option:gt(0)').remove()
       resetResults()
 
       if (directionId === '') {
-        $('#real_time_arrivals #arrival_stop').val('').prop('disabled', true)
+        $('#real_time_departures #departure_stop')
+          .val('')
+          .prop('disabled', true)
       } else {
-        $('#real_time_arrivals #arrival_stop').val('').prop('disabled', false)
+        $('#real_time_departures #departure_stop')
+          .val('')
+          .prop('disabled', false)
 
         const route = routes.find((route) => route.route_id === routeId)
 
@@ -453,7 +481,7 @@ function setupTransitArrivalsWidget(routes, stops, config) {
           (direction) => direction.direction_id.toString() === directionId,
         )
 
-        $('#real_time_arrivals #arrival_stop').append(
+        $('#real_time_departures #departure_stop').append(
           direction.stopIds.map((stopId) => {
             const stop = stops.find((stop) => stop.stop_id === stopId)
             return $('<option>').val(stop.stop_id).text(stop.stop_name)
@@ -462,9 +490,9 @@ function setupTransitArrivalsWidget(routes, stops, config) {
       }
     })
 
-    $('#real_time_arrivals #arrival_stop').change((event) => {
-      const routeId = $('#real_time_arrivals #arrival_route').val()
-      const directionId = $('#real_time_arrivals #arrival_direction').val()
+    $('#real_time_departures #departure_stop').change((event) => {
+      const routeId = $('#real_time_departures #departure_route').val()
+      const directionId = $('#real_time_departures #departure_direction').val()
       const stopId = $(event.target).val()
 
       selectStop({
@@ -478,7 +506,7 @@ function setupTransitArrivalsWidget(routes, stops, config) {
       event.preventDefault()
       $('.stop-code-invalid').hide()
 
-      const stopName = $('#arrival_stop_code').val()
+      const stopName = $('#departure_stop_code').val()
 
       if (stopName === '') {
         $('.stop-code-invalid').show()
@@ -490,16 +518,16 @@ function setupTransitArrivalsWidget(routes, stops, config) {
       })
     })
 
-    $('#arrival_results .arrival-results-fetchtime').click((event) => {
+    $('#departure_results .departure-results-fetchtime').click((event) => {
       event.preventDefault()
       resetResults()
       showLoading()
-      updateArrivals(true)
+      updateDepartures(true)
     })
 
     accessibleAutocomplete({
-      element: $('#arrival_stop_code_container').get(0),
-      id: 'arrival_stop_code',
+      element: $('#departure_stop_code_container').get(0),
+      id: 'departure_stop_code',
       source(query, populateResults) {
         const filteredResults = stops.filter((stop) => {
           if (stop.stop_code?.startsWith(query.trim())) {
@@ -512,7 +540,7 @@ function setupTransitArrivalsWidget(routes, stops, config) {
       },
       minLength: 2,
       autoselect: true,
-      placeholder: $('#arrival_stop_code_container').data('placeholder'),
+      placeholder: $('#departure_stop_code_container').data('placeholder'),
       showNoOptionsFound: false,
       templates: {
         inputValue: (result) => result && result.stop_name,
@@ -526,7 +554,7 @@ function setupTransitArrivalsWidget(routes, stops, config) {
           }
 
           const stopCode = result.is_parent_station
-            ? $('#arrival_stop_code_container').data('stop-code-all')
+            ? $('#departure_stop_code_container').data('stop-code-all')
             : result.stop_code
 
           let formattedStopName = `<strong>${result.stop_name}</strong>`
@@ -543,7 +571,7 @@ function setupTransitArrivalsWidget(routes, stops, config) {
           return
         }
 
-        $('#arrival_stop_code').val(selectedStop.stop_name)
+        $('#departure_stop_code').val(selectedStop.stop_name)
         $('#stop_form').trigger('submit')
       },
       defaultValue: initialStop,

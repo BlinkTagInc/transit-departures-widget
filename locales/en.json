@@ -1,11 +1,11 @@
 {
-  "Realtime Arrivals": "Realtime Arrivals",
+  "Realtime Departures": "Realtime Departures",
   "By Stop": "By Stop",
   "By Route": "By Route",
   "Search by stop name or stop code": "Search by stop name or stop code",
   "all": "all",
   "Invalid stop code": "Invalid stop code",
-  "Get Arrivals": "Get Arrivals",
+  "Get Departures": "Get Departures",
   "Choose a route": "Choose a route",
   "Choose a direction": "Choose a direction",
   "Choose a stop": "Choose a stop",
@@ -14,7 +14,7 @@
   "As of": "As of",
   "Stop Code": "Stop Code",
   "min": "min",
-  "No upcoming arrivals": "No upcoming arrivals",
-  "Unable to fetch arrivals": "Unable to fetch arrivals",
+  "No upcoming departures": "No upcoming departures",
+  "Unable to fetch departures": "Unable to fetch departures",
   "To {{{headsign}}}": "To {{{headsign}}}"
 }
