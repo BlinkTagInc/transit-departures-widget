@@ -41,7 +41,7 @@ function setuptransitDeparturesWidget(routes, stops, config) {
       return '0'
     }
 
-    return directionId
+    return directionId?.toString()
   }
 
   function timeStamp() {
@@ -281,7 +281,7 @@ function setuptransitDeparturesWidget(routes, stops, config) {
       let tripDirection
       for (const route of routes) {
         for (const direction of route.directions) {
-          if (direction.trip_ids.includes(tripId)) {
+          if (direction.tripIds.includes(tripId)) {
             tripDirection = direction
             tripRoute = route
             break
@@ -328,7 +328,7 @@ function setuptransitDeparturesWidget(routes, stops, config) {
 
           if (
             !direction ||
-            !direction.trip_ids.includes(departure.trip_update.trip.trip_id)
+            !direction.tripIds.includes(departure.trip_update.trip.trip_id)
           ) {
             continue
           }

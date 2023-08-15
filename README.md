@@ -8,7 +8,6 @@
   <br /><br />
   <a href="https://www.npmjs.com/package/transit-departures-widget" rel="nofollow"><img src="https://img.shields.io/npm/v/transit-departures-widget.svg?style=flat" style="max-width: 100%;"></a>
   <a href="https://www.npmjs.com/package/transit-departures-widget" rel="nofollow"><img src="https://img.shields.io/npm/dm/transit-departures-widget.svg?style=flat" style="max-width: 100%;"></a>
-  <a href="https://github.com/BlinkTagInc/transit-departures-widget/actions?query=workflow%3A%22Node+CI%22"><img src="https://img.shields.io/github/workflow/status/BlinkTagInc/transit-departures-widget/Node%20CI.svg" alt="CircleCI" style="max-width: 100%;"></a>
   <img src="https://img.shields.io/badge/License-MIT-yellow.svg">
   <br /><br />
   Build a realtime transit departures lookup widget from GTFS and GTFS-Realtime.

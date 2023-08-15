@@ -5,17 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.0.0] - 2023-09-14
+
+## Changed
+
+- Renamed to transit-departures-widget
+- Renamed all styles and functions to use departures instead of arrivals
 
 ## Fixed
 
 - Handle empty direction_id in GTFS
 - Hide overflow in route circle
+- Better route sorting
+- Fix for hidden arrival times after none available
 
 ## Updated
 
 - Reword input to "stop" and "Stop code"
 - Add support for GTFS without stop codes
+- Hide departures more than 1 minute in the past
 
 ## [1.2.1] - 2023-08-14
 
