@@ -112,20 +112,25 @@ function setuptransitDeparturesWidget(routes, stops, config) {
       $('#loading').hide()
     }
 
-    function renderStopInfo(stop) {
-      if (stop) {
+    function renderStopInfo(selectedStops) {
+      if (selectedStops && selectedStops.length > 0) {
         $('#departure_results .departure-results-stop-unknown').hide()
         $('#departure_results .departure-results-stop')
-          .text(stop.stop_name)
+          .text(selectedStops[0].stop_name)
           .show()
       } else {
         $('#departure_results .departure-results-stop').hide()
         $('#departure_results .departure-results-stop-unknown').show()
       }
 
-      if (stop && stop.stop_code) {
+      if (
+        selectedStops &&
+        selectedStops.length === 1 &&
+        selectedStops[0].stop_code &&
+        !selectedStops[0].is_parent_station
+      ) {
         $('#departure_results .departure-results-stop-code').text(
-          stop.stop_code,
+          selectedStops[0].stop_code,
         )
         $('#departure_results .departure-results-stop-code-container').show()
       } else {
@@ -169,17 +174,12 @@ function setuptransitDeparturesWidget(routes, stops, config) {
         .appendTo(routeNameDiv)
 
       const sortedDepartures = _.take(
-        _.sortBy(
-          departureGroup,
-          (departure) => departure.stoptime.departure.time,
-        ),
+        _.sortBy(departureGroup, (departure) => departure.time),
         3,
       )
 
       for (const departure of sortedDepartures) {
-        const minutes = formatMinutes(
-          departure.stoptime.departure.time - Date.now() / 1000,
-        )
+        const minutes = formatMinutes(departure.time - Date.now() / 1000)
         const minutesLabel = $(
           '#departure_results .departure-results-container',
         ).data('minutes-label')
@@ -199,8 +199,8 @@ function setuptransitDeparturesWidget(routes, stops, config) {
       return div
     }
 
-    function renderResults(stop, departures) {
-      renderStopInfo(stop)
+    function renderResults(selectedStops, departures) {
+      renderStopInfo(selectedStops)
 
       if (departures.length === 0) {
         $('#departure_results .departure-results-container').hide()
@@ -234,22 +234,54 @@ function setuptransitDeparturesWidget(routes, stops, config) {
       $('#departure_results').show()
     }
 
-    function renderError(stop) {
-      renderStopInfo(stop)
+    function renderError(selectedStops) {
+      renderStopInfo(selectedStops)
       $('#departure_results .departure-results-error').show()
 
       hideLoading()
       $('#departure_results').show()
     }
 
-    function selectStop({ stopId, stopName, directionId, routeId }) {
+    function findStops(stopId, stopName) {
+      let selectedStops
+      if (stopId !== undefined) {
+        const selectedStop = stops.find((stop) => stop.stop_id === stopId)
+
+        if (selectedStop) {
+          selectedStops = [selectedStop]
+        }
+      } else {
+        selectedStops = stops.filter(
+          (stop) =>
+            stop.stop_id === stopName ||
+            stop.stop_code === stopName ||
+            stop.stop_name === stopName,
+        )
+      }
+
+      if (selectedStops) {
+        // Use parent stop if it exists
+        for (const stop of selectedStops) {
+          if (stop.parent_station !== null) {
+            const parentStationStop = stops.find(
+              (s) => s.stop_id === stop.parent_station,
+            )
+            if (parentStationStop) {
+              return [parentStationStop]
+            }
+          }
+        }
+
+        return selectedStops
+      }
+
+      // No stops found
+      return undefined
+    }
+
+    function selectParameters({ stopId, stopName, directionId, routeId }) {
       $('.stop-code-invalid').hide()
-      const stop = stops.find(
-        (stop) =>
-          stop.stop_id === stopId ||
-          stop.stop_name === stopName ||
-          stop.stop_code === stopName,
-      )
+      const selectedStops = findStops(stopId, stopName)
       const route = routes.find((route) => route.route_id === routeId)
       const direction = route
         ? route.directions.find(
@@ -258,12 +290,12 @@ function setuptransitDeparturesWidget(routes, stops, config) {
           )
         : undefined
 
-      if (!stop) {
+      if (!selectedStops || selectedStops.length === 0) {
         $('.stop-code-invalid').show()
         return
       }
 
-      selectedParameters = { stop, direction, route }
+      selectedParameters = { selectedStops, direction, route }
 
       resetResults()
       showLoading()
@@ -299,7 +331,7 @@ function setuptransitDeparturesWidget(routes, stops, config) {
       }
     }
 
-    function filterDepartures(departures, { stop, direction, route }) {
+    function filterDepartures(departures, { selectedStops, direction, route }) {
       // Remove departure information for last stoptime by stop_sequence if it has any
       const cleanedDepartures = departures.map((departure) => {
         const stopTimeUpdates = departure?.trip_update?.stop_time_update
@@ -312,6 +344,13 @@ function setuptransitDeparturesWidget(routes, stops, config) {
         return departure
       })
 
+      const selectedStopIds = selectedStops.flatMap((stop) => {
+        return stop.is_parent_station
+          ? stops
+              .filter((s) => s.parent_station === stop.stop_id)
+              .map((stop) => stop.stop_id)
+          : [stop.stop_id]
+      })
       const filteredDepartures = []
 
       for (const departure of cleanedDepartures) {
@@ -335,7 +374,7 @@ function setuptransitDeparturesWidget(routes, stops, config) {
 
           filteredDeparture.route = route
           filteredDeparture.direction = direction
-        } else if (stop) {
+        } else if (selectedStops && selectedStops.length > 0) {
           if (
             !departure ||
             !departure.trip_update ||
@@ -350,31 +389,24 @@ function setuptransitDeparturesWidget(routes, stops, config) {
           )
         }
 
-        filteredDeparture.stoptime =
-          departure.trip_update.stop_time_update.find(
-            (stopTimeUpdate) => stopTimeUpdate.stop_id === stop.stop_id,
-          )
+        const stoptime = departure.trip_update.stop_time_update.find(
+          (stopTimeUpdate) => selectedStopIds.includes(stopTimeUpdate.stop_id),
+        )
 
-        if (
-          !filteredDeparture.stoptime ||
-          !filteredDeparture.stoptime.departure
-        ) {
+        if (!stoptime || (!stoptime.arrival && !stoptime.departure)) {
           continue
         }
 
+        filteredDeparture.time =
+          stoptime.departure?.time ?? stoptime.arrival?.time
+
         // Hide departures more than 90 minutes in the future
-        if (
-          filteredDeparture.stoptime.departure.time - Date.now() / 1000 >
-          90 * 60
-        ) {
+        if (filteredDeparture.time - Date.now() / 1000 > 90 * 60) {
           continue
         }
 
         // Hide departures more than 1 minute in the past
-        if (
-          filteredDeparture.stoptime.departure.time - Date.now() / 1000 <
-          -60
-        ) {
+        if (filteredDeparture.time - Date.now() / 1000 < -60) {
           continue
         }
 
@@ -386,7 +418,7 @@ function setuptransitDeparturesWidget(routes, stops, config) {
 
     async function updateDepartures(forceRefresh) {
       try {
-        const { stop, direction, route } = selectedParameters
+        const { selectedStops, direction, route } = selectedParameters
         // Use existing data if less than the refresh interval seconds old
         const minimumAge = Date.now() - config.refreshIntervalSeconds * 1000
         if (
@@ -396,7 +428,7 @@ function setuptransitDeparturesWidget(routes, stops, config) {
         ) {
           const departures = await fetchTripUpdates()
 
-          // Don't use new departure info if nothing is returned.
+          // Don't use new departure info if nothing is returned
           if (!departures || departures.length === 0) {
             console.error('No departures returned')
             return
@@ -406,20 +438,20 @@ function setuptransitDeparturesWidget(routes, stops, config) {
         }
 
         renderResults(
-          stop,
+          selectedStops,
           filterDepartures(departuresResponse.departures, {
-            stop,
+            selectedStops,
             direction,
             route,
           }),
         )
 
-        if (stop.stop_id) {
-          updateUrlWithStop(stop)
+        if (selectedStops && selectedStops.length > 0) {
+          updateUrlWithStop(selectedStops[0])
         }
       } catch (error) {
         console.error(error)
-        renderError(selectedParameters?.stop)
+        renderError(selectedParameters?.selectedStops)
       }
     }
 
@@ -527,7 +559,7 @@ function setuptransitDeparturesWidget(routes, stops, config) {
       const directionId = $('#real_time_departures #departure_direction').val()
       const stopId = $(event.target).val()
 
-      selectStop({
+      selectParameters({
         stopId,
         routeId,
         directionId,
@@ -545,7 +577,7 @@ function setuptransitDeparturesWidget(routes, stops, config) {
         return
       }
 
-      selectStop({
+      selectParameters({
         stopName,
       })
     })
@@ -562,6 +594,11 @@ function setuptransitDeparturesWidget(routes, stops, config) {
       id: 'departure_stop_code',
       source(query, populateResults) {
         const filteredResults = stops.filter((stop) => {
+          // Don't list child stations
+          if (stop.parent_station !== null) {
+            return false
+          }
+
           if (stop.stop_code?.startsWith(query.trim())) {
             return true
           }
