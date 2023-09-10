@@ -1,7 +1,7 @@
 /* global window, $, jQuery, _, Pbf, FeedMessage, alert, accessibleAutocomplete,  */
 /* eslint no-var: "off", no-unused-vars: "off", no-alert: "off" */
 
-function setuptransitDeparturesWidget(routes, stops, config) {
+function setupTransitDeparturesWidget(routes, stops, config) {
   let departuresResponse
   let departuresTimeout
   let initialStop
@@ -429,7 +429,7 @@ function setuptransitDeparturesWidget(routes, stops, config) {
           const departures = await fetchTripUpdates()
 
           // Don't use new departure info if nothing is returned
-          if (!departures || departures.length === 0) {
+          if (!departures) {
             console.error('No departures returned')
             return
           }
