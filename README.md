@@ -52,9 +52,10 @@ An demo of the widget is available at https://transit-departures-widget.blinktag
 
 ## Current Usage
 
-The following transit agencies use `transit-departures-widget` as the departures tool on their websites:
+The following transit agencies use `transit-departures-widget` on their websites:
 
 - [Marin Transit](https://marintransit.org/)
+- [MVgo](https://mvgo.org/)
 
 ## Command Line Usage
 

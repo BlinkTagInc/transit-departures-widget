@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## Changed
+
+- Remove last stop of each route
+- Improved autocomplete sorting
+- Use stop_code as value in autocomplete
+- Populate route dropdown on page load
+
+## Fixed
+
+- Fix for grouping child stops
+- Handle case with no departures
+
+## Updated
+
+ - Dependency updates
+
 ## [2.0.0] - 2023-09-14
 
 ## Changed
