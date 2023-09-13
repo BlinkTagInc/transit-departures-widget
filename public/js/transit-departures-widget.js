@@ -85,7 +85,7 @@ function setupTransitDeparturesWidget(routes, stops, config) {
         return
       }
 
-      initialStop = stop.stop_name
+      initialStop = stop.stop_code || stop.stop_name
 
       // Wait for bootstrap js to initialize before triggering click
       setTimeout(() => {
@@ -617,7 +617,8 @@ function setupTransitDeparturesWidget(routes, stops, config) {
       placeholder: $('#departure_stop_code_container').data('placeholder'),
       showNoOptionsFound: false,
       templates: {
-        inputValue: (result) => result && result.stop_name,
+        inputValue: (result) =>
+          result && (result.stop_code || result.stop_name),
         suggestion(result) {
           if (!result) {
             return
@@ -645,7 +646,9 @@ function setupTransitDeparturesWidget(routes, stops, config) {
           return
         }
 
-        $('#departure_stop_code').val(selectedStop.stop_name)
+        $('#departure_stop_code').val(
+          selectedStop.stop_code || selectedStop.stop_name,
+        )
         $('#stop_form').trigger('submit')
       },
       defaultValue: initialStop,
