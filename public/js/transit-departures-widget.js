@@ -605,7 +605,12 @@ function setupTransitDeparturesWidget(routes, stops, config) {
 
           return stop.stop_name?.toLowerCase().includes(query.toLowerCase())
         })
-        populateResults(filteredResults)
+        const sortedResults = _.sortBy(filteredResults, (stop) =>
+          stop.stop_name?.toLowerCase().startsWith(query.toLowerCase().trim())
+            ? 0
+            : 1,
+        )
+        populateResults(sortedResults)
       },
       minLength: 2,
       autoselect: true,
