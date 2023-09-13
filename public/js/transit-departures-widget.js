@@ -65,6 +65,15 @@ function setupTransitDeparturesWidget(routes, stops, config) {
   }
 
   jQuery(($) => {
+    // Populate dropdown with all routes
+    $('#departure_route').append(
+      routes.map((route) => {
+        return $('<option>')
+          .attr('value', route.route_id)
+          .text(route.route_full_name)
+      }),
+    )
+
     // Read URL parameters on load
     readUrlWithParameters()
 

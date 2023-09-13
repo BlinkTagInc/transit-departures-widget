@@ -23,8 +23,6 @@
         .form-group.select
           select.form-control#departure_route(name="route")
             option(value="")= __('Choose a route')
-            each route in routes
-              option(value=route.route_id)= route.route_full_name
         
         .form-group.select
           select.form-control#departure_direction(name="direction" disabled)
