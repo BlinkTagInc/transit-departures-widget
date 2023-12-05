@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix for routes with no directions
 
+## Updated
+
+ - Dependency updates
+
 ## [2.1.0] - 2023-09-13
 
 ## Changed
