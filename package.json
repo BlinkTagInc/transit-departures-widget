@@ -30,10 +30,10 @@
   "main": "index.js",
   "dependencies": {
     "copy-dir": "^1.3.0",
-    "express": "^4.18.2",
-    "gtfs": "^4.5.1",
+    "express": "^4.18.3",
+    "gtfs": "^4.7.2",
     "i18n": "^0.15.1",
-    "js-beautify": "^1.14.11",
+    "js-beautify": "^1.15.1",
     "lodash-es": "^4.17.21",
     "morgan": "^1.10.0",
     "pretty-error": "^4.0.0",
@@ -44,12 +44,12 @@
     "toposort": "^2.0.2",
     "untildify": "^5.0.0",
     "yargs": "^17.7.2",
-    "yoctocolors": "^1.0.0"
+    "yoctocolors": "^2.0.0"
   },
   "devDependencies": {
-    "husky": "^8.0.3",
-    "lint-staged": "^15.2.0",
-    "prettier": "^3.1.0"
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
+    "prettier": "^3.2.5"
   },
   "engines": {
     "node": ">= 14.15.4"
