@@ -89,19 +89,19 @@ Copy `config-sample.json` to `config.json` and then add your projects configurat
 
     cp config-sample.json config.json
 
-| option                                              | type    | description                                                                                    |
-| --------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------------- |
-| [`agency`](#agency)                                 | object  | Information about the GTFS and GTFS-RT to be used.                                             |
-| [`beautify`](#beautify)                             | boolean | Whether or not to beautify the HTML output.                                                    |
-| [`endDAte`](#enddate)                         | string  | A date in YYYYMMDD format to use to filter calendar.txt service. Optional, defaults to using all service in specified GTFS.               |
-| [`locale`](#locale)                                 | string  | The 2-letter code of the language to use for the interface.                                    |
-| [`noHead`](#nohead)                                 | boolean | Whether or not to skip the header and footer of the HTML document.                             |
-| [`refreshIntervalSeconds`](#refreshIntervalSeconds) | integer | How often the widget should refresh departure data in seconds. Optional, defaults to 20 seconds. |
-| [`skipImport`](#skipimport)                         | boolean | Whether or not to skip importing GTFS data into SQLite.                                        |
-| [`sqlitePath`](#sqlitepath)                         | string  | A path to an SQLite database. Optional, defaults to using an in-memory database.               |
-| [`startDate`](#startdate)                         | string  | A date in YYYYMMDD format to use to filter calendar.txt service. Optional, defaults to using all service in specified GTFS.               |
-| [`templatePath`](#templatepath)                     | string  | Path to custom pug template for rendering widget.                                              |
-| [`timeFormat`](#timeFormat)                         | string  | The format (12hour or 24hour) for the "as of" display.                                         |
+| option                                              | type    | description                                                                                                                 |
+| --------------------------------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------- |
+| [`agency`](#agency)                                 | object  | Information about the GTFS and GTFS-RT to be used.                                                                          |
+| [`beautify`](#beautify)                             | boolean | Whether or not to beautify the HTML output.                                                                                 |
+| [`endDate`](#enddate)                               | string  | A date in YYYYMMDD format to use to filter calendar.txt service. Optional, defaults to using all service in specified GTFS. |
+| [`locale`](#locale)                                 | string  | The 2-letter code of the language to use for the interface.                                                                 |
+| [`noHead`](#nohead)                                 | boolean | Whether or not to skip the header and footer of the HTML document.                                                          |
+| [`refreshIntervalSeconds`](#refreshIntervalSeconds) | integer | How often the widget should refresh departure data in seconds. Optional, defaults to 20 seconds.                            |
+| [`skipImport`](#skipimport)                         | boolean | Whether or not to skip importing GTFS data into SQLite.                                                                     |
+| [`sqlitePath`](#sqlitepath)                         | string  | A path to an SQLite database. Optional, defaults to using an in-memory database.                                            |
+| [`startDate`](#startdate)                           | string  | A date in YYYYMMDD format to use to filter calendar.txt service. Optional, defaults to using all service in specified GTFS. |
+| [`templatePath`](#templatepath)                     | string  | Path to custom pug template for rendering widget.                                                                           |
+| [`timeFormat`](#timeFormat)                         | string  | The format (12hour or 24hour) for the "as of" display.                                                                      |
 
 ### agency
 
@@ -161,10 +161,10 @@ Copy `config-sample.json` to `config.json` and then add your projects configurat
 
 ### endDate
 
-{Integer} A date in YYYYMMDD format to use to filter service_ids in calendar.txt. Useful in combination with `startDate` configuration option. Optional, if not specified, all services in GTFS will be used.
+{String} A date in YYYYMMDD format to use to filter service_ids in calendar.txt. Useful in combination with `startDate` configuration option. Optional, if not specified, all services in GTFS will be used.
 
 ```
-    "endDate": 20240401
+    "endDate": "20240401"
 ```
 
 ### locale
@@ -201,10 +201,10 @@ Copy `config-sample.json` to `config.json` and then add your projects configurat
 
 ### startDate
 
-{Integer} A date in YYYYMMDD format to use to filter service_ids in calendar.txt. Useful in combination with `endDate` configuration option. Optional, if not specified, all services in GTFS will be used.
+{String} A date in YYYYMMDD format to use to filter service_ids in calendar.txt. Useful in combination with `endDate` configuration option. Optional, if not specified, all services in GTFS will be used.
 
 ```
-    "startDate": 20240301
+    "startDate": "20240301"
 ```
 
 ### sqlitePath

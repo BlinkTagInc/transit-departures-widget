@@ -5,9 +5,11 @@
     "gtfs_rt_tripupdates_url": "https://marintransit.net/gtfs-rt/tripupdates"
   },
   "beautify": true,
+  "endDate": "20240331",
   "locale": "en",
   "noHead": false,
   "refreshIntervalSeconds": 20,
   "templatePath": "views/widget",
-  "timeFormat": "12hour"
+  "timeFormat": "12hour",
+  "startDate": "20240301"
 }
