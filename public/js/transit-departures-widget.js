@@ -6,6 +6,7 @@ function setupTransitDeparturesWidget(routes, stops, config) {
   let departuresTimeout
   let initialStop
   let selectedParameters
+  let url = new URL(config.gtfsRtTripupdatesUrl)
 
   function updateUrlWithStop(stop) {
     const url = new URL(window.location.origin + window.location.pathname)
@@ -15,7 +16,7 @@ function setupTransitDeparturesWidget(routes, stops, config) {
   }
 
   async function fetchTripUpdates() {
-    const url = `${config.gtfsRtTripupdatesUrl}?cacheBust=${Date.now()}`
+    url.searchParams.append('cacheBust', Date.now())
     const response = await fetch(url)
     if (response.ok) {
       const bufferResponse = await response.arrayBuffer()
