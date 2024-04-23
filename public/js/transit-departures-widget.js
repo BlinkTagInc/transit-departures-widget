@@ -342,13 +342,30 @@ function setupTransitDeparturesWidget(routes, stops, config) {
     }
 
     function filterDepartures(departures, { selectedStops, direction, route }) {
-      // Remove departure information for last stoptime by stop_sequence if it has any
+      // Remove departure and arrival information for last stoptime by stop_sequence if it has any
       const cleanedDepartures = departures.map((departure) => {
-        const stopTimeUpdates = departure?.trip_update?.stop_time_update
-
-        if (stopTimeUpdates && stopTimeUpdates.length >= 2) {
-          delete stopTimeUpdates[0].arrival
-          delete stopTimeUpdates[stopTimeUpdates.length - 1].departure
+        if (departure?.trip_update?.stop_time_update?.length > 0) {
+          // Find index of largest stop_sequence
+          let largestStopSequence = 0
+          let largestStopSequenceIndex = 0
+          for (
+            let index = 0;
+            index < departure.trip_update.stop_time_update.length;
+            index++
+          ) {
+            if (
+              departure.trip_update.stop_time_update[index].stop_sequence >
+              largestStopSequence
+            ) {
+              largestStopSequence =
+                departure.trip_update.stop_time_update[index].stop_sequence
+              largestStopSequenceIndex = index
+            }
+          }
+          departure.trip_update.stop_time_update.splice(
+            largestStopSequenceIndex,
+            1,
+          )
         }
 
         return departure
