@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Updated
 
 - Store routes and stops in separate JSON file
+- Dependency updates
 
 ## Fixed
 
