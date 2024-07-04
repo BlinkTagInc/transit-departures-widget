@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Updated
+
+- Store routes and stops in separate JSON file
+
 ## Fixed
 
 - Copy img folder

@@ -49,13 +49,12 @@
         .departure-results-error= __('Unable to fetch departures')
 
 script.
-  (function() {
-    const routes = !{JSON.stringify(routes)};
-    const stops = !{JSON.stringify(stops)};
-    const config = {
+  (async function() {
+    const routes = await fetch('data/routes.json').then(res => res.json())
+    const stops = await fetch('data/stops.json').then(res => res.json())
+    setupTransitDeparturesWidget(routes, stops, {
       gtfsRtTripupdatesUrl: '#{config.agency.gtfs_rt_tripupdates_url}',
       refreshIntervalSeconds: #{config.refreshIntervalSeconds},
       timeFormat: '#{config.timeFormat}'
-    }
-    setupTransitDeparturesWidget(routes, stops, config);
+    })
   })()

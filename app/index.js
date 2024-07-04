@@ -10,6 +10,7 @@ import logger from 'morgan'
 import {
   setDefaultConfig,
   generateTransitDeparturesWidgetHtml,
+  generateTransitDeparturesWidgetJson,
 } from '../lib/utils.js'
 
 const { argv } = yargs(process.argv).option('c', {
@@ -52,6 +53,27 @@ router.get('/', async (request, response, next) => {
   try {
     const html = await generateTransitDeparturesWidgetHtml(config)
     response.send(html)
+  } catch (error) {
+    next(error)
+  }
+})
+
+/*
+ * Provide data
+ */
+router.get('/data/routes.json', async (request, response, next) => {
+  try {
+    const { routes } = await generateTransitDeparturesWidgetJson(config)
+    response.json(routes)
+  } catch (error) {
+    next(error)
+  }
+})
+
+router.get('/data/stops.json', async (request, response, next) => {
+  try {
+    const { stops } = await generateTransitDeparturesWidgetJson(config)
+    response.json(stops)
   } catch (error) {
     next(error)
   }

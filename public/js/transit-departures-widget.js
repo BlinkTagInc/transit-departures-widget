@@ -38,7 +38,7 @@ function setupTransitDeparturesWidget(routes, stops, config) {
   }
 
   function formatDirectionId(directionId) {
-    if (directionId === null) {
+    if (directionId === null || directionId === undefined) {
       return '0'
     }
 
@@ -622,7 +622,10 @@ function setupTransitDeparturesWidget(routes, stops, config) {
       source(query, populateResults) {
         const filteredResults = stops.filter((stop) => {
           // Don't list child stations
-          if (stop.parent_station !== null) {
+          if (
+            stop.parent_station !== null &&
+            stop.parent_station !== undefined
+          ) {
             return false
           }
 
