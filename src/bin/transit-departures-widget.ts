@@ -2,11 +2,15 @@
 
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
-import { getConfig } from '../lib/file-utils.js'
-import { formatError } from '../lib/log-utils.js'
-import transitDeparturesWidget from '../index.js'
+import PrettyError from 'pretty-error'
 
-const { argv } = yargs(hideBin(process.argv))
+import { getConfig } from '../lib/file-utils.ts'
+import { formatError } from '../lib/log-utils.ts'
+import transitDeparturesWidget from '../index.ts'
+
+const pe = new PrettyError()
+
+const argv = yargs(hideBin(process.argv))
   .usage('Usage: $0 --config ./config.json')
   .help()
   .option('c', {
@@ -21,11 +25,12 @@ const { argv } = yargs(hideBin(process.argv))
     type: 'boolean',
   })
   .default('skipImport', undefined)
+  .parseSync()
 
-const handleError = (error) => {
+const handleError = (error: any) => {
   const text = error || 'Unknown Error'
   process.stdout.write(`\n${formatError(text)}\n`)
-  console.error(error)
+  console.error(pe.render(error))
   process.exit(1)
 }
 

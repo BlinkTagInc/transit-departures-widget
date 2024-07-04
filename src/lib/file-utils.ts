@@ -6,6 +6,8 @@ import beautify from 'js-beautify'
 import pug from 'pug'
 import untildify from 'untildify'
 
+import { IConfig } from '../types/global_interfaces.ts'
+
 /*
  * Attempt to parse the specified config JSON file.
  */
@@ -58,7 +60,7 @@ function getTemplatePath(templateFileName, config) {
 
   return path.join(
     fileURLToPath(import.meta.url),
-    '../../views/widget',
+    '../../../views/widget',
     `${fullTemplateFileName}.pug`,
   )
 }
@@ -66,12 +68,12 @@ function getTemplatePath(templateFileName, config) {
 /*
  * Prepare the specified directory for saving HTML widget by deleting everything.
  */
-export async function prepDirectory(exportPath) {
+export async function prepDirectory(exportPath: string) {
   await rm(exportPath, { recursive: true, force: true })
   try {
     await mkdir(exportPath, { recursive: true })
-  } catch (error) {
-    if (error.code === 'ENOENT') {
+  } catch (error: any) {
+    if (error?.code === 'ENOENT') {
       throw new Error(
         `Unable to write to ${exportPath}. Try running this command from a writable directory.`,
       )
@@ -84,10 +86,10 @@ export async function prepDirectory(exportPath) {
 /*
  * Copy needed CSS and JS to export path.
  */
-export function copyStaticAssets(exportPath) {
+export function copyStaticAssets(exportPath: string) {
   const staticAssetPath = path.join(
     fileURLToPath(import.meta.url),
-    '../../public',
+    '../../../public',
   )
   copydir.sync(path.join(staticAssetPath, 'img'), path.join(exportPath, 'img'))
   copydir.sync(path.join(staticAssetPath, 'css'), path.join(exportPath, 'css'))
@@ -97,7 +99,11 @@ export function copyStaticAssets(exportPath) {
 /*
  * Render the HTML based on the config.
  */
-export async function renderFile(templateFileName, templateVars, config) {
+export async function renderFile(
+  templateFileName: string,
+  templateVars: any,
+  config: IConfig,
+) {
   const templatePath = getTemplatePath(templateFileName, config)
   const html = await pug.renderFile(templatePath, templateVars)
 

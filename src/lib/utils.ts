@@ -2,15 +2,17 @@ import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { openDb, getDirections, getRoutes, getStops, getTrips } from 'gtfs'
 import { groupBy, last, maxBy, size, sortBy, uniqBy } from 'lodash-es'
-import { renderFile } from './file-utils.js'
+import { renderFile } from './file-utils.ts'
 import sqlString from 'sqlstring-sqlite'
 import toposort from 'toposort'
 import i18n from 'i18n'
 
+import { IConfig, SqlWhere, SqlValue } from '../types/global_interfaces.ts'
+
 /*
  * Get calendars for a specified date range
  */
-const getCalendarsForDateRange = (config) => {
+const getCalendarsForDateRange = (config: IConfig) => {
   const db = openDb(config)
   let whereClause = ''
   const whereClauses = []
@@ -54,7 +56,7 @@ function formatRouteName(route) {
 /*
  * Get directions for a route
  */
-function getDirectionsForRoute(route, config) {
+function getDirectionsForRoute(route: Record<string, string>, config: IConfig) {
   const db = openDb(config)
 
   // Lookup direction names from non-standard directions.txt file
@@ -70,7 +72,7 @@ function getDirectionsForRoute(route, config) {
     const headsigns = db
       .prepare(
         `SELECT direction_id, trip_headsign, count(*) AS count FROM trips WHERE route_id = ? AND service_id IN (${calendars
-          .map((calendar) => `'${calendar.service_id}'`)
+          .map((calendar: Record<string, string>) => `'${calendar.service_id}'`)
           .join(', ')}) GROUP BY direction_id, trip_headsign`,
       )
       .all(route.route_id)
@@ -92,7 +94,7 @@ function getDirectionsForRoute(route, config) {
 /*
  * Sort an array of stoptimes by stop_sequence using a directed graph
  */
-function sortStopIdsBySequence(stoptimes) {
+function sortStopIdsBySequence(stoptimes: Record<string, string>[]) {
   const stoptimesGroupedByTrip = groupBy(stoptimes, 'trip_id')
 
   // First, try using a directed graph to determine stop order.
@@ -113,7 +115,9 @@ function sortStopIdsBySequence(stoptimes) {
       }
     }
 
-    return toposort(stopGraph)
+    return toposort(
+      stopGraph as unknown as readonly [string, string | undefined][],
+    )
   } catch {
     // Ignore errors and move to next strategy.
   }
@@ -130,7 +134,7 @@ function sortStopIdsBySequence(stoptimes) {
 /*
  * Get stops in order for a route and direction
  */
-function getStopsForDirection(route, direction, config) {
+function getStopsForDirection(route, direction, config: IConfig) {
   const db = openDb(config)
   const calendars = getCalendarsForDateRange(config)
   const whereClause = formatWhereClauses({
@@ -146,14 +150,17 @@ function getStopsForDirection(route, direction, config) {
 
   const sortedStopIds = sortStopIdsBySequence(stoptimes)
 
-  const deduplicatedStopIds = sortedStopIds.reduce((memo, stopId) => {
-    // Remove duplicated stop_ids in a row
-    if (last(memo) !== stopId) {
-      memo.push(stopId)
-    }
+  const deduplicatedStopIds = sortedStopIds.reduce(
+    (memo: string[], stopId: string) => {
+      // Remove duplicated stop_ids in a row
+      if (last(memo) !== stopId) {
+        memo.push(stopId)
+      }
 
-    return memo
-  }, [])
+      return memo
+    },
+    [],
+  )
 
   // Remove last stop of route since boarding is not allowed
   deduplicatedStopIds.pop()
@@ -166,7 +173,7 @@ function getStopsForDirection(route, direction, config) {
     'parent_station',
   ])
 
-  return deduplicatedStopIds.map((stopId) =>
+  return deduplicatedStopIds.map((stopId: string) =>
     stops.find((stop) => stop.stop_id === stopId),
   )
 }
@@ -174,9 +181,9 @@ function getStopsForDirection(route, direction, config) {
 /*
  * Generate HTML for transit departures widget.
  */
-export function generateTransitDeparturesWidgetHtml(config) {
+export function generateTransitDeparturesWidgetHtml(config: IConfig) {
   i18n.configure({
-    directory: join(dirname(fileURLToPath(import.meta.url)), '..', 'locales'),
+    directory: join(dirname(fileURLToPath(import.meta.url)), '../../locales'),
     defaultLocale: config.locale,
     updateFiles: false,
   })
@@ -191,7 +198,7 @@ export function generateTransitDeparturesWidgetHtml(config) {
 /*
  * Generate JSON of routes and stops for transit departures widget.
  */
-export function generateTransitDeparturesWidgetJson(config) {
+export function generateTransitDeparturesWidgetJson(config: IConfig) {
   const routes = getRoutes()
   const stops = []
   const filteredRoutes = []
@@ -213,13 +220,15 @@ export function generateTransitDeparturesWidgetJson(config) {
     for (const direction of directions) {
       const directionStops = getStopsForDirection(route, direction, config)
       stops.push(...directionStops)
-      direction.stopIds = directionStops.map((stop) => stop.stop_id)
+      direction.stopIds = directionStops.map((stop) => stop?.stop_id)
 
       const trips = getTrips(
         {
           route_id: route.route_id,
           direction_id: direction.direction_id,
-          service_id: calendars.map((calendar) => calendar.service_id),
+          service_id: calendars.map(
+            (calendar: Record<string, string>) => calendar.service_id,
+          ),
         },
         ['trip_id'],
       )
@@ -237,7 +246,7 @@ export function generateTransitDeparturesWidgetJson(config) {
   )
 
   // Get Parent Station Stops
-  const parentStationIds = new Set(stops.map((stop) => stop.parent_station))
+  const parentStationIds = new Set(stops.map((stop) => stop?.parent_station))
 
   const parentStationStops = getStops(
     { stop_id: Array.from(parentStationIds) },
@@ -263,7 +272,7 @@ export function generateTransitDeparturesWidgetJson(config) {
 /*
  * Remove null values from array or object
  */
-function removeNulls(data) {
+function removeNulls(data: any): any {
   if (Array.isArray(data)) {
     return data
       .map(removeNulls)
@@ -284,7 +293,7 @@ function removeNulls(data) {
 /*
  * Initialize configuration with defaults.
  */
-export function setDefaultConfig(initialConfig) {
+export function setDefaultConfig(initialConfig: IConfig) {
   const defaults = {
     beautify: false,
     noHead: false,
@@ -296,7 +305,10 @@ export function setDefaultConfig(initialConfig) {
   return Object.assign(defaults, initialConfig)
 }
 
-export function formatWhereClause(key, value) {
+export function formatWhereClause(
+  key: string,
+  value: null | SqlValue | SqlValue[],
+) {
   if (Array.isArray(value)) {
     let whereClause = `${sqlString.escapeId(key)} IN (${value
       .filter((v) => v !== null)
@@ -317,7 +329,7 @@ export function formatWhereClause(key, value) {
   return `${sqlString.escapeId(key)} = ${sqlString.escape(value)}`
 }
 
-export function formatWhereClauses(query) {
+export function formatWhereClauses(query: SqlWhere) {
   if (Object.keys(query).length === 0) {
     return ''
   }

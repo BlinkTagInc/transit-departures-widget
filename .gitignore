@@ -7,3 +7,6 @@ views/custom
 .git
 .DS_Store
 .vscode
+
+# Build files
+/dist
