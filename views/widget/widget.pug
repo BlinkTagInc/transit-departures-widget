@@ -2,34 +2,32 @@
   .card.mx-auto.my-5
     .card-body
       h2= __('Realtime Departures')
-      .form-group
-        .btn-group.btn-group-toggle(data-toggle="buttons")  
-          label.btn.btn-primary.active
-            input(type="radio" name="departure_type" value="stop" checked)
-            span= __('By Stop')
-          label.btn.btn-primary
-            input(type="radio" name="departure_type" value="route")
-            span= __('By Route') 
+      .mb-3
+        .btn-group.btn-group-two(data-label="Lookup Type")  
+          input#departure_type_stop_id.btn-check(type="radio" name="departure_type" value="stop" checked)
+          label.btn.btn-outline-primary( for="departure_type_stop_id") By Stop
+          input#departure_type_route.btn-check(type="radio" name="departure_type" value="route")
+          label.btn.btn-outline-primary( for="departure_type_route") By Route
 
       form#stop_form
-        .form-group.text
+        .mb-3
           #departure_stop_code_container(data-placeholder=__('Search by stop name or stop code') data-stop-code-all=__('all'))
 
         .stop-code-invalid= __('Invalid stop code')  
-        .form-group
-          button.btn.btn-primary.btn-block(type="submit")= __('Get Departures')
+        .d-grid
+          button.btn.btn-primary(type="submit")= __('Get Departures')
 
       form#route_form.hidden-form
-        .form-group.select
-          select.form-control#departure_route(name="route")
+        .mb-3
+          select.form-select#departure_route(name="route")
             option(value="")= __('Choose a route')
         
-        .form-group.select
-          select.form-control#departure_direction(name="direction" disabled)
+        .mb-3
+          select.form-select#departure_direction(name="direction" disabled)
             option(value="")= __('Choose a direction')
         
-        .form-group.select
-          select.form-control#departure_stop(name="stop" disabled)
+        .mb-3
+          select.form-select#departure_stop(name="stop" disabled)
             option(value="")= __('Choose a stop')
 
       #loading.loader #{__('Loading')}...

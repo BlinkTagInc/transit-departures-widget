@@ -40,8 +40,10 @@ body {
 
 .transit-departures-widget .departure-results-stop,
 .transit-departures-widget .departure-results-stop-unknown {
-  font-size: 24px;
+  font-size: 18px;
+  font-weight: 500;
   line-height: 1;
+  margin-bottom: 3px;
 }
 
 .transit-departures-widget .departure-result {
