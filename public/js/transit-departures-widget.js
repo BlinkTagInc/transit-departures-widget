@@ -642,6 +642,7 @@ function setupTransitDeparturesWidget(routes, stops, config) {
         )
         populateResults(sortedResults)
       },
+      displayMenu: 'overlay',
       minLength: 2,
       autoselect: true,
       placeholder: $('#departure_stop_code_container').data('placeholder'),
