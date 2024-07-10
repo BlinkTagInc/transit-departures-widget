@@ -12,6 +12,7 @@ export interface IConfig {
   startDate?: string
   endDate?: string
   locale?: string
+  includeCoordinates?: boolean
   noHead?: boolean
   refreshIntervalSeconds?: number
   skipImport?: boolean

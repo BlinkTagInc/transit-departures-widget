@@ -94,6 +94,7 @@ Copy `config-sample.json` to `config.json` and then add your projects configurat
 | [`agency`](#agency)                                 | object  | Information about the GTFS and GTFS-RT to be used.                                                                          |
 | [`beautify`](#beautify)                             | boolean | Whether or not to beautify the HTML output.                                                                                 |
 | [`endDate`](#enddate)                               | string  | A date in YYYYMMDD format to use to filter calendar.txt service. Optional, defaults to using all service in specified GTFS. |
+| [`includeCoordinates`](#includecoordinates)         | boolean  | Whether or not to include stop coordinates in JSON output. |
 | [`locale`](#locale)                                 | string  | The 2-letter code of the language to use for the interface.                                                                 |
 | [`noHead`](#nohead)                                 | boolean | Whether or not to skip the header and footer of the HTML document.                                                          |
 | [`refreshIntervalSeconds`](#refreshIntervalSeconds) | integer | How often the widget should refresh departure data in seconds. Optional, defaults to 20 seconds.                            |
@@ -167,12 +168,20 @@ Copy `config-sample.json` to `config.json` and then add your projects configurat
     "endDate": "20240401"
 ```
 
+### includeCoordinates
+
+{Boolean} Whether or not to include stop coordinates in the stops.json output. Can be useful if you need to customize the output to show stops on a map or filter by location. Defaults to `false`.
+
+```
+    "includeCoordinates": false
+```
+
 ### locale
 
 {String} The 2-letter language code of the language to use for the interface. Current languages supported are Polish (`pl`) and English (`en`). Pull Requests welcome for translations to other languages. Defaults to `en` (English).
 
 ```
-    "locale": "en'
+    "locale": "en"
 ```
 
 ### noHead

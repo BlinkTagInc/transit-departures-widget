@@ -6,6 +6,7 @@
   },
   "beautify": true,
   "endDate": "20240331",
+  "includeCoordinates": false,
   "locale": "en",
   "noHead": false,
   "refreshIntervalSeconds": 20,

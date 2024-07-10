@@ -166,12 +166,14 @@ function getStopsForDirection(route, direction, config: IConfig) {
   deduplicatedStopIds.pop()
 
   // Fetch stop details
-  const stops = getStops({ stop_id: deduplicatedStopIds }, [
-    'stop_id',
-    'stop_name',
-    'stop_code',
-    'parent_station',
-  ])
+
+  const stopFields = ['stop_id', 'stop_name', 'stop_code', 'parent_station']
+
+  if (config.includeCoordinates) {
+    stopFields.push('stop_lat', 'stop_lon')
+  }
+
+  const stops = getStops({ stop_id: deduplicatedStopIds }, stopFields)
 
   return deduplicatedStopIds.map((stopId: string) =>
     stops.find((stop) => stop.stop_id === stopId),
@@ -300,6 +302,7 @@ export function setDefaultConfig(initialConfig: IConfig) {
     refreshIntervalSeconds: 20,
     skipImport: false,
     timeFormat: '12hour',
+    includeCoordinates: false,
   }
 
   return Object.assign(defaults, initialConfig)
