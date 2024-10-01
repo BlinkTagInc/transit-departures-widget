@@ -16,7 +16,6 @@ function setupTransitDeparturesWidget(routes, stops, config) {
   }
 
   async function fetchTripUpdates() {
-    url.searchParams.append('cacheBust', Date.now())
     const response = await fetch(url)
     if (response.ok) {
       const bufferResponse = await response.arrayBuffer()
