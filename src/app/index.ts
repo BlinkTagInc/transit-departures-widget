@@ -1,10 +1,9 @@
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import yargs from 'yargs'
 import { openDb } from 'gtfs'
-
-import express, { Router } from 'express'
+import untildify from 'untildify'
+import express from 'express'
 import logger from 'morgan'
 
 import {
@@ -12,6 +11,7 @@ import {
   generateTransitDeparturesWidgetHtml,
   generateTransitDeparturesWidgetJson,
 } from '../lib/utils.ts'
+import { getPathToViewsFolder } from '../lib/file-utils.ts'
 
 const argv = yargs(process.argv)
   .option('c', {
@@ -23,12 +23,10 @@ const argv = yargs(process.argv)
   .parseSync()
 
 const app = express()
-const router = Router()
 
-const configPath = (argv.configPath ||
-  new URL('../../config.json', import.meta.url)) as string
-
-const selectedConfig = JSON.parse(readFileSync(configPath).toString())
+const configPath =
+  (argv.configPath as string) || join(process.cwd(), 'config.json')
+const selectedConfig = JSON.parse(readFileSync(configPath, 'utf8'))
 
 const config = setDefaultConfig(selectedConfig)
 // Override noHead config option so full HTML pages are generated
@@ -48,7 +46,7 @@ try {
 /*
  * Show the transit departures widget
  */
-router.get('/', async (request, response, next) => {
+app.get('/', async (request, response, next) => {
   try {
     const html = await generateTransitDeparturesWidgetHtml(config)
     response.send(html)
@@ -60,7 +58,7 @@ router.get('/', async (request, response, next) => {
 /*
  * Provide data
  */
-router.get('/data/routes.json', async (request, response, next) => {
+app.get('/data/routes.json', async (request, response, next) => {
   try {
     const { routes } = await generateTransitDeparturesWidgetJson(config)
     response.json(routes)
@@ -69,7 +67,7 @@ router.get('/data/routes.json', async (request, response, next) => {
   }
 })
 
-router.get('/data/stops.json', async (request, response, next) => {
+app.get('/data/stops.json', async (request, response, next) => {
   try {
     const { stops } = await generateTransitDeparturesWidgetJson(config)
     response.json(stops)
@@ -78,17 +76,61 @@ router.get('/data/stops.json', async (request, response, next) => {
   }
 })
 
-app.set('views', path.join(fileURLToPath(import.meta.url), '../../../views'))
+app.set('views', getPathToViewsFolder(config))
 app.set('view engine', 'pug')
 
 app.use(logger('dev'))
+
+// Serve static assets
+const staticAssetPath =
+  config.templatePath === undefined
+    ? getPathToViewsFolder(config)
+    : untildify(config.templatePath)
+
+app.use(express.static(staticAssetPath))
+
+// Fallback 404 route
+app.use((req, res) => {
+  res.status(404).send('Not Found')
+})
+
+// Error handling middleware
 app.use(
-  express.static(path.join(fileURLToPath(import.meta.url), '../../../public')),
+  (
+    err: Error,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    console.error(err.stack)
+    res.status(500).send('Something broke!')
+  },
 )
 
-app.use('/', router)
-app.set('port', process.env.PORT || 3000)
+const startServer = async (port: number): Promise<void> => {
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const server = app
+        .listen(port)
+        .once('listening', () => {
+          console.log(`Express server listening on port ${port}`)
+          resolve()
+        })
+        .once('error', (err: NodeJS.ErrnoException) => {
+          if (err.code === 'EADDRINUSE') {
+            console.log(`Port ${port} is in use, trying ${port + 1}`)
+            server.close()
+            resolve(startServer(port + 1))
+          } else {
+            reject(err)
+          }
+        })
+    })
+  } catch (err) {
+    console.error('Failed to start server:', err)
+    process.exit(1)
+  }
+}
 
-const server = app.listen(app.get('port'), () => {
-  console.log(`Express server listening on port ${app.get('port')}`)
-})
+const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000
+startServer(port)

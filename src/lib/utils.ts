@@ -1,13 +1,13 @@
-import { fileURLToPath } from 'url'
-import { dirname, join } from 'path'
+import { join } from 'path'
 import { openDb, getDirections, getRoutes, getStops, getTrips } from 'gtfs'
 import { groupBy, last, maxBy, size, sortBy, uniqBy } from 'lodash-es'
-import { renderFile } from './file-utils.ts'
+import { getPathToViewsFolder, renderFile } from './file-utils.ts'
 import sqlString from 'sqlstring-sqlite'
 import toposort from 'toposort'
 import i18n from 'i18n'
 
 import { Config, SqlWhere, SqlValue } from '../types/global_interfaces.ts'
+import { logWarning } from './log-utils.ts'
 
 /*
  * Get calendars for a specified date range
@@ -184,8 +184,9 @@ function getStopsForDirection(route, direction, config: Config) {
  * Generate HTML for transit departures widget.
  */
 export function generateTransitDeparturesWidgetHtml(config: Config) {
+  const viewsFolderPath = getPathToViewsFolder(config)
   i18n.configure({
-    directory: join(dirname(fileURLToPath(import.meta.url)), '../../locales'),
+    directory: join(viewsFolderPath, 'locales'),
     defaultLocale: config.locale,
     updateFiles: false,
   })

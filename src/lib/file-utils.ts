@@ -67,24 +67,15 @@ export function getPathToViewsFolder(config: Config) {
 }
 
 /*
- * Get the full path of the template file for generating transit departures widget based on
- * config.
+ * Get the full path of a template file.
  */
-function getTemplatePath(templateFileName: string, config: Config) {
-  let fullTemplateFileName = templateFileName
-  if (config.noHead !== true) {
-    fullTemplateFileName += '_full'
-  }
+function getPathToTemplateFile(templateFileName: string, config: Config) {
+  const fullTemplateFileName =
+    config.noHead !== true
+      ? `${templateFileName}_full.pug`
+      : `${templateFileName}.pug`
 
-  if (config.templatePath !== undefined) {
-    return join(untildify(config.templatePath), `${fullTemplateFileName}.pug`)
-  }
-
-  return join(
-    fileURLToPath(import.meta.url),
-    '../../../views/widget',
-    `${fullTemplateFileName}.pug`,
-  )
+  return join(getPathToViewsFolder(config), fullTemplateFileName)
 }
 
 /*
@@ -152,7 +143,7 @@ export async function renderFile(
   templateVars: any,
   config: Config,
 ) {
-  const templatePath = getTemplatePath(templateFileName, config)
+  const templatePath = getPathToTemplateFile(templateFileName, config)
   const html = await pug.renderFile(templatePath, templateVars)
 
   // Beautify HTML if setting is set
