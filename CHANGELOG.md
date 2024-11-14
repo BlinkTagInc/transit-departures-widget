@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Updated
 
 - Improvements to export path and logging
+- Dependency Updates
 
 ## [2.4.3] - 2024-10-01
 
