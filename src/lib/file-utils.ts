@@ -1,12 +1,11 @@
-import path from 'path'
+import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { readFile, rm, mkdir } from 'node:fs/promises'
-import copydir from 'copy-dir'
+import { access, cp, mkdir, readdir, readFile, rm } from 'node:fs/promises'
 import beautify from 'js-beautify'
 import pug from 'pug'
 import untildify from 'untildify'
 
-import { IConfig } from '../types/global_interfaces.ts'
+import { Config } from '../types/global_interfaces.ts'
 
 /*
  * Attempt to parse the specified config JSON file.
@@ -14,7 +13,7 @@ import { IConfig } from '../types/global_interfaces.ts'
 export async function getConfig(argv) {
   try {
     const data = await readFile(
-      path.resolve(untildify(argv.configPath)),
+      resolve(untildify(argv.configPath)),
       'utf8',
     ).catch((error) => {
       console.error(
@@ -42,23 +41,46 @@ export async function getConfig(argv) {
 }
 
 /*
+ * Get the full path to the views folder.
+ */
+export function getPathToViewsFolder(config: Config) {
+  if (config.templatePath) {
+    return untildify(config.templatePath)
+  }
+
+  const __dirname = dirname(fileURLToPath(import.meta.url))
+
+  // Dynamically calculate the path to the views directory
+  let viewsFolderPath
+  if (__dirname.endsWith('/dist/bin') || __dirname.endsWith('/dist/app')) {
+    // When the file is in 'dist/bin' or 'dist/app'
+    viewsFolderPath = resolve(__dirname, '../../views/widget')
+  } else if (__dirname.endsWith('/dist')) {
+    // When the file is in 'dist'
+    viewsFolderPath = resolve(__dirname, '../views/widget')
+  } else {
+    // In case it's neither, fallback to project root
+    viewsFolderPath = resolve(__dirname, 'views/widget')
+  }
+
+  return viewsFolderPath
+}
+
+/*
  * Get the full path of the template file for generating transit departures widget based on
  * config.
  */
-function getTemplatePath(templateFileName, config) {
+function getTemplatePath(templateFileName: string, config: Config) {
   let fullTemplateFileName = templateFileName
   if (config.noHead !== true) {
     fullTemplateFileName += '_full'
   }
 
   if (config.templatePath !== undefined) {
-    return path.join(
-      untildify(config.templatePath),
-      `${fullTemplateFileName}.pug`,
-    )
+    return join(untildify(config.templatePath), `${fullTemplateFileName}.pug`)
   }
 
-  return path.join(
+  return join(
     fileURLToPath(import.meta.url),
     '../../../views/widget',
     `${fullTemplateFileName}.pug`,
@@ -66,34 +88,60 @@ function getTemplatePath(templateFileName, config) {
 }
 
 /*
- * Prepare the specified directory for saving HTML widget by deleting everything.
+ * Prepare the outputPath directory for writing timetable files.
  */
-export async function prepDirectory(exportPath: string) {
-  await rm(exportPath, { recursive: true, force: true })
+export async function prepDirectory(outputPath: string, config: Config) {
+  // Check if outputPath exists
   try {
-    await mkdir(exportPath, { recursive: true })
+    await access(outputPath)
   } catch (error: any) {
-    if (error?.code === 'ENOENT') {
-      throw new Error(
-        `Unable to write to ${exportPath}. Try running this command from a writable directory.`,
-      )
-    }
+    try {
+      await mkdir(outputPath, { recursive: true })
+      await mkdir(join(outputPath, 'data'))
+    } catch (error: any) {
+      if (error?.code === 'ENOENT') {
+        throw new Error(
+          `Unable to write to ${outputPath}. Try running this command from a writable directory.`,
+        )
+      }
 
-    throw error
+      throw error
+    }
+  }
+
+  // Check if outputPath is empty
+  const files = await readdir(outputPath)
+  if (config.overwriteExistingFiles === false && files.length > 0) {
+    throw new Error(
+      `Output directory ${outputPath} is not empty. Please specify an empty directory.`,
+    )
+  }
+
+  // Delete all files in outputPath if `overwriteExistingFiles` is true
+  if (config.overwriteExistingFiles === true) {
+    await rm(join(outputPath, '*'), { recursive: true, force: true })
   }
 }
 
 /*
  * Copy needed CSS and JS to export path.
  */
-export function copyStaticAssets(exportPath: string) {
-  const staticAssetPath = path.join(
-    fileURLToPath(import.meta.url),
-    '../../../public',
-  )
-  copydir.sync(path.join(staticAssetPath, 'img'), path.join(exportPath, 'img'))
-  copydir.sync(path.join(staticAssetPath, 'css'), path.join(exportPath, 'css'))
-  copydir.sync(path.join(staticAssetPath, 'js'), path.join(exportPath, 'js'))
+export async function copyStaticAssets(config: Config, outputPath: string) {
+  const viewsFolderPath = getPathToViewsFolder(config)
+
+  const foldersToCopy = ['css', 'js', 'img']
+
+  for (const folder of foldersToCopy) {
+    if (
+      await access(join(viewsFolderPath, folder))
+        .then(() => true)
+        .catch(() => false)
+    ) {
+      await cp(join(viewsFolderPath, folder), join(outputPath, folder), {
+        recursive: true,
+      })
+    }
+  }
 }
 
 /*
@@ -102,7 +150,7 @@ export function copyStaticAssets(exportPath: string) {
 export async function renderFile(
   templateFileName: string,
   templateVars: any,
-  config: IConfig,
+  config: Config,
 ) {
   const templatePath = getTemplatePath(templateFileName, config)
   const html = await pug.renderFile(templatePath, templateVars)

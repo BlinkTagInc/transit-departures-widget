@@ -4,30 +4,28 @@ import { writeFile } from 'node:fs/promises'
 import { importGtfs, openDb } from 'gtfs'
 import sanitize from 'sanitize-filename'
 import Timer from 'timer-machine'
+import untildify from 'untildify'
 
 import { copyStaticAssets, prepDirectory } from './file-utils.ts'
-import { log, logWarning, logError } from './log-utils.ts'
+import { log, logError } from './log-utils.ts'
 import {
   generateTransitDeparturesWidgetHtml,
   generateTransitDeparturesWidgetJson,
   setDefaultConfig,
 } from './utils.ts'
-import { IConfig } from '../types/global_interfaces.ts'
+import { Config } from '../types/global_interfaces.ts'
 
 /*
  * Generate transit departures widget HTML from GTFS.
  */
-async function transitDeparturesWidget(initialConfig: IConfig) {
+async function transitDeparturesWidget(initialConfig: Config) {
   const config = setDefaultConfig(initialConfig)
-  config.log = log(config)
-  config.logWarning = logWarning(config)
-  config.logError = logError(config)
 
   try {
     openDb(config)
   } catch (error: any) {
     if (error?.code === 'SQLITE_CANTOPEN') {
-      config.logError(
+      logError(config)(
         `Unable to open sqlite database "${config.sqlitePath}" defined as \`sqlitePath\` config.json. Ensure the parent directory exists or remove \`sqlitePath\` from config.json.`,
       )
     }
@@ -40,8 +38,11 @@ async function transitDeparturesWidget(initialConfig: IConfig) {
   }
 
   const timer = new Timer()
-  const agencyKey = config.agency.agency_key
-  const exportPath = path.join(process.cwd(), 'html', sanitize(agencyKey))
+  const agencyKey = config.agency.agency_key ?? 'unknown'
+
+  const outputPath = config.outputPath
+    ? untildify(config.outputPath)
+    : path.join(process.cwd(), 'html', sanitize(agencyKey))
 
   timer.start()
 
@@ -61,40 +62,39 @@ async function transitDeparturesWidget(initialConfig: IConfig) {
     await importGtfs(gtfsImportConfig)
   }
 
-  await prepDirectory(exportPath)
-  await prepDirectory(path.join(exportPath, 'data'))
+  await prepDirectory(outputPath, config)
 
   if (config.noHead !== true) {
-    copyStaticAssets(exportPath)
+    await copyStaticAssets(config, outputPath)
   }
 
-  config.log(`${agencyKey}: Generating Transit Departures Widget HTML`)
+  log(config)(`${agencyKey}: Generating Transit Departures Widget HTML`)
 
   config.assetPath = ''
 
   // Generate JSON of routes and stops
   const { routes, stops } = generateTransitDeparturesWidgetJson(config)
   await writeFile(
-    path.join(exportPath, 'data', 'routes.json'),
+    path.join(outputPath, 'data', 'routes.json'),
     JSON.stringify(routes, null, 2),
   )
   await writeFile(
-    path.join(exportPath, 'data', 'stops.json'),
+    path.join(outputPath, 'data', 'stops.json'),
     JSON.stringify(stops, null, 2),
   )
 
   const html = await generateTransitDeparturesWidgetHtml(config)
-  await writeFile(path.join(exportPath, 'index.html'), html)
+  await writeFile(path.join(outputPath, 'index.html'), html)
 
   timer.stop()
 
   // Print stats
-  config.log(
-    `${agencyKey}: Transit Departures Widget HTML created at ${exportPath}`,
+  log(config)(
+    `${agencyKey}: Transit Departures Widget HTML created at ${outputPath}`,
   )
 
   const seconds = Math.round(timer.time() / 1000)
-  config.log(`${agencyKey}: HTML generation required ${seconds} seconds`)
+  log(config)(`${agencyKey}: HTML generation required ${seconds} seconds`)
 }
 
 export default transitDeparturesWidget

@@ -1,4 +1,4 @@
-export interface IConfig {
+export interface Config {
   agency: {
     agency_key: string
     gtfs_static_path?: string
@@ -14,14 +14,15 @@ export interface IConfig {
   locale?: string
   includeCoordinates?: boolean
   noHead?: boolean
+  outputPath?: string
+  overwriteExistingFiles?: boolean
   refreshIntervalSeconds?: number
   skipImport?: boolean
   sqlitePath?: string
   templatePath?: string
   timeFormat?: string
-  log: (text: string) => void
-  logWarning: (text: string) => void
-  logError: (text: string) => void
+  verbose?: boolean
+  logFunction?: (text: string) => void
 }
 
 export type SqlValue =

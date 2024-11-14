@@ -7,12 +7,12 @@ import sqlString from 'sqlstring-sqlite'
 import toposort from 'toposort'
 import i18n from 'i18n'
 
-import { IConfig, SqlWhere, SqlValue } from '../types/global_interfaces.ts'
+import { Config, SqlWhere, SqlValue } from '../types/global_interfaces.ts'
 
 /*
  * Get calendars for a specified date range
  */
-const getCalendarsForDateRange = (config: IConfig) => {
+const getCalendarsForDateRange = (config: Config) => {
   const db = openDb(config)
   let whereClause = ''
   const whereClauses = []
@@ -56,7 +56,7 @@ function formatRouteName(route) {
 /*
  * Get directions for a route
  */
-function getDirectionsForRoute(route: Record<string, string>, config: IConfig) {
+function getDirectionsForRoute(route: Record<string, string>, config: Config) {
   const db = openDb(config)
 
   // Lookup direction names from non-standard directions.txt file
@@ -134,7 +134,7 @@ function sortStopIdsBySequence(stoptimes: Record<string, string>[]) {
 /*
  * Get stops in order for a route and direction
  */
-function getStopsForDirection(route, direction, config: IConfig) {
+function getStopsForDirection(route, direction, config: Config) {
   const db = openDb(config)
   const calendars = getCalendarsForDateRange(config)
   const whereClause = formatWhereClauses({
@@ -183,7 +183,7 @@ function getStopsForDirection(route, direction, config: IConfig) {
 /*
  * Generate HTML for transit departures widget.
  */
-export function generateTransitDeparturesWidgetHtml(config: IConfig) {
+export function generateTransitDeparturesWidgetHtml(config: Config) {
   i18n.configure({
     directory: join(dirname(fileURLToPath(import.meta.url)), '../../locales'),
     defaultLocale: config.locale,
@@ -200,7 +200,7 @@ export function generateTransitDeparturesWidgetHtml(config: IConfig) {
 /*
  * Generate JSON of routes and stops for transit departures widget.
  */
-export function generateTransitDeparturesWidgetJson(config: IConfig) {
+export function generateTransitDeparturesWidgetJson(config: Config) {
   const routes = getRoutes()
   const stops = []
   const filteredRoutes = []
@@ -213,7 +213,7 @@ export function generateTransitDeparturesWidgetJson(config: IConfig) {
 
     // Filter out routes with no directions
     if (directions.length === 0) {
-      config.logWarning(
+      logWarning(config)(
         `route_id ${route.route_id} has no directions - skipping`,
       )
       continue
@@ -295,7 +295,7 @@ function removeNulls(data: any): any {
 /*
  * Initialize configuration with defaults.
  */
-export function setDefaultConfig(initialConfig: IConfig) {
+export function setDefaultConfig(initialConfig: Config) {
   const defaults = {
     beautify: false,
     noHead: false,
@@ -303,6 +303,8 @@ export function setDefaultConfig(initialConfig: IConfig) {
     skipImport: false,
     timeFormat: '12hour',
     includeCoordinates: false,
+    overwriteExistingFiles: true,
+    verbose: true,
   }
 
   return Object.assign(defaults, initialConfig)
