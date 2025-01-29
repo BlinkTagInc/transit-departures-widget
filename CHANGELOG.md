@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Fixed
 - Issue with i18n library
 
+## Updated
+- Dependency Updates
+
 ## [2.5.2] - 2024-12-10
 
 ## Updated
