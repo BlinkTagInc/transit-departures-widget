@@ -4,7 +4,7 @@ import { groupBy, last, maxBy, size, sortBy, uniqBy } from 'lodash-es'
 import { getPathToViewsFolder, renderFile } from './file-utils.ts'
 import sqlString from 'sqlstring-sqlite'
 import toposort from 'toposort'
-import i18n from 'i18n'
+import { I18n } from 'i18n'
 
 import { Config, SqlWhere, SqlValue } from '../types/global_interfaces.ts'
 import { logWarning } from './log-utils.ts'
@@ -56,7 +56,10 @@ function formatRouteName(route) {
 /*
  * Get directions for a route
  */
-function getDirectionsForRoute(route: Record<string, string>, config: Config) {
+function getDirectionsForRoute(
+  route: Record<string, string>,
+  config: Config & { __: I18n['__'] },
+) {
   const db = openDb(config)
 
   // Lookup direction names from non-standard directions.txt file
@@ -81,7 +84,7 @@ function getDirectionsForRoute(route: Record<string, string>, config: Config) {
       const mostCommonHeadsign = maxBy(group, 'count')
       directions.push({
         direction_id: mostCommonHeadsign.direction_id,
-        direction: i18n.__('To {{{headsign}}}', {
+        direction: config.__('To {{{headsign}}}', {
           headsign: mostCommonHeadsign.trip_headsign,
         }),
       })
@@ -184,16 +187,9 @@ function getStopsForDirection(route, direction, config: Config) {
  * Generate HTML for transit departures widget.
  */
 export function generateTransitDeparturesWidgetHtml(config: Config) {
-  const viewsFolderPath = getPathToViewsFolder(config)
-  i18n.configure({
-    directory: join(viewsFolderPath, 'locales'),
-    defaultLocale: config.locale,
-    updateFiles: false,
-  })
-
   const templateVars = {
-    __: i18n.__,
     config,
+    __: config.__,
   }
   return renderFile('widget', templateVars, config)
 }
@@ -308,7 +304,17 @@ export function setDefaultConfig(initialConfig: Config) {
     verbose: true,
   }
 
-  return Object.assign(defaults, initialConfig)
+  const config = Object.assign(defaults, initialConfig)
+  const viewsFolderPath = getPathToViewsFolder(config)
+  const i18n = new I18n({
+    directory: join(viewsFolderPath, 'locales'),
+    defaultLocale: config.locale,
+    updateFiles: false,
+  })
+  const configWithI18n = Object.assign(config, {
+    __: i18n.__,
+  })
+  return configWithI18n
 }
 
 export function formatWhereClause(
