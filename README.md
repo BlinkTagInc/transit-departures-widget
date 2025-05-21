@@ -54,7 +54,10 @@ An demo of the widget is available at https://transit-departures-widget.blinktag
 
 The following transit agencies use `transit-departures-widget` on their websites:
 
+- [County Connection](https://countyconnection.com)
+- [Kings Area Regional Transit](https://kartbus.org)
 - [Marin Transit](https://marintransit.org/)
+- [Mountain View Community Shuttle](https://mvcommunityshuttle.com)
 - [MVgo](https://mvgo.org/)
 
 ## Command Line Usage
@@ -114,7 +117,7 @@ Copy `config-sample.json` to `config.json` and then add your projects configurat
 
 `gtfs_static_path` is the local path to an agency's static GTFS on your local machine. Either `gtfs_static_url` or `gtfs_static_path` is required.
 
-`gtfs_rt_tripupdates_url` is the URL of an agency's GTFS-RT trip updates. Note that the GTFS-RT URL must support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) in order for the widget to work.
+`gtfs_rt_tripupdates_url` is the URL of an agency's GTFS-RT trip updates. Note that the GTFS-RT URL must support [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) in order for the widget to work. You may need to set up a proxy that adds CORS headers to your GTFS-RT URLS. [GTFS Realtime Proxy](https://github.com/BlinkTagInc/gtfs-realtime-proxy) is an open-source tool that you could use for adding CORS headers.
 
 - Specify a download URL for static GTFS:
 
@@ -248,11 +251,11 @@ After an initial run of `transit-departures-widget`, the GTFS data will be downl
 
 You can view an individual route HTML on demand by running the included Express app:
 
-    node app
+    npm start
 
 By default, `transit-departures-widget` will look for a `config.json` file in the project root. To specify a different path for the configuration file:
 
-    node app --configPath /path/to/your/custom-config.json
+    npm start -- --configPath /path/to/your/custom-config.json
 
 Once running, you can view the HTML in your browser at [localhost:3000](http://localhost:3000)
 
