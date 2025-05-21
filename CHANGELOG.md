@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Updated
 - Dependency Updates
+- Allow using in-memory database in demo app
 
 ## [2.5.4] - 2025-02-25
 

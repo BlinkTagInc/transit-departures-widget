@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import yargs from 'yargs'
-import { openDb } from 'gtfs'
+import { getRoutes, importGtfs, openDb } from 'gtfs'
+import { clone, omit } from 'lodash-es'
 import untildify from 'untildify'
 import express from 'express'
 import logger from 'morgan'
@@ -36,11 +37,30 @@ config.logFunction = console.log
 
 try {
   openDb(config)
+  getRoutes()
 } catch (error: any) {
-  console.error(
-    `Unable to open sqlite database "${config.sqlitePath}" defined as \`sqlitePath\` config.json. Ensure the parent directory exists and import GTFS before running this app.`,
-  )
-  throw error
+  console.log('Importing GTFS')
+
+  try {
+    // Import GTFS
+    const gtfsImportConfig = {
+      ...clone(omit(config, 'agency')),
+      agencies: [
+        {
+          agency_key: config.agency.agency_key,
+          path: config.agency.gtfs_static_path,
+          url: config.agency.gtfs_static_url,
+        },
+      ],
+    }
+
+    await importGtfs(gtfsImportConfig)
+  } catch (error: any) {
+    console.error(
+      `Unable to open sqlite database "${config.sqlitePath}" defined as \`sqlitePath\` config.json. Ensure the parent directory exists and import GTFS before running this app.`,
+    )
+    throw error
+  }
 }
 
 /*
