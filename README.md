@@ -60,6 +60,32 @@ The following transit agencies use `transit-departures-widget` on their websites
 - [Mountain View Community Shuttle](https://mvcommunityshuttle.com)
 - [MVgo](https://mvgo.org/)
 
+## Quick Start
+
+### CLI
+
+```bash
+npm install transit-departures-widget -g
+transit-departures-widget --configPath ./config-sample.json
+```
+
+Outputs are written to `html/<agency_key>/`:
+
+- `index.html` (full page unless `noHead: true`)
+- `data/routes.json`
+- `data/stops.json`
+- `css/`, `js/`, `img/` (when `noHead` is false)
+
+### Programmatic
+
+```ts
+import transitDeparturesWidget from 'transit-departures-widget'
+import config from './config.json' assert { type: 'json' }
+
+await transitDeparturesWidget(config)
+// outputs to html/<agency_key>/ by default
+```
+
 ## Command Line Usage
 
 The `transit-departures-widget` command-line utility will download the GTFS file specified in `config.js` and then build the transit departures widget and save the HTML, CSS and JS in `html/:agency_key`.
@@ -92,20 +118,22 @@ Copy `config-sample.json` to `config.json` and then add your projects configurat
 
     cp config-sample.json config.json
 
-| option                                              | type    | description                                                                                                                 |
-| --------------------------------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------- |
-| [`agency`](#agency)                                 | object  | Information about the GTFS and GTFS-RT to be used.                                                                          |
-| [`beautify`](#beautify)                             | boolean | Whether or not to beautify the HTML output.                                                                                 |
-| [`endDate`](#enddate)                               | string  | A date in YYYYMMDD format to use to filter calendar.txt service. Optional, defaults to using all service in specified GTFS. |
-| [`includeCoordinates`](#includecoordinates)         | boolean  | Whether or not to include stop coordinates in JSON output. |
-| [`locale`](#locale)                                 | string  | The 2-letter code of the language to use for the interface.                                                                 |
-| [`noHead`](#nohead)                                 | boolean | Whether or not to skip the header and footer of the HTML document.                                                          |
-| [`refreshIntervalSeconds`](#refreshIntervalSeconds) | integer | How often the widget should refresh departure data in seconds. Optional, defaults to 20 seconds.                            |
-| [`skipImport`](#skipimport)                         | boolean | Whether or not to skip importing GTFS data into SQLite.                                                                     |
-| [`sqlitePath`](#sqlitepath)                         | string  | A path to an SQLite database. Optional, defaults to using an in-memory database.                                            |
-| [`startDate`](#startdate)                           | string  | A date in YYYYMMDD format to use to filter calendar.txt service. Optional, defaults to using all service in specified GTFS. |
-| [`templatePath`](#templatepath)                     | string  | Path to custom pug template for rendering widget.                                                                           |
-| [`timeFormat`](#timeFormat)                         | string  | The format (12hour or 24hour) for the "as of" display.                                                                      |
+| option                                              | type    | default   | notes                                                                                                                        |
+| --------------------------------------------------- | ------- | --------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| [`agency`](#agency)                                 | object  | —         | Required: GTFS static (url or path) and GTFS-RT trip updates URL.                                                            |
+| [`assetPath`](#assetpath)                           | string  | `''`      | Prefix for assets in HTML; set when hosting assets elsewhere.                                                                |
+| [`beautify`](#beautify)                             | boolean | `false`   | Pretty-print HTML output.                                                                                                   |
+| [`endDate`](#enddate)                               | string  | all svc   | YYYYMMDD calendar filter upper bound.                                                                                        |
+| [`includeCoordinates`](#includecoordinates)         | boolean | `false`   | Include stop lat/lon in `stops.json`.                                                                                        |
+| [`locale`](#locale)                                 | string  | `en`      | UI language code.                                                                                                            |
+| [`noHead`](#nohead)                                 | boolean | `false`   | If true, omit `<html>/<head>/<body>`; only widget markup is output.                                                          |
+| [`outputPath`](#outputpath)                         | string  | `./html/<agency_key>` | Where to write generated files.                                                                                      |
+| [`refreshIntervalSeconds`](#refreshIntervalSeconds) | integer | `20`      | Autorefresh interval on the widget page.                                                                                     |
+| [`skipImport`](#skipimport)                         | boolean | `false`   | Skip GTFS import if DB already populated (`sqlitePath` recommended).                                                         |
+| [`sqlitePath`](#sqlitepath)                         | string  | in-memory | Path to SQLite DB file; enables reusing imports across runs.                                                                 |
+| [`startDate`](#startdate)                           | string  | all svc   | YYYYMMDD calendar filter lower bound.                                                                                        |
+| [`templatePath`](#templatepath)                     | string  | built-in | Custom templates folder (expects `widget.pug` and `widget_full.pug`).                                                        |
+| [`timeFormat`](#timeFormat)                         | string  | `12hour`  | `12hour` or `24hour` time display.                                                                                           |
 
 ### agency
 
@@ -195,6 +223,24 @@ Copy `config-sample.json` to `config.json` and then add your projects configurat
     "noHead": false
 ```
 
+If `noHead` is `true`, you’ll embed the widget into an existing HTML page. See the examples below for including the generated assets.
+
+### assetPath
+
+{String} Prefix to use when linking to generated assets (`css`, `js`, `img`). Useful if you host assets on a CDN or a different path from the HTML file.
+
+```
+    "assetPath": "/static/widget/"
+```
+
+### outputPath
+
+{String} Path where generated files are written. Defaults to `./html/<agency_key>`.
+
+```
+    "outputPath": "/var/www/widget-output"
+```
+
 ### refreshIntervalSeconds
 
 {Integer} How often the widget should refresh departure data in seconds. Optional, defaults to 20 seconds.
@@ -258,6 +304,32 @@ By default, `transit-departures-widget` will look for a `config.json` file in th
     npm start -- --configPath /path/to/your/custom-config.json
 
 Once running, you can view the HTML in your browser at [localhost:3000](http://localhost:3000)
+
+## Embedding examples
+
+### Default (with head/footer)
+
+If `noHead` is `false` (default), `index.html` is a complete HTML page with linked assets in `css/`, `js/`, and `img/` under the output directory. You can host that folder as-is (e.g., serve `html/<agency_key>/` from your web server root).
+
+### Headless embed (`noHead: true`)
+
+When `noHead` is `true`, you get only the widget markup. Include the generated CSS/JS and mount it in your page:
+
+```html
+<!doctype html>
+<html>
+  <head>
+    <link rel="stylesheet" href="/path/to/css/transit-departures-widget-styles.css" />
+  </head>
+  <body>
+    <div id="tdw-app"></div>
+    <script src="/path/to/js/transit-departures-widget.js"></script>
+    <script>
+      // Transit Departures Widget initializes itself on load using data/routes.json and data/stops.json
+    </script>
+  </body>
+</html>
+```
 
 ## Notes
 
