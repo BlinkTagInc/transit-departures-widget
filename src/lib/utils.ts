@@ -12,7 +12,8 @@ import {
   GTFSRouteDirection,
   GTFSStop,
 } from '../types/gtfs.ts'
-import { logWarning } from './logging/log.ts'
+import { createLogger } from './logging/log.ts'
+import { messages } from './logging/messages.ts'
 export { setDefaultConfig } from './config/defaults.ts'
 
 /*
@@ -63,6 +64,7 @@ function formatRouteName(route: GTFSRoute) {
  * Get directions for a route
  */
 function getDirectionsForRoute(route: GTFSRoute, config: ConfigWithI18n) {
+  const logger = createLogger(config)
   const db = openDb(config)
 
   // Lookup direction names from non-standard directions.txt file
@@ -78,9 +80,7 @@ function getDirectionsForRoute(route: GTFSRoute, config: ConfigWithI18n) {
 
   const calendars = getCalendarsForDateRange(config)
   if (calendars.length === 0) {
-    logWarning(config)(
-      `route_id ${route.route_id} has no active calendars in range - skipping directions`,
-    )
+    logger.warn(messages.noActiveCalendarsForRoute(route.route_id))
     return []
   }
 
@@ -158,11 +158,15 @@ function getStopsForDirection(
   config: Config,
   stopCache?: Map<string, GTFSStop>,
 ) {
+  const logger = createLogger(config)
   const db = openDb(config)
   const calendars = getCalendarsForDateRange(config)
   if (calendars.length === 0) {
-    logWarning(config)(
-      `route_id ${route.route_id} direction ${direction.direction_id} has no active calendars in range - skipping stops`,
+    logger.warn(
+      messages.noActiveCalendarsForDirection(
+        route.route_id,
+        direction.direction_id,
+      ),
     )
     return []
   }
@@ -230,8 +234,8 @@ function getStopsForDirection(
         fetchedStops.find((candidate) => candidate.stop_id === stopId)
 
       if (!stop) {
-        logWarning(config)(
-          `stop_id ${stopId} for route ${route.route_id} direction ${direction.direction_id} not found - dropping`,
+        logger.warn(
+          messages.stopNotFound(route.route_id, direction.direction_id, stopId),
         )
       }
 
@@ -255,11 +259,10 @@ export function generateTransitDeparturesWidgetHtml(config: ConfigWithI18n) {
  * Generate JSON of routes and stops for transit departures widget.
  */
 export function generateTransitDeparturesWidgetJson(config: ConfigWithI18n) {
+  const logger = createLogger(config)
   const calendars = getCalendarsForDateRange(config)
   if (calendars.length === 0) {
-    logWarning(config)(
-      'No active calendars found for the configured date range - returning empty routes and stops',
-    )
+    logger.warn(messages.noActiveCalendarsGlobal)
     return { routes: [], stops: [] }
   }
 
@@ -278,9 +281,7 @@ export function generateTransitDeparturesWidgetJson(config: ConfigWithI18n) {
 
     // Filter out routes with no directions
     if (directions.length === 0) {
-      logWarning(config)(
-        `route_id ${route.route_id} has no directions - skipping`,
-      )
+      logger.warn(messages.routeHasNoDirections(route.route_id))
       continue
     }
 

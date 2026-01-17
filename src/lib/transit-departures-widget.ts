@@ -7,7 +7,7 @@ import Timer from 'timer-machine'
 import untildify from 'untildify'
 
 import { copyStaticAssets, prepDirectory } from './file-utils.ts'
-import { log, logError } from './logging/log.ts'
+import { createLogger } from './logging/log.ts'
 import { setDefaultConfig } from './config/defaults.ts'
 import {
   generateTransitDeparturesWidgetHtml,
@@ -20,12 +20,13 @@ import { Config } from '../types/global_interfaces.ts'
  */
 async function transitDeparturesWidget(initialConfig: Config) {
   const config = setDefaultConfig(initialConfig)
+  const logger = createLogger(config)
 
   try {
     openDb(config)
   } catch (error: any) {
     if (error?.code === 'SQLITE_CANTOPEN') {
-      logError(config)(
+      logger.error(
         `Unable to open sqlite database "${config.sqlitePath}" defined as \`sqlitePath\` config.json. Ensure the parent directory exists or remove \`sqlitePath\` from config.json.`,
       )
     }
@@ -68,7 +69,7 @@ async function transitDeparturesWidget(initialConfig: Config) {
     await copyStaticAssets(config, outputPath)
   }
 
-  log(config)(`${agencyKey}: Generating Transit Departures Widget HTML`)
+  logger.info(`${agencyKey}: Generating Transit Departures Widget HTML`)
 
   config.assetPath = ''
 
@@ -89,12 +90,12 @@ async function transitDeparturesWidget(initialConfig: Config) {
   timer.stop()
 
   // Print stats
-  log(config)(
+  logger.info(
     `${agencyKey}: Transit Departures Widget HTML created at ${outputPath}`,
   )
 
   const seconds = Math.round(timer.time() / 1000)
-  log(config)(`${agencyKey}: HTML generation required ${seconds} seconds`)
+  logger.info(`${agencyKey}: HTML generation required ${seconds} seconds`)
 }
 
 export default transitDeparturesWidget

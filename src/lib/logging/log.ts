@@ -4,10 +4,27 @@ import * as colors from 'yoctocolors'
 
 import { Config } from '../../types/global_interfaces.ts'
 
-/*
- * Returns a log function based on config settings
- */
-export function log(config: Config) {
+export type Logger = {
+  info: (text: string, overwrite?: boolean) => void
+  warn: (text: string) => void
+  error: (text: string) => void
+}
+
+const formatWarning = (text: string) => {
+  const warningMessage = `${colors.underline('Warning')}: ${text}`
+  return colors.yellow(warningMessage)
+}
+
+export const formatError = (error: any) => {
+  const messageText = error instanceof Error ? error.message : error
+  const errorMessage = `${colors.underline('Error')}: ${messageText.replace(
+    'Error: ',
+    '',
+  )}`
+  return colors.red(errorMessage)
+}
+
+const logInfo = (config: Config) => {
   if (config.verbose === false) {
     return noop
   }
@@ -16,7 +33,7 @@ export function log(config: Config) {
     return config.logFunction
   }
 
-  return (text: string, overwrite: boolean) => {
+  return (text: string, overwrite?: boolean) => {
     if (overwrite === true && process.stdout.isTTY) {
       clearLine(process.stdout, 0)
       cursorTo(process.stdout, 0)
@@ -28,10 +45,7 @@ export function log(config: Config) {
   }
 }
 
-/*
- * Returns an warning log function based on config settings
- */
-export function logWarning(config: Config) {
+const logWarn = (config: Config) => {
   if (config.logFunction) {
     return config.logFunction
   }
@@ -41,10 +55,7 @@ export function logWarning(config: Config) {
   }
 }
 
-/*
- * Returns an error log function based on config settings
- */
-export function logError(config: Config) {
+const logError = (config: Config) => {
   if (config.logFunction) {
     return config.logFunction
   }
@@ -55,21 +66,12 @@ export function logError(config: Config) {
 }
 
 /*
- * Format console warning text
+ * Create a structured logger with consistent methods.
  */
-export function formatWarning(text: string) {
-  const warningMessage = `${colors.underline('Warning')}: ${text}`
-  return colors.yellow(warningMessage)
-}
-
-/*
- * Format console error text
- */
-export function formatError(error: any) {
-  const messageText = error instanceof Error ? error.message : error
-  const errorMessage = `${colors.underline('Error')}: ${messageText.replace(
-    'Error: ',
-    '',
-  )}`
-  return colors.red(errorMessage)
+export function createLogger(config: Config): Logger {
+  return {
+    info: logInfo(config),
+    warn: logWarn(config),
+    error: logError(config),
+  }
 }
