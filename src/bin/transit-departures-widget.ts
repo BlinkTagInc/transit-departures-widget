@@ -5,7 +5,7 @@ import { hideBin } from 'yargs/helpers'
 import PrettyError from 'pretty-error'
 
 import { getConfig } from '../lib/file-utils.ts'
-import { formatError } from '../lib/log-utils.ts'
+import { formatError } from '../lib/logging/log.ts'
 import transitDeparturesWidget from '../index.ts'
 
 const pe = new PrettyError()

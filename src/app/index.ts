@@ -7,8 +7,8 @@ import untildify from 'untildify'
 import express from 'express'
 import logger from 'morgan'
 
+import { setDefaultConfig } from '../lib/config/defaults.ts'
 import {
-  setDefaultConfig,
   generateTransitDeparturesWidgetHtml,
   generateTransitDeparturesWidgetJson,
 } from '../lib/utils.ts'

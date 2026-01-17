@@ -7,11 +7,11 @@ import Timer from 'timer-machine'
 import untildify from 'untildify'
 
 import { copyStaticAssets, prepDirectory } from './file-utils.ts'
-import { log, logError } from './log-utils.ts'
+import { log, logError } from './logging/log.ts'
+import { setDefaultConfig } from './config/defaults.ts'
 import {
   generateTransitDeparturesWidgetHtml,
   generateTransitDeparturesWidgetJson,
-  setDefaultConfig,
 } from './utils.ts'
 import { Config } from '../types/global_interfaces.ts'
 
