@@ -136,7 +136,7 @@ export async function copyStaticAssets(config: Config, outputPath: string) {
   const viewsFolderPath = getPathToViewsFolder(config)
   const thisModuleFolderPath = getPathToThisModuleFolder()
 
-  const foldersToCopy = ['css', 'js', 'img']
+  const foldersToCopy = ['css', 'js']
 
   for (const folder of foldersToCopy) {
     if (

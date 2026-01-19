@@ -74,7 +74,7 @@ Outputs are written to `html/<agency_key>/`:
 - `index.html` (full page unless `noHead: true`)
 - `data/routes.json`
 - `data/stops.json`
-- `css/`, `js/`, `img/` (when `noHead` is false)
+- `css/`, `js/` (when `noHead` is false)
 
 ### Programmatic
 
@@ -227,7 +227,7 @@ If `noHead` is `true`, you’ll embed the widget into an existing HTML page. See
 
 ### assetPath
 
-{String} Prefix to use when linking to generated assets (`css`, `js`, `img`). Useful if you host assets on a CDN or a different path from the HTML file.
+{String} Prefix to use when linking to generated assets (`css`, `js`). Useful if you host assets on a CDN or a different path from the HTML file.
 
 ```
     "assetPath": "/static/widget/"
@@ -309,7 +309,7 @@ Once running, you can view the HTML in your browser at [localhost:3000](http://l
 
 ### Default (with head/footer)
 
-If `noHead` is `false` (default), `index.html` is a complete HTML page with linked assets in `css/`, `js/`, and `img/` under the output directory. You can host that folder as-is (e.g., serve `html/<agency_key>/` from your web server root).
+If `noHead` is `false` (default), `index.html` is a complete HTML page with linked assets in `css/` and `js/` under the output directory. You can host that folder as-is (e.g., serve `html/<agency_key>/` from your web server root).
 
 ### Headless embed (`noHead: true`)
 

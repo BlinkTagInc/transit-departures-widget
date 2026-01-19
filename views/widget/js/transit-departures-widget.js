@@ -160,11 +160,11 @@ function setupTransitDeparturesWidget(routes, stops, config) {
     const departureResultsStopCodeContainer = departureResults?.querySelector(
       '.departure-results-stop-code-container',
     )
+    const departureResultsRefreshButton = departureResults?.querySelector(
+      '.departure-results-refresh-button',
+    )
     const departureResultsFetchTime = departureResults?.querySelector(
       '.departure-results-fetchtime',
-    )
-    const departureResultsFetchTimeValue = departureResults?.querySelector(
-      '.departure-results-fetchtime-time',
     )
     const stopCodeInvalidElements =
       document.querySelectorAll('.stop-code-invalid')
@@ -268,7 +268,7 @@ function setupTransitDeparturesWidget(routes, stops, config) {
         setHidden(departureResultsStopCodeContainer, true)
       }
 
-      setText(departureResultsFetchTimeValue, timeStamp())
+      setText(departureResultsFetchTime, timeStamp())
     }
 
     function formatDepartureGroup(departureGroup) {
@@ -768,8 +768,8 @@ function setupTransitDeparturesWidget(routes, stops, config) {
       })
     }
 
-    if (departureResultsFetchTime) {
-      departureResultsFetchTime.addEventListener('click', (event) => {
+    if (departureResultsRefreshButton) {
+      departureResultsRefreshButton.addEventListener('click', (event) => {
         event.preventDefault()
         resetResults()
         showLoading()
