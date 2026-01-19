@@ -1,4 +1,4 @@
-/* global window, $, jQuery, _, Pbf, FeedMessage, alert, accessibleAutocomplete,  */
+/* global window, _, Pbf, FeedMessage, alert, accessibleAutocomplete,  */
 /* eslint no-var: "off", no-unused-vars: "off", no-alert: "off" */
 
 function setupTransitDeparturesWidget(routes, stops, config) {
@@ -64,15 +64,103 @@ function setupTransitDeparturesWidget(routes, stops, config) {
     return `${hours}:${minutes} ${suffix}`
   }
 
-  jQuery(($) => {
-    // Populate dropdown with all routes
-    $('#departure_route').append(
-      routes.map((route) => {
-        return $('<option>')
-          .attr('value', route.route_id)
-          .text(route.route_full_name)
-      }),
+  function onReady(callback) {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', callback)
+    } else {
+      callback()
+    }
+  }
+
+  function setHidden(element, isHidden) {
+    if (!element) {
+      return
+    }
+
+    element.style.display = isHidden ? 'none' : 'block'
+  }
+
+  function setText(element, text) {
+    if (!element) {
+      return
+    }
+
+    element.textContent = text
+  }
+
+  function clearSelectOptions(select, startIndex = 1) {
+    if (!select) {
+      return
+    }
+
+    while (select.options.length > startIndex) {
+      select.remove(startIndex)
+    }
+  }
+
+  onReady(() => {
+    const departureResults = document.querySelector('#departure_results')
+    const departureResultsContainer = departureResults?.querySelector(
+      '.departure-results-container',
     )
+    const departureResultsNone = departureResults?.querySelector(
+      '.departure-results-none',
+    )
+    const departureResultsError = departureResults?.querySelector(
+      '.departure-results-error',
+    )
+    const departureResultsStop = departureResults?.querySelector(
+      '.departure-results-stop',
+    )
+    const departureResultsStopUnknown = departureResults?.querySelector(
+      '.departure-results-stop-unknown',
+    )
+    const departureResultsStopCode = departureResults?.querySelector(
+      '.departure-results-stop-code',
+    )
+    const departureResultsStopCodeContainer = departureResults?.querySelector(
+      '.departure-results-stop-code-container',
+    )
+    const departureResultsFetchTime = departureResults?.querySelector(
+      '.departure-results-fetchtime',
+    )
+    const departureResultsFetchTimeValue = departureResults?.querySelector(
+      '.departure-results-fetchtime-time',
+    )
+    const stopCodeInvalidElements =
+      document.querySelectorAll('.stop-code-invalid')
+    const loadingIndicator = document.querySelector('#loading')
+    const departureTypeInputs = document.querySelectorAll(
+      '#real_time_departures input[name="departure_type"]',
+    )
+    const departureTypeStopInput = document.querySelector(
+      '#real_time_departures input[name="departure_type"][value="stop"]',
+    )
+    const routeForm = document.querySelector(
+      '#real_time_departures #route_form',
+    )
+    const stopForm = document.querySelector('#real_time_departures #stop_form')
+    const departureRouteSelect = document.querySelector('#departure_route')
+    const departureDirectionSelect = document.querySelector(
+      '#real_time_departures #departure_direction',
+    )
+    const departureStopSelect = document.querySelector(
+      '#real_time_departures #departure_stop',
+    )
+    const stopCodeContainer = document.querySelector(
+      '#departure_stop_code_container',
+    )
+    const getStopCodeInput = () =>
+      document.querySelector('#departure_stop_code')
+    // Populate dropdown with all routes
+    if (departureRouteSelect) {
+      for (const route of routes) {
+        const option = document.createElement('option')
+        option.value = route.route_id
+        option.textContent = route.route_full_name
+        departureRouteSelect.appendChild(option)
+      }
+    }
 
     // Read URL parameters on load
     readUrlWithParameters()
@@ -98,38 +186,35 @@ function setupTransitDeparturesWidget(routes, stops, config) {
 
       // Wait for js to initialize before triggering click
       setTimeout(() => {
-        $('#stop_form').trigger('submit')
-        $(
-          '#real_time_departures input[name="departure_type"][value="stop"]',
-        ).trigger('click')
+        stopForm?.dispatchEvent(new Event('submit'))
+        departureTypeStopInput?.dispatchEvent(new Event('click'))
       }, 100)
     }
 
     function resetResults() {
       if (departuresTimeout) {
-        clearTimeout(departuresTimeout)
+        clearInterval(departuresTimeout)
       }
 
-      $('#departure_results').hide()
+      setHidden(departureResults, true)
     }
 
     function showLoading() {
-      $('#loading').show()
+      setHidden(loadingIndicator, false)
     }
 
     function hideLoading() {
-      $('#loading').hide()
+      setHidden(loadingIndicator, true)
     }
 
     function renderStopInfo(selectedStops) {
       if (selectedStops && selectedStops.length > 0) {
-        $('#departure_results .departure-results-stop-unknown').hide()
-        $('#departure_results .departure-results-stop')
-          .text(selectedStops[0].stop_name)
-          .show()
+        setHidden(departureResultsStopUnknown, true)
+        setText(departureResultsStop, selectedStops[0].stop_name)
+        setHidden(departureResultsStop, false)
       } else {
-        $('#departure_results .departure-results-stop').hide()
-        $('#departure_results .departure-results-stop-unknown').show()
+        setHidden(departureResultsStop, true)
+        setHidden(departureResultsStopUnknown, false)
       }
 
       if (
@@ -138,49 +223,45 @@ function setupTransitDeparturesWidget(routes, stops, config) {
         selectedStops[0].stop_code &&
         !selectedStops[0].is_parent_station
       ) {
-        $('#departure_results .departure-results-stop-code').text(
-          selectedStops[0].stop_code,
-        )
-        $('#departure_results .departure-results-stop-code-container').show()
+        setText(departureResultsStopCode, selectedStops[0].stop_code)
+        setHidden(departureResultsStopCodeContainer, false)
       } else {
-        $('#departure_results .departure-results-stop-code-container').hide()
+        setHidden(departureResultsStopCodeContainer, true)
       }
 
-      $('#departure_results .departure-results-fetchtime-time').text(
-        timeStamp(),
-      )
+      setText(departureResultsFetchTimeValue, timeStamp())
     }
 
     function formatDepartureGroup(departureGroup) {
-      const div = $('<div>').addClass('departure-result')
+      const div = document.createElement('div')
+      div.classList.add('departure-result')
       const { route, direction } = departureGroup[0]
 
-      const routeNameDiv = $('<div>')
-        .addClass('departure-result-route-name')
-        .appendTo(div)
-      const departureTimesDiv = $('<div>')
-        .addClass('departure-result-times')
-        .appendTo(div)
+      const routeNameDiv = document.createElement('div')
+      routeNameDiv.classList.add('departure-result-route-name')
+      div.appendChild(routeNameDiv)
+
+      const departureTimesDiv = document.createElement('div')
+      departureTimesDiv.classList.add('departure-result-times')
+      div.appendChild(departureTimesDiv)
 
       if (route.route_short_name) {
         const routeColor = route.route_color ? `#${route.route_color}` : '#ccc'
         const routeTextColor = route.route_text_color
           ? `#${route.route_text_color}`
           : '#000'
-        $('<div>')
-          .text(route.route_short_name)
-          .addClass('departure-result-route-circle')
-          .css({
-            'background-color': routeColor,
-            color: routeTextColor,
-          })
-          .appendTo(routeNameDiv)
+        const routeCircle = document.createElement('div')
+        routeCircle.textContent = route.route_short_name
+        routeCircle.classList.add('departure-result-route-circle')
+        routeCircle.style.backgroundColor = routeColor
+        routeCircle.style.color = routeTextColor
+        routeNameDiv.appendChild(routeCircle)
       }
 
-      $('<div>')
-        .text(direction.direction)
-        .addClass('departure-result-route-direction')
-        .appendTo(routeNameDiv)
+      const routeDirection = document.createElement('div')
+      routeDirection.textContent = direction.direction
+      routeDirection.classList.add('departure-result-route-direction')
+      routeNameDiv.appendChild(routeDirection)
 
       const sortedDepartures = _.take(
         _.sortBy(departureGroup, (departure) => departure.time),
@@ -189,20 +270,16 @@ function setupTransitDeparturesWidget(routes, stops, config) {
 
       for (const departure of sortedDepartures) {
         const minutes = formatMinutes(departure.time - Date.now() / 1000)
-        const minutesLabel = $(
-          '#departure_results .departure-results-container',
-        ).data('minutes-label')
+        const minutesLabel =
+          departureResultsContainer?.dataset?.minutesLabel ?? ''
 
-        $('<div>')
-          .addClass('departure-result-time-container')
-          .append(
-            $('<div>')
-              .addClass('departure-result-time')
-              .html(
-                `${minutes}<span class="departure-result-time-label">${minutesLabel}</span>`,
-              ),
-          )
-          .appendTo(departureTimesDiv)
+        const timeContainer = document.createElement('div')
+        timeContainer.classList.add('departure-result-time-container')
+        const timeValue = document.createElement('div')
+        timeValue.classList.add('departure-result-time')
+        timeValue.innerHTML = `${minutes}<span class="departure-result-time-label">${minutesLabel}</span>`
+        timeContainer.appendChild(timeValue)
+        departureTimesDiv.appendChild(timeContainer)
       }
 
       return div
@@ -212,9 +289,9 @@ function setupTransitDeparturesWidget(routes, stops, config) {
       renderStopInfo(selectedStops)
 
       if (departures.length === 0) {
-        $('#departure_results .departure-results-container').hide()
-        $('#departure_results .departure-results-error').hide()
-        $('#departure_results .departure-results-none').show()
+        setHidden(departureResultsContainer, true)
+        setHidden(departureResultsError, true)
+        setHidden(departureResultsNone, false)
       } else {
         const departureGroups = _.groupBy(
           departures,
@@ -228,27 +305,31 @@ function setupTransitDeparturesWidget(routes, stops, config) {
             return Number.parseInt(route.route_short_name, 10)
           },
         )
-        $('#departure_results .departure-results-none').hide()
-        $('#departure_results .departure-results-error').hide()
-        $('#departure_results .departure-results-container')
-          .html(
-            sortedDepartureGroups.map((departureGroup) =>
+        setHidden(departureResultsNone, true)
+        setHidden(departureResultsError, true)
+
+        if (departureResultsContainer) {
+          departureResultsContainer.innerHTML = ''
+          for (const departureGroup of sortedDepartureGroups) {
+            departureResultsContainer.appendChild(
               formatDepartureGroup(departureGroup),
-            ),
-          )
-          .show()
+            )
+          }
+        }
+
+        setHidden(departureResultsContainer, false)
       }
 
       hideLoading()
-      $('#departure_results').show()
+      setHidden(departureResults, false)
     }
 
     function renderError(selectedStops) {
       renderStopInfo(selectedStops)
-      $('#departure_results .departure-results-error').show()
+      setHidden(departureResultsError, false)
 
       hideLoading()
-      $('#departure_results').show()
+      setHidden(departureResults, false)
     }
 
     function findStops(stopId, stopName) {
@@ -289,7 +370,9 @@ function setupTransitDeparturesWidget(routes, stops, config) {
     }
 
     function selectParameters({ stopId, stopName, directionId, routeId }) {
-      $('.stop-code-invalid').hide()
+      for (const element of stopCodeInvalidElements) {
+        setHidden(element, true)
+      }
       const selectedStops = findStops(stopId, stopName)
       const route = routes.find((route) => route.route_id === routeId)
       const direction = route
@@ -300,7 +383,9 @@ function setupTransitDeparturesWidget(routes, stops, config) {
         : undefined
 
       if (!selectedStops || selectedStops.length === 0) {
-        $('.stop-code-invalid').show()
+        for (const element of stopCodeInvalidElements) {
+          setHidden(element, false)
+        }
         return
       }
 
@@ -481,207 +566,241 @@ function setupTransitDeparturesWidget(routes, stops, config) {
       }
     }
 
-    $('#real_time_departures input[name="departure_type"]').change((event) => {
-      const type = $(event.target).val()
+    for (const input of departureTypeInputs) {
+      input.addEventListener('change', (event) => {
+        const type = event.target.value
 
-      $('#real_time_departures #route_form').toggleClass(
-        'hidden-form',
-        type !== 'route',
-      )
-      $('#real_time_departures #stop_form').toggleClass(
-        'hidden-form',
-        type !== 'stop',
-      )
-
-      $('#real_time_departures #departure_stop').val('').prop('disabled', true)
-
-      $('#real_time_departures #departure_direction option:gt(0)').remove()
-      $('#real_time_departures #departure_stop option:gt(0)').remove()
-      resetResults()
-    })
-
-    $('#real_time_departures #departure_route').change((event) => {
-      const routeId = $(event.target).val()
-
-      $('#real_time_departures #departure_stop').val('').prop('disabled', true)
-
-      $('#real_time_departures #departure_direction option:gt(0)').remove()
-      $('#real_time_departures #departure_stop option:gt(0)').remove()
-      resetResults()
-
-      if (routeId === '') {
-        $('#real_time_departures #departure_direction')
-          .val('')
-          .prop('disabled', true)
-      } else {
-        $('#real_time_departures #departure_direction')
-          .val('')
-          .prop('disabled', false)
-
-        const route = routes.find((route) => route.route_id === routeId)
-
-        if (!route) {
-          return console.warn(`Unable to find route ${routeId}`)
+        if (routeForm) {
+          routeForm.classList.toggle('hidden-form', type !== 'route')
+        }
+        if (stopForm) {
+          stopForm.classList.toggle('hidden-form', type !== 'stop')
         }
 
-        $('#real_time_departures #departure_direction').append(
-          route.directions.map((direction) =>
-            $('<option>')
-              .val(formatDirectionId(direction.direction_id))
-              .text(direction.direction),
-          ),
-        )
+        if (departureStopSelect) {
+          departureStopSelect.value = ''
+          departureStopSelect.disabled = true
+        }
 
-        if (route.directions.length === 1) {
-          $('#real_time_departures #departure_direction').hide()
-          $('#real_time_departures #departure_direction').val(
-            formatDirectionId(route.directions[0].direction_id),
-          )
-          $('#real_time_departures #departure_direction').trigger('change')
+        clearSelectOptions(departureDirectionSelect)
+        clearSelectOptions(departureStopSelect)
+        resetResults()
+      })
+    }
+
+    if (departureRouteSelect) {
+      departureRouteSelect.addEventListener('change', (event) => {
+        const routeId = event.target.value
+
+        if (departureStopSelect) {
+          departureStopSelect.value = ''
+          departureStopSelect.disabled = true
+        }
+
+        clearSelectOptions(departureDirectionSelect)
+        clearSelectOptions(departureStopSelect)
+        resetResults()
+
+        if (routeId === '') {
+          if (departureDirectionSelect) {
+            departureDirectionSelect.value = ''
+            departureDirectionSelect.disabled = true
+          }
         } else {
-          $('#real_time_departures #departure_direction').show()
-        }
-      }
-    })
-
-    $('#real_time_departures #departure_direction').change((event) => {
-      const routeId = $('#real_time_departures #departure_route').val()
-      const directionId = $(event.target).val()
-
-      $('#real_time_departures #departure_stop option:gt(0)').remove()
-      resetResults()
-
-      if (directionId === '') {
-        $('#real_time_departures #departure_stop')
-          .val('')
-          .prop('disabled', true)
-      } else {
-        $('#real_time_departures #departure_stop')
-          .val('')
-          .prop('disabled', false)
-
-        const route = routes.find((route) => route.route_id === routeId)
-
-        if (!route) {
-          return console.warn(`Unable to find route ${routeId}`)
-        }
-
-        const direction = route.directions.find(
-          (direction) =>
-            formatDirectionId(direction.direction_id) === directionId,
-        )
-
-        $('#real_time_departures #departure_stop').append(
-          direction.stopIds.map((stopId) => {
-            const stop = stops.find((stop) => stop.stop_id === stopId)
-            return $('<option>').val(stop.stop_id).text(stop.stop_name)
-          }),
-        )
-      }
-    })
-
-    $('#real_time_departures #departure_stop').change((event) => {
-      const routeId = $('#real_time_departures #departure_route').val()
-      const directionId = $('#real_time_departures #departure_direction').val()
-      const stopId = $(event.target).val()
-
-      selectParameters({
-        stopId,
-        routeId,
-        directionId,
-      })
-    })
-
-    $('#stop_form').submit((event) => {
-      event.preventDefault()
-      $('.stop-code-invalid').hide()
-
-      const stopName = $('#departure_stop_code').val()
-
-      if (stopName === '') {
-        $('.stop-code-invalid').show()
-        return
-      }
-
-      selectParameters({
-        stopName,
-      })
-    })
-
-    $('#departure_results .departure-results-fetchtime').click((event) => {
-      event.preventDefault()
-      resetResults()
-      showLoading()
-      updateDepartures(true)
-    })
-
-    accessibleAutocomplete({
-      element: $('#departure_stop_code_container').get(0),
-      id: 'departure_stop_code',
-      source(query, populateResults) {
-        const filteredResults = stops.filter((stop) => {
-          // Don't list child stations
-          if (
-            stop.parent_station !== null &&
-            stop.parent_station !== undefined
-          ) {
-            return false
+          if (departureDirectionSelect) {
+            departureDirectionSelect.value = ''
+            departureDirectionSelect.disabled = false
           }
 
-          if (stop.stop_code?.startsWith(query.trim())) {
-            return true
+          const route = routes.find((route) => route.route_id === routeId)
+
+          if (!route) {
+            return console.warn(`Unable to find route ${routeId}`)
           }
 
-          return stop.stop_name?.toLowerCase().includes(query.toLowerCase())
+          if (departureDirectionSelect) {
+            for (const direction of route.directions) {
+              const option = document.createElement('option')
+              option.value = formatDirectionId(direction.direction_id)
+              option.textContent = direction.direction
+              departureDirectionSelect.appendChild(option)
+            }
+          }
+
+          if (route.directions.length === 1) {
+            setHidden(departureDirectionSelect, true)
+            if (departureDirectionSelect) {
+              departureDirectionSelect.value = formatDirectionId(
+                route.directions[0].direction_id,
+              )
+              departureDirectionSelect.dispatchEvent(new Event('change'))
+            }
+          } else {
+            setHidden(departureDirectionSelect, false)
+          }
+        }
+      })
+    }
+
+    if (departureDirectionSelect) {
+      departureDirectionSelect.addEventListener('change', (event) => {
+        const routeId = departureRouteSelect?.value
+        const directionId = event.target.value
+
+        clearSelectOptions(departureStopSelect)
+        resetResults()
+
+        if (directionId === '') {
+          if (departureStopSelect) {
+            departureStopSelect.value = ''
+            departureStopSelect.disabled = true
+          }
+        } else {
+          if (departureStopSelect) {
+            departureStopSelect.value = ''
+            departureStopSelect.disabled = false
+          }
+
+          const route = routes.find((route) => route.route_id === routeId)
+
+          if (!route) {
+            return console.warn(`Unable to find route ${routeId}`)
+          }
+
+          const direction = route.directions.find(
+            (direction) =>
+              formatDirectionId(direction.direction_id) === directionId,
+          )
+
+          if (departureStopSelect) {
+            for (const stopId of direction.stopIds) {
+              const stop = stops.find((stop) => stop.stop_id === stopId)
+              const option = document.createElement('option')
+              option.value = stop.stop_id
+              option.textContent = stop.stop_name
+              departureStopSelect.appendChild(option)
+            }
+          }
+        }
+      })
+    }
+
+    if (departureStopSelect) {
+      departureStopSelect.addEventListener('change', (event) => {
+        const routeId = departureRouteSelect?.value
+        const directionId = departureDirectionSelect?.value
+        const stopId = event.target.value
+
+        selectParameters({
+          stopId,
+          routeId,
+          directionId,
         })
-        const sortedResults = _.sortBy(filteredResults, (stop) =>
-          stop.stop_name?.toLowerCase().startsWith(query.toLowerCase().trim())
-            ? 0
-            : 1,
-        )
-        populateResults(sortedResults)
-      },
-      displayMenu: 'overlay',
-      minLength: 2,
-      autoselect: true,
-      placeholder: $('#departure_stop_code_container').data('placeholder'),
-      showNoOptionsFound: false,
-      templates: {
-        inputValue: (result) =>
-          result && (result.stop_code || result.stop_name),
-        suggestion(result) {
-          if (!result) {
-            return
+      })
+    }
+
+    if (stopForm) {
+      stopForm.addEventListener('submit', (event) => {
+        event.preventDefault()
+        for (const element of stopCodeInvalidElements) {
+          setHidden(element, true)
+        }
+
+        const stopName = getStopCodeInput()?.value
+
+        if (!stopName) {
+          for (const element of stopCodeInvalidElements) {
+            setHidden(element, false)
           }
-
-          if (typeof result === 'string') {
-            return result
-          }
-
-          const stopCode = result.is_parent_station
-            ? $('#departure_stop_code_container').data('stop-code-all')
-            : result.stop_code
-
-          let formattedStopName = `<strong>${result.stop_name}</strong>`
-
-          if (stopCode) {
-            formattedStopName += ` (${stopCode})`
-          }
-
-          return formattedStopName
-        },
-      },
-      onConfirm(selectedStop) {
-        if (!selectedStop) {
           return
         }
 
-        $('#departure_stop_code').val(
-          selectedStop.stop_code || selectedStop.stop_name,
-        )
-        $('#stop_form').trigger('submit')
-      },
-      defaultValue: initialStop,
-    })
+        selectParameters({
+          stopName,
+        })
+      })
+    }
+
+    if (departureResultsFetchTime) {
+      departureResultsFetchTime.addEventListener('click', (event) => {
+        event.preventDefault()
+        resetResults()
+        showLoading()
+        updateDepartures(true)
+      })
+    }
+
+    if (stopCodeContainer) {
+      accessibleAutocomplete({
+        element: stopCodeContainer,
+        id: 'departure_stop_code',
+        source(query, populateResults) {
+          const filteredResults = stops.filter((stop) => {
+            // Don't list child stations
+            if (
+              stop.parent_station !== null &&
+              stop.parent_station !== undefined
+            ) {
+              return false
+            }
+
+            if (stop.stop_code?.startsWith(query.trim())) {
+              return true
+            }
+
+            return stop.stop_name?.toLowerCase().includes(query.toLowerCase())
+          })
+          const sortedResults = _.sortBy(filteredResults, (stop) =>
+            stop.stop_name?.toLowerCase().startsWith(query.toLowerCase().trim())
+              ? 0
+              : 1,
+          )
+          populateResults(sortedResults)
+        },
+        displayMenu: 'overlay',
+        minLength: 2,
+        autoselect: true,
+        placeholder: stopCodeContainer?.dataset?.placeholder,
+        showNoOptionsFound: false,
+        templates: {
+          inputValue: (result) =>
+            result && (result.stop_code || result.stop_name),
+          suggestion(result) {
+            if (!result) {
+              return
+            }
+
+            if (typeof result === 'string') {
+              return result
+            }
+
+            const stopCode = result.is_parent_station
+              ? stopCodeContainer?.dataset?.stopCodeAll
+              : result.stop_code
+
+            let formattedStopName = `<strong>${result.stop_name}</strong>`
+
+            if (stopCode) {
+              formattedStopName += ` (${stopCode})`
+            }
+
+            return formattedStopName
+          },
+        },
+        onConfirm(selectedStop) {
+          if (!selectedStop) {
+            return
+          }
+
+          const stopCodeInput = getStopCodeInput()
+          if (stopCodeInput) {
+            stopCodeInput.value =
+              selectedStop.stop_code || selectedStop.stop_name
+          }
+          stopForm?.dispatchEvent(new Event('submit'))
+        },
+        defaultValue: initialStop,
+      })
+    }
   })
 }
