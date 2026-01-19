@@ -1,20 +1,21 @@
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
 import yargs from 'yargs'
-import { getRoutes, importGtfs, openDb } from 'gtfs'
+import { hideBin } from 'yargs/helpers'
+import { openDb, importGtfs } from 'gtfs'
+import express from 'express'
 import { clone, omit } from 'lodash-es'
 import untildify from 'untildify'
-import express from 'express'
-import logger from 'morgan'
 
-import { setDefaultConfig } from '../lib/config/defaults.ts'
+import { getPathToViewsFolder } from '../lib/file-utils.js'
 import {
+  setDefaultConfig,
   generateTransitDeparturesWidgetHtml,
   generateTransitDeparturesWidgetJson,
-} from '../lib/utils.ts'
-import { getPathToViewsFolder } from '../lib/file-utils.ts'
+} from '../lib/utils.js'
 
-const argv = yargs(process.argv)
+const argv = yargs(hideBin(process.argv))
   .option('c', {
     alias: 'configPath',
     describe: 'Path to config file',
@@ -37,30 +38,60 @@ config.logFunction = console.log
 
 try {
   openDb(config)
-  getRoutes()
-} catch (error: any) {
-  console.log('Importing GTFS')
 
-  try {
-    // Import GTFS
-    const gtfsImportConfig = {
-      ...clone(omit(config, 'agency')),
-      agencies: [
-        {
-          agency_key: config.agency.agency_key,
-          path: config.agency.gtfs_static_path,
-          url: config.agency.gtfs_static_url,
-        },
-      ],
-    }
-
-    await importGtfs(gtfsImportConfig)
-  } catch (error: any) {
-    console.error(
-      `Unable to open sqlite database "${config.sqlitePath}" defined as \`sqlitePath\` config.json. Ensure the parent directory exists and import GTFS before running this app.`,
-    )
-    throw error
+  // Import GTFS
+  const gtfsImportConfig = {
+    ...clone(omit(config, 'agency')),
+    agencies: [
+      {
+        agency_key: config.agency.agency_key,
+        path: config.agency.gtfs_static_path,
+        url: config.agency.gtfs_static_url,
+      },
+    ],
   }
+
+  await importGtfs(gtfsImportConfig)
+} catch (error: any) {
+  console.error(
+    `Unable to open sqlite database "${config.sqlitePath}" defined as \`sqlitePath\` config.json. Ensure the parent directory exists and run gtfs-to-html to import GTFS before running this app.`,
+  )
+  throw error
+}
+
+app.set('views', getPathToViewsFolder(config))
+app.set('view engine', 'pug')
+
+// Logging middleware
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`)
+  next()
+})
+
+// Serve static assets
+const staticAssetPath =
+  config.templatePath === undefined
+    ? getPathToViewsFolder(config)
+    : untildify(config.templatePath)
+
+app.use(express.static(staticAssetPath))
+
+const frontendLibraryPaths = [
+  { route: '/js', package: 'pbf', subPath: 'dist' },
+  { route: '/js', package: 'gtfs-realtime-pbf-js-module', subPath: '' },
+  { route: '/js', package: 'accessible-autocomplete', subPath: '' },
+  { route: '/css', package: 'accessible-autocomplete', subPath: '' },
+]
+
+// Helper function to resolve package path
+const resolvePackagePath = (packageName: string, subPath: string): string => {
+  const packagePath = dirname(fileURLToPath(import.meta.resolve(packageName)))
+  return subPath ? join(packagePath, subPath) : packagePath
+}
+
+// Register all frontend library package routes
+for (const { route, package: pkg, subPath } of frontendLibraryPaths) {
+  app.use(route, express.static(resolvePackagePath(pkg, subPath)))
 }
 
 /*
@@ -95,19 +126,6 @@ app.get('/data/stops.json', async (request, response, next) => {
     next(error)
   }
 })
-
-app.set('views', getPathToViewsFolder(config))
-app.set('view engine', 'pug')
-
-app.use(logger('dev'))
-
-// Serve static assets
-const staticAssetPath =
-  config.templatePath === undefined
-    ? getPathToViewsFolder(config)
-    : untildify(config.templatePath)
-
-app.use(express.static(staticAssetPath))
 
 // Fallback 404 route
 app.use((req, res) => {

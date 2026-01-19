@@ -1,6 +1,14 @@
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { access, cp, mkdir, readdir, readFile, rm } from 'node:fs/promises'
+import {
+  access,
+  cp,
+  copyFile,
+  mkdir,
+  readdir,
+  readFile,
+  rm,
+} from 'node:fs/promises'
 import beautify from 'js-beautify'
 import pug from 'pug'
 import untildify from 'untildify'
@@ -41,6 +49,28 @@ export async function getConfig(argv) {
 }
 
 /*
+ * Get the full path to this module's folder.
+ */
+export function getPathToThisModuleFolder() {
+  const __dirname = dirname(fileURLToPath(import.meta.url))
+
+  // Dynamically calculate the path to this module's folder
+  let distFolderPath
+  if (__dirname.endsWith('/dist/bin') || __dirname.endsWith('/dist/app')) {
+    // When the file is in 'dist/bin' or 'dist/app'
+    distFolderPath = resolve(__dirname, '../../')
+  } else if (__dirname.endsWith('/dist')) {
+    // When the file is in 'dist'
+    distFolderPath = resolve(__dirname, '../')
+  } else {
+    // In case it's neither, fallback to project root
+    distFolderPath = resolve(__dirname, '../../')
+  }
+
+  return distFolderPath
+}
+
+/*
  * Get the full path to the views folder.
  */
 export function getPathToViewsFolder(config: Config) {
@@ -48,22 +78,7 @@ export function getPathToViewsFolder(config: Config) {
     return untildify(config.templatePath)
   }
 
-  const __dirname = dirname(fileURLToPath(import.meta.url))
-
-  // Dynamically calculate the path to the views directory
-  let viewsFolderPath
-  if (__dirname.endsWith('/dist/bin') || __dirname.endsWith('/dist/app')) {
-    // When the file is in 'dist/bin' or 'dist/app'
-    viewsFolderPath = resolve(__dirname, '../../views/widget')
-  } else if (__dirname.endsWith('/dist')) {
-    // When the file is in 'dist'
-    viewsFolderPath = resolve(__dirname, '../views/widget')
-  } else {
-    // In case it's neither, fallback to project root
-    viewsFolderPath = resolve(__dirname, 'views/widget')
-  }
-
-  return viewsFolderPath
+  return join(getPathToThisModuleFolder(), 'views/default')
 }
 
 /*
@@ -119,6 +134,7 @@ export async function prepDirectory(outputPath: string, config: Config) {
  */
 export async function copyStaticAssets(config: Config, outputPath: string) {
   const viewsFolderPath = getPathToViewsFolder(config)
+  const thisModuleFolderPath = getPathToThisModuleFolder()
 
   const foldersToCopy = ['css', 'js', 'img']
 
@@ -133,6 +149,36 @@ export async function copyStaticAssets(config: Config, outputPath: string) {
       })
     }
   }
+
+  // Copy js and css libraries from node_modules
+  await copyFile(
+    join(thisModuleFolderPath, 'dist/frontend_libraries/pbf.js'),
+    join(outputPath, 'js/pbf.js'),
+  )
+
+  await copyFile(
+    join(
+      thisModuleFolderPath,
+      'dist/frontend_libraries/gtfs-realtime.browser.proto.js',
+    ),
+    join(outputPath, 'js/gtfs-realtime.browser.proto.js'),
+  )
+
+  await copyFile(
+    join(
+      thisModuleFolderPath,
+      'dist/frontend_libraries/accessible-autocomplete.min.js',
+    ),
+    join(outputPath, 'js/accessible-autocomplete.min.js'),
+  )
+
+  await copyFile(
+    join(
+      thisModuleFolderPath,
+      'dist/frontend_libraries/accessible-autocomplete.min.css',
+    ),
+    join(outputPath, 'css/accessible-autocomplete.min.css'),
+  )
 }
 
 /*

@@ -3,13 +3,13 @@ html
   head
     title= title
     meta(charset="utf-8")
-    link(rel="stylesheet" href="https://unpkg.com/accessible-autocomplete@3.0.0/dist/accessible-autocomplete.min.css" crossorigin="anonymous")
+    link(rel="stylesheet" href=`${config.assetPath}css/accessible-autocomplete.min.css`)
     link(rel="stylesheet" href=`${config.assetPath}css/transit-departures-widget-styles.css`)
     meta(name="viewport" content="initial-scale=1.0, width=device-width")
 
-    script(src="https://unpkg.com/pbf@3.3.0/dist/pbf.js" crossorigin="anonymous")
-    script(src="https://unpkg.com/gtfs-realtime-pbf-js-module@1.0.0/gtfs-realtime.browser.proto.js" crossorigin="anonymous")
-    script(src="https://unpkg.com/accessible-autocomplete@3.0.0/dist/accessible-autocomplete.min.js" crossorigin="anonymous")
+    script(src=`${config.assetPath}js/pbf.js`)
+    script(src=`${config.assetPath}js/gtfs-realtime.browser.proto.js`)
+    script(src=`${config.assetPath}js/accessible-autocomplete.min.js`)
     script(src=`${config.assetPath}js/transit-departures-widget.js`)
 
   body

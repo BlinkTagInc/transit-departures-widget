@@ -23,8 +23,10 @@
   "license": "MIT",
   "scripts": {
     "build": "tsup",
-    "prepare": "husky",
-    "start": "node dist/app"
+    "postbuild": "node scripts/postinstall.js",
+    "start": "node ./dist/app",
+    "prepare": "husky && npm run build",
+    "postinstall": "node scripts/postinstall.js"
   },
   "bin": {
     "transit-departures-widget": "dist/bin/transit-departures-widget.js"
@@ -36,12 +38,14 @@
     "dist"
   ],
   "dependencies": {
+    "accessible-autocomplete": "^3.0.1",
     "express": "^5.1.0",
     "gtfs": "^4.17.3",
+    "gtfs-realtime-pbf-js-module": "^1.0.0",
     "i18n": "^0.15.1",
     "js-beautify": "^1.15.4",
     "lodash-es": "^4.17.21",
-    "morgan": "^1.10.0",
+    "pbf": "^4.0.1",
     "pretty-error": "^4.0.0",
     "pug": "^3.0.3",
     "sanitize-filename": "^1.6.3",
