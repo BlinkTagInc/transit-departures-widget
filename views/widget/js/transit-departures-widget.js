@@ -456,31 +456,31 @@ function setupTransitDeparturesWidget(routes, stops, config) {
     function filterDepartures(departures, { selectedStops, direction, route }) {
       // Remove departure and arrival information for last stoptime by stop_sequence if it has any
       const cleanedDepartures = departures.map((departure) => {
-        if (departure?.trip_update?.stop_time_update?.length > 0) {
-          // Find index of largest stop_sequence
-          let largestStopSequence = 0
-          let largestStopSequenceIndex = 0
-          for (
-            let index = 0;
-            index < departure.trip_update.stop_time_update.length;
-            index++
-          ) {
-            if (
-              departure.trip_update.stop_time_update[index].stop_sequence >
-              largestStopSequence
-            ) {
-              largestStopSequence =
-                departure.trip_update.stop_time_update[index].stop_sequence
-              largestStopSequenceIndex = index
-            }
-          }
-          departure.trip_update.stop_time_update.splice(
-            largestStopSequenceIndex,
-            1,
-          )
+        const stopTimeUpdates = departure?.trip_update?.stop_time_update
+        if (!stopTimeUpdates || stopTimeUpdates.length === 0) {
+          return departure
         }
 
-        return departure
+        let largestStopSequence = 0
+        let largestStopSequenceIndex = 0
+        for (let index = 0; index < stopTimeUpdates.length; index++) {
+          if (stopTimeUpdates[index].stop_sequence > largestStopSequence) {
+            largestStopSequence = stopTimeUpdates[index].stop_sequence
+            largestStopSequenceIndex = index
+          }
+        }
+
+        const filteredStopTimeUpdates = stopTimeUpdates.filter(
+          (stopTimeUpdate, index) => index !== largestStopSequenceIndex,
+        )
+
+        return {
+          ...departure,
+          trip_update: {
+            ...departure.trip_update,
+            stop_time_update: filteredStopTimeUpdates,
+          },
+        }
       })
 
       const selectedStopIds = selectedStops.flatMap((stop) => {
