@@ -10,6 +10,132 @@ body {
 
 .transit-departures-widget {
   max-width: 600px;
+  padding: 0 16px;
+  margin: 0 auto;
+}
+
+.transit-departures-widget h2 {
+  font-size: 2rem;
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.transit-departures-widget .widget-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  margin: 32px auto;
+}
+
+.transit-departures-widget .widget-card-body {
+  padding: 20px 24px;
+}
+
+.transit-departures-widget .widget-section {
+  margin-bottom: 16px;
+}
+
+.transit-departures-widget .widget-button-row {
+  display: grid;
+}
+
+.transit-departures-widget .widget-btn-group {
+  display: inline-flex;
+  border-radius: 6px;
+}
+
+.transit-departures-widget .widget-btn-group .widget-btn + .widget-btn {
+  margin-left: -1px;
+}
+
+.transit-departures-widget .widget-btn-group .widget-btn:first-of-type {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.transit-departures-widget .widget-btn-group .widget-btn:last-of-type {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.transit-departures-widget .widget-btn-check {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.transit-departures-widget .widget-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  font-size: 14px;
+  line-height: 1.2;
+  border: 1px solid transparent;
+  background: #ffffff;
+  color: #0d6efd;
+  cursor: pointer;
+  user-select: none;
+  border-radius: 6px;
+}
+
+.transit-departures-widget .widget-btn-outline-primary {
+  border-color: #0d6efd;
+}
+
+.transit-departures-widget .widget-btn-primary {
+  background: #0d6efd;
+  border-color: #0d6efd;
+  color: #ffffff;
+  width: 100%;
+}
+
+.transit-departures-widget .widget-btn-check:checked + .widget-btn {
+  background: #0d6efd;
+  color: #ffffff;
+}
+
+.transit-departures-widget .widget-btn-check:focus + .widget-btn {
+  box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
+}
+
+.transit-departures-widget .widget-btn:hover {
+  filter: brightness(0.98);
+}
+
+.transit-departures-widget .widget-btn:active {
+  filter: brightness(0.95);
+}
+
+.transit-departures-widget .widget-select {
+  display: block;
+  width: 100%;
+  padding: .375rem 2.25rem .375rem .75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: #333333;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  --widget-form-select-bg-img: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+  background-image: var(--widget-form-select-bg-img);
+  background-repeat: no-repeat;
+  background-position: right .75rem center;
+  background-size: 16px 12px;
+  border: 1px solid rgb(222, 226, 230);
+  border-radius: 6px;
+  transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.transit-departures-widget .widget-select:disabled {
+  background-color: #e9ecef;
+  color: #6c757d;
 }
 
 .transit-departures-widget .hidden-form {

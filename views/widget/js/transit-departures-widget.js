@@ -96,7 +96,7 @@ function setupTransitDeparturesWidget(routes, stops, config) {
 
       initialStop = stop.stop_code || stop.stop_name
 
-      // Wait for bootstrap js to initialize before triggering click
+      // Wait for js to initialize before triggering click
       setTimeout(() => {
         $('#stop_form').trigger('submit')
         $(

@@ -1,33 +1,33 @@
-#real_time_departures.container.transit-departures-widget
-  .card.mx-auto.my-5
-    .card-body
+#real_time_departures.transit-departures-widget
+  .widget-card
+    .widget-card-body
       h2= __('Realtime Departures')
-      .mb-3
-        .btn-group.btn-group-two(data-label="Lookup Type")  
-          input#departure_type_stop_id.btn-check(type="radio" name="departure_type" value="stop" checked)
-          label.btn.btn-outline-primary( for="departure_type_stop_id") By Stop
-          input#departure_type_route.btn-check(type="radio" name="departure_type" value="route")
-          label.btn.btn-outline-primary( for="departure_type_route") By Route
+      .widget-section
+        .widget-btn-group.widget-btn-group-two(data-label="Lookup Type")
+          input#departure_type_stop_id.widget-btn-check(type="radio" name="departure_type" value="stop" checked)
+          label.widget-btn.widget-btn-outline-primary(for="departure_type_stop_id") By Stop
+          input#departure_type_route.widget-btn-check(type="radio" name="departure_type" value="route")
+          label.widget-btn.widget-btn-outline-primary(for="departure_type_route") By Route
 
       form#stop_form
-        .mb-3
+        .widget-section
           #departure_stop_code_container(data-placeholder=__('Search by stop name or stop code') data-stop-code-all=__('all'))
 
         .stop-code-invalid= __('Invalid stop code')  
-        .d-grid
-          button.btn.btn-primary(type="submit")= __('Get Departures')
+        .widget-button-row
+          button.widget-btn.widget-btn-primary(type="submit")= __('Get Departures')
 
       form#route_form.hidden-form
-        .mb-3
-          select.form-select#departure_route(name="route")
+        .widget-section
+          select.widget-select#departure_route(name="route")
             option(value="")= __('Choose a route')
         
-        .mb-3
-          select.form-select#departure_direction(name="direction" disabled)
+        .widget-section
+          select.widget-select#departure_direction(name="direction" disabled)
             option(value="")= __('Choose a direction')
         
-        .mb-3
-          select.form-select#departure_stop(name="stop" disabled)
+        .widget-section
+          select.widget-select#departure_stop(name="stop" disabled)
             option(value="")= __('Choose a stop')
 
       #loading.loader #{__('Loading')}...
