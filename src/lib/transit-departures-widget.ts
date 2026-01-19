@@ -1,7 +1,7 @@
 import path from 'path'
 import { clone, omit } from 'lodash-es'
 import { writeFile } from 'node:fs/promises'
-import { importGtfs, openDb } from 'gtfs'
+import { importGtfs, openDb, type ConfigAgency } from 'gtfs'
 import sanitize from 'sanitize-filename'
 import Timer from 'timer-machine'
 import untildify from 'untildify'
@@ -49,15 +49,22 @@ async function transitDeparturesWidget(initialConfig: Config) {
 
   if (!config.skipImport) {
     // Import GTFS
+    const gtfsPath = config.agency.gtfs_static_path
+    const gtfsUrl = config.agency.gtfs_static_url
+
+    if (!gtfsPath && !gtfsUrl) {
+      throw new Error(
+        'Missing GTFS source. Set `agency.gtfs_static_path` or `agency.gtfs_static_url` in config.json.',
+      )
+    }
+
+    const agencyImportConfig: ConfigAgency = gtfsPath
+      ? { path: gtfsPath }
+      : { url: gtfsUrl as string }
+
     const gtfsImportConfig = {
       ...clone(omit(config, 'agency')),
-      agencies: [
-        {
-          agency_key: config.agency.agency_key,
-          path: config.agency.gtfs_static_path,
-          url: config.agency.gtfs_static_url,
-        },
-      ],
+      agencies: [agencyImportConfig],
     }
 
     await importGtfs(gtfsImportConfig)

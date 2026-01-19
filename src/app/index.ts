@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import { readFileSync } from 'node:fs'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
-import { openDb, importGtfs } from 'gtfs'
+import { openDb, importGtfs, type ConfigAgency } from 'gtfs'
 import express from 'express'
 import { clone, omit } from 'lodash-es'
 import untildify from 'untildify'
@@ -40,15 +40,22 @@ try {
   openDb(config)
 
   // Import GTFS
+  const gtfsPath = config.agency.gtfs_static_path
+  const gtfsUrl = config.agency.gtfs_static_url
+
+  if (!gtfsPath && !gtfsUrl) {
+    throw new Error(
+      'Missing GTFS source. Set `agency.gtfs_static_path` or `agency.gtfs_static_url` in config.json.',
+    )
+  }
+
+  const agencyImportConfig: ConfigAgency = gtfsPath
+    ? { path: gtfsPath }
+    : { url: gtfsUrl as string }
+
   const gtfsImportConfig = {
     ...clone(omit(config, 'agency')),
-    agencies: [
-      {
-        agency_key: config.agency.agency_key,
-        path: config.agency.gtfs_static_path,
-        url: config.agency.gtfs_static_url,
-      },
-    ],
+    agencies: [agencyImportConfig],
   }
 
   await importGtfs(gtfsImportConfig)

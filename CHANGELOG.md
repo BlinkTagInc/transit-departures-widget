@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## Updated
+- Improve error logging for missing calendars and stops
+- Optimize stop fetching with caching
+- Update route sorting logic for better handling of mixed numeric/alphanumeric IDs.
+- Orgainze types and util files
+- Update README.md
+- Improved logging
+- Remove bootstrap, jquery, lodash as frontend dependencies
+- Use frontend libraries from NPM
+- Improved departures filter
+- Improved isHidden function
+- Inline SVG in CSS
+- Dependency Updates
+
 ## [2.5.5] - 2025-05-21
 
 ## Updated
