@@ -105,7 +105,18 @@ function setupTransitDeparturesWidget(routes, stops, config) {
       return
     }
 
-    element.style.display = isHidden ? 'none' : 'block'
+    if (isHidden) {
+      if (!element.dataset.originalDisplay) {
+        const computedDisplay = window.getComputedStyle(element).display
+        if (computedDisplay && computedDisplay !== 'none') {
+          element.dataset.originalDisplay = computedDisplay
+        }
+      }
+      element.style.display = 'none'
+      return
+    }
+
+    element.style.display = element.dataset.originalDisplay || 'block'
   }
 
   function setText(element, text) {
