@@ -1,4 +1,4 @@
-/* global window, _, Pbf, FeedMessage, alert, accessibleAutocomplete,  */
+/* global window, Pbf, FeedMessage, alert, accessibleAutocomplete,  */
 /* eslint no-var: "off", no-unused-vars: "off", no-alert: "off" */
 
 function setupTransitDeparturesWidget(routes, stops, config) {
@@ -62,6 +62,34 @@ function setupTransitDeparturesWidget(routes, stops, config) {
     hours = hours || 12
 
     return `${hours}:${minutes} ${suffix}`
+  }
+
+  function sortBy(array, selector) {
+    return [...array].sort((left, right) => {
+      const leftValue = selector(left)
+      const rightValue = selector(right)
+
+      if (leftValue < rightValue) {
+        return -1
+      }
+
+      if (leftValue > rightValue) {
+        return 1
+      }
+
+      return 0
+    })
+  }
+
+  function groupBy(array, selector) {
+    return array.reduce((groups, item) => {
+      const key = selector(item)
+      if (!groups[key]) {
+        groups[key] = []
+      }
+      groups[key].push(item)
+      return groups
+    }, {})
   }
 
   function onReady(callback) {
@@ -263,10 +291,10 @@ function setupTransitDeparturesWidget(routes, stops, config) {
       routeDirection.classList.add('departure-result-route-direction')
       routeNameDiv.appendChild(routeDirection)
 
-      const sortedDepartures = _.take(
-        _.sortBy(departureGroup, (departure) => departure.time),
-        3,
-      )
+      const sortedDepartures = sortBy(
+        departureGroup,
+        (departure) => departure.time,
+      ).slice(0, 3)
 
       for (const departure of sortedDepartures) {
         const minutes = formatMinutes(departure.time - Date.now() / 1000)
@@ -293,13 +321,13 @@ function setupTransitDeparturesWidget(routes, stops, config) {
         setHidden(departureResultsError, true)
         setHidden(departureResultsNone, false)
       } else {
-        const departureGroups = _.groupBy(
+        const departureGroups = groupBy(
           departures,
           (departure) =>
             `${departure.route.route_id}||${departure.direction.direction_id}`,
         )
-        const sortedDepartureGroups = _.sortBy(
-          departureGroups,
+        const sortedDepartureGroups = sortBy(
+          Object.values(departureGroups),
           (departureGroup) => {
             const { route } = departureGroup[0]
             return Number.parseInt(route.route_short_name, 10)
@@ -750,7 +778,7 @@ function setupTransitDeparturesWidget(routes, stops, config) {
 
             return stop.stop_name?.toLowerCase().includes(query.toLowerCase())
           })
-          const sortedResults = _.sortBy(filteredResults, (stop) =>
+          const sortedResults = sortBy(filteredResults, (stop) =>
             stop.stop_name?.toLowerCase().startsWith(query.toLowerCase().trim())
               ? 0
               : 1,
