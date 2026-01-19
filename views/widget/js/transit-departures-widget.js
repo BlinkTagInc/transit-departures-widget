@@ -568,6 +568,10 @@ function setupTransitDeparturesWidget(routes, stops, config) {
 
     async function updateDepartures(forceRefresh) {
       try {
+        if (!selectedParameters) {
+          return
+        }
+
         const { selectedStops, direction, route } = selectedParameters
         // Use existing data if less than the refresh interval seconds old
         const minimumAge = Date.now() - config.refreshIntervalSeconds * 1000
@@ -710,6 +714,10 @@ function setupTransitDeparturesWidget(routes, stops, config) {
             (direction) =>
               formatDirectionId(direction.direction_id) === directionId,
           )
+
+          if (!direction) {
+            return console.warn(`Unable to find direction ${directionId}`)
+          }
 
           if (departureStopSelect) {
             for (const stopId of direction.stopIds) {
