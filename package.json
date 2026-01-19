@@ -1,7 +1,7 @@
 {
   "name": "transit-departures-widget",
   "description": "Build a realtime transit departures tool from GTFS and GTFS-Realtime.",
-  "version": "2.5.5",
+  "version": "2.6.0",
   "keywords": [
     "transit",
     "gtfs",
