@@ -373,8 +373,8 @@ export function generateTransitDeparturesWidgetJson(config: ConfigWithI18n) {
   const sortedStops = sortBy(uniqBy(stops, 'stop_id'), 'stop_name')
 
   return {
-    routes: removeNulls(sortedRoutes),
-    stops: removeNulls(sortedStops),
+    routes: arrayOfArrays(removeNulls(sortedRoutes)),
+    stops: arrayOfArrays(removeNulls(sortedStops)),
   }
 }
 
@@ -403,6 +403,20 @@ function removeNulls(data: any): any {
     )
   } else {
     return data
+  }
+}
+
+/*
+ * Convert an array of objects into an Array-of-arrays JSON: { "fields": [...], "rows": [[...], ...] }
+ */
+function arrayOfArrays(array: any[]): { fields: string[]; rows: any[][] } {
+  if (array.length === 0) {
+    return { fields: [], rows: [] }
+  }
+
+  return {
+    fields: Object.keys(array[0]),
+    rows: array.map((item) => Object.values(item)),
   }
 }
 

@@ -48,8 +48,16 @@
 
 script.
   (async function() {
-    const routes = await fetch('data/routes.json').then(res => res.json())
-    const stops = await fetch('data/stops.json').then(res => res.json())
+    const [routeData, stopData] = await Promise.all([
+      fetch('data/routes.json').then(res => res.json()),
+      fetch('data/stops.json').then(res => res.json())
+    ])
+
+    const mapRowsToObjects = ({ fields, rows }) =>
+      rows.map(row => Object.fromEntries(fields.map((field, index) => [field, row[index]])))
+
+    const routes = mapRowsToObjects(routeData)
+    const stops = mapRowsToObjects(stopData)
     setupTransitDeparturesWidget(routes, stops, {
       gtfsRtTripupdatesUrl: '#{config.agency.gtfs_rt_tripupdates_url}',
       refreshIntervalSeconds: #{config.refreshIntervalSeconds},

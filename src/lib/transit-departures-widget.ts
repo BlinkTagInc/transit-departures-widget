@@ -84,11 +84,11 @@ async function transitDeparturesWidget(initialConfig: Config) {
   const { routes, stops } = generateTransitDeparturesWidgetJson(config)
   await writeFile(
     path.join(outputPath, 'data', 'routes.json'),
-    JSON.stringify(routes, null, 2),
+    JSON.stringify(routes),
   )
   await writeFile(
     path.join(outputPath, 'data', 'stops.json'),
-    JSON.stringify(stops, null, 2),
+    JSON.stringify(stops),
   )
 
   const html = await generateTransitDeparturesWidgetHtml(config)
