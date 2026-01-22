@@ -301,7 +301,7 @@ body {
   }
 }
 
-.autocomplete {
+.transit-departures-widget input[type=text].autocomplete__input {
   background: white;
   z-index: 1000;
   overflow: auto;
@@ -309,22 +309,6 @@ body {
   border: 1px solid rgba(0, 0, 0, 0.125);
 }
 
-.autocomplete * {
-  font: inherit;
-}
-
-.autocomplete > div {
-  padding: 4px 4px;
-}
-
-.autocomplete .group {
-  background: #eee;
-}
-
-.autocomplete > div:hover:not(.group),
-.autocomplete > div.selected {
+.transit-departures-widget  .autocomplete__option:hover { {
   background: #007bff;
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
 }
