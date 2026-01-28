@@ -458,6 +458,10 @@ function setupTransitDeparturesWidget(routes, stops, config) {
         }
       }
 
+      if (!tripRoute || !tripDirection) {
+        return null
+      }
+
       return {
         route: tripRoute,
         direction: tripDirection,
@@ -534,9 +538,13 @@ function setupTransitDeparturesWidget(routes, stops, config) {
           }
 
           // Get route and direction from trip_id
-          filteredDeparture = getRouteAndDirectionFromTrip(
+          const matchedRouteAndDirection = getRouteAndDirectionFromTrip(
             departure.trip_update.trip.trip_id,
           )
+          if (!matchedRouteAndDirection) {
+            continue
+          }
+          filteredDeparture = matchedRouteAndDirection
         }
 
         const stoptime = departure.trip_update.stop_time_update.find(
