@@ -3,7 +3,8 @@
     .widget-card-body
       h2= __('Realtime Departures')
       .widget-section
-        .widget-btn-group.widget-btn-group-two(data-label="Lookup Type")
+        fieldset.widget-btn-group.widget-btn-group-two(data-label="Lookup Type")
+          legend.widget-sr-only Lookup Type
           input#departure_type_stop_id.widget-btn-check(type="radio" name="departure_type" value="stop" checked)
           label.widget-btn.widget-btn-outline-primary(for="departure_type_stop_id") By Stop
           input#departure_type_route.widget-btn-check(type="radio" name="departure_type" value="route")
@@ -34,11 +35,11 @@
 
       #departure_results.departure-results
         .departure-results-header
-          .departure-results-stop
-          .departure-results-stop-unknown= __('Unknown Stop')
           button.departure-results-refresh-button(title=__('Refresh'))
             span #{__('As of')}&nbsp;
             span.departure-results-fetchtime
+          .departure-results-stop
+          .departure-results-stop-unknown= __('Unknown Stop')
         .departure-results-stop-code-container
           span #{__('Stop Code')}&nbsp;
           span.departure-results-stop-code
