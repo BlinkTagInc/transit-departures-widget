@@ -40,11 +40,11 @@
   "dependencies": {
     "accessible-autocomplete": "^3.0.1",
     "express": "^5.2.1",
-    "gtfs": "^4.18.2",
+    "gtfs": "^4.18.3",
     "gtfs-realtime-pbf-js-module": "^1.0.0",
     "i18n": "^0.15.3",
     "js-beautify": "^1.15.4",
-    "lodash-es": "^4.17.22",
+    "lodash-es": "^4.17.23",
     "pbf": "^4.0.1",
     "pretty-error": "^4.0.0",
     "pug": "^3.0.3",
@@ -69,7 +69,7 @@
     "@types/yargs": "^17.0.35",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
-    "prettier": "^3.8.0",
+    "prettier": "^3.8.1",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"
   },
