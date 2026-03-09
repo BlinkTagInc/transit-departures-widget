@@ -414,9 +414,16 @@ function arrayOfArrays(array: any[]): { fields: string[]; rows: any[][] } {
     return { fields: [], rows: [] }
   }
 
+  const fields: string[] = Array.from(
+    array.reduce<Set<string>>((fieldSet, item) => {
+      Object.keys(item ?? {}).forEach((key) => fieldSet.add(key))
+      return fieldSet
+    }, new Set<string>()),
+  )
+
   return {
-    fields: Object.keys(array[0]),
-    rows: array.map((item) => Object.values(item)),
+    fields,
+    rows: array.map((item) => fields.map((field) => item?.[field] ?? null)),
   }
 }
 
