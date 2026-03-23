@@ -78,7 +78,7 @@ export function getPathToViewsFolder(config: Config) {
     return untildify(config.templatePath)
   }
 
-  return join(getPathToThisModuleFolder(), 'views/default')
+  return join(getPathToThisModuleFolder(), 'views/widget')
 }
 
 /*
