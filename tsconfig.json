@@ -3,6 +3,7 @@
     "target": "esnext",
     "module": "NodeNext",
     "moduleResolution": "nodenext",
+    "ignoreDeprecations": "6.0",
     "declaration": true,
     "outDir": "./dist",
     "allowImportingTsExtensions": true,
