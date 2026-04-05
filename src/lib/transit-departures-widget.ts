@@ -1,7 +1,7 @@
 import path from 'path'
 import { clone, omit } from 'lodash-es'
 import { writeFile } from 'node:fs/promises'
-import { importGtfs, openDb, type ConfigAgency } from 'gtfs'
+import { importGtfs, openDb, type ConfigAgency, type TableNames } from 'gtfs'
 import sanitize from 'sanitize-filename'
 import Timer from 'timer-machine'
 import untildify from 'untildify'
@@ -58,9 +58,10 @@ async function transitDeparturesWidget(initialConfig: Config) {
       )
     }
 
-    const agencyImportConfig: ConfigAgency = gtfsPath
-      ? { path: gtfsPath }
-      : { url: gtfsUrl as string }
+    const agencyImportConfig: ConfigAgency = {
+      exclude: config.agency.exclude as TableNames[] | undefined,
+      ...(gtfsPath ? { path: gtfsPath } : { url: gtfsUrl as string }),
+    }
 
     const gtfsImportConfig = {
       ...clone(omit(config, 'agency')),

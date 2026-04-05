@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import { readFileSync } from 'node:fs'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
-import { openDb, importGtfs, type ConfigAgency } from 'gtfs'
+import { openDb, importGtfs, type ConfigAgency, TableNames } from 'gtfs'
 import express from 'express'
 import { clone, omit } from 'lodash-es'
 import untildify from 'untildify'
@@ -49,9 +49,10 @@ try {
     )
   }
 
-  const agencyImportConfig: ConfigAgency = gtfsPath
-    ? { path: gtfsPath }
-    : { url: gtfsUrl as string }
+  const agencyImportConfig: ConfigAgency = {
+    exclude: config.agency.exclude as TableNames[] | undefined,
+    ...(gtfsPath ? { path: gtfsPath } : { url: gtfsUrl as string }),
+  }
 
   const gtfsImportConfig = {
     ...clone(omit(config, 'agency')),
