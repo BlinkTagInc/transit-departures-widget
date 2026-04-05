@@ -1,8 +1,9 @@
 {
   "agency": {
     "agency_key": "youragency",
-    "gtfs_static_url": "https://marintransit.org/data/google_transit.zip",
-    "gtfs_rt_tripupdates_url": "https://marintransit.net/gtfs-rt/tripupdates"
+    "gtfs_static_url": "https://marintransit.gov/data/google_transit.zip",
+    "gtfs_rt_tripupdates_url": "https://api.marintransit.org/tripupdates",
+    "exclude": ["rider_categories"]
   },
   "beautify": true,
   "endDate": "20240331",
