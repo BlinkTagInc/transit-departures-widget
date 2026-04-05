@@ -54,6 +54,7 @@ An demo of the widget is available at https://transit-departures-widget.blinktag
 
 The following transit agencies use `transit-departures-widget` on their websites:
 
+- [Cascades East Transit](https://cascadeseasttransit.com)
 - [County Connection](https://countyconnection.com)
 - [Kings Area Regional Transit](https://kartbus.org)
 - [Marin Transit](https://marintransit.org/)
