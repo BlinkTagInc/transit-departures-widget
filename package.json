@@ -40,11 +40,11 @@
   "dependencies": {
     "accessible-autocomplete": "^3.0.1",
     "express": "^5.2.1",
-    "gtfs": "^4.18.4",
+    "gtfs": "^4.18.5",
     "gtfs-realtime-pbf-js-module": "^1.0.0",
     "i18n": "^0.15.3",
     "js-beautify": "^1.15.4",
-    "lodash-es": "^4.17.23",
+    "lodash-es": "^4.18.1",
     "pbf": "^4.0.1",
     "pretty-error": "^4.0.0",
     "pug": "^3.0.4",
