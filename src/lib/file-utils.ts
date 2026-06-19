@@ -152,31 +152,22 @@ export async function copyStaticAssets(config: Config, outputPath: string) {
 
   // Copy js and css libraries from node_modules
   await copyFile(
-    join(thisModuleFolderPath, 'dist/frontend_libraries/pbf.js'),
+    join(thisModuleFolderPath, 'dist/browser/pbf.js'),
     join(outputPath, 'js/pbf.js'),
   )
 
   await copyFile(
-    join(
-      thisModuleFolderPath,
-      'dist/frontend_libraries/gtfs-realtime.browser.proto.js',
-    ),
+    join(thisModuleFolderPath, 'dist/browser/gtfs-realtime.browser.proto.js'),
     join(outputPath, 'js/gtfs-realtime.browser.proto.js'),
   )
 
   await copyFile(
-    join(
-      thisModuleFolderPath,
-      'dist/frontend_libraries/accessible-autocomplete.min.js',
-    ),
+    join(thisModuleFolderPath, 'dist/browser/accessible-autocomplete.min.js'),
     join(outputPath, 'js/accessible-autocomplete.min.js'),
   )
 
   await copyFile(
-    join(
-      thisModuleFolderPath,
-      'dist/frontend_libraries/accessible-autocomplete.min.css',
-    ),
+    join(thisModuleFolderPath, 'dist/browser/accessible-autocomplete.min.css'),
     join(outputPath, 'css/accessible-autocomplete.min.css'),
   )
 }

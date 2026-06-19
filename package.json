@@ -22,11 +22,10 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "tsup",
-    "postbuild": "node scripts/postinstall.js",
+    "build": "tsdown && node scripts/copy-browser-assets.js",
     "start": "node ./dist/app",
     "prepare": "husky && npm run build",
-    "postinstall": "node scripts/postinstall.js"
+    "prepack": "husky && pnpm run build"
   },
   "bin": {
     "transit-departures-widget": "dist/bin/transit-departures-widget.js"
@@ -40,12 +39,12 @@
   "dependencies": {
     "accessible-autocomplete": "^3.0.1",
     "express": "^5.2.1",
-    "gtfs": "^4.18.5",
+    "gtfs": "^4.19.1",
     "gtfs-realtime-pbf-js-module": "^1.0.0",
     "i18n": "^0.15.3",
     "js-beautify": "^1.15.4",
     "lodash-es": "^4.18.1",
-    "pbf": "^4.0.1",
+    "pbf": "^5.1.0",
     "pretty-error": "^4.0.0",
     "pug": "^3.0.4",
     "sanitize-filename": "^1.6.4",
@@ -68,13 +67,13 @@
     "@types/toposort": "^2.0.7",
     "@types/yargs": "^17.0.35",
     "husky": "^9.1.7",
-    "lint-staged": "^16.4.0",
-    "prettier": "^3.8.1",
-    "tsup": "^8.5.1",
-    "typescript": "^6.0.2"
+    "lint-staged": "^17.0.7",
+    "prettier": "^3.8.4",
+    "tsdown": "^0.22.2",
+    "typescript": "^6.0.3"
   },
   "engines": {
-    "node": ">= 14.15.4"
+    "node": ">= 22"
   },
   "release-it": {
     "github": {

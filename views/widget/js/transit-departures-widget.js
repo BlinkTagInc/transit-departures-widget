@@ -1,5 +1,4 @@
 /* global window, Pbf, FeedMessage, alert, accessibleAutocomplete,  */
-/* eslint no-var: "off", no-unused-vars: "off", no-alert: "off" */
 
 function setupTransitDeparturesWidget(routes, stops, config) {
   let departuresResponse
@@ -15,17 +14,23 @@ function setupTransitDeparturesWidget(routes, stops, config) {
     window.history.pushState(null, null, url)
   }
 
-  async function fetchTripUpdates() {
-    const response = await fetch(url)
-    if (response.ok) {
-      const bufferResponse = await response.arrayBuffer()
-      const pbf = new Pbf(new Uint8Array(bufferResponse))
-      const object = FeedMessage.read(pbf)
-
-      return object.entity
+  async function fetchGtfsRealtime(url, headers) {
+    if (!url) {
+      return null
     }
 
-    throw new Error(response.status)
+    const response = await fetch(url, {
+      headers: { ...(headers ?? {}) },
+    })
+
+    if (!response.ok) {
+      throw new Error(response.status)
+    }
+
+    const bufferRes = await response.arrayBuffer()
+    const pbf = new Pbf.PbfReader(new Uint8Array(bufferRes))
+    const obj = FeedMessage.read(pbf)
+    return obj.entity
   }
 
   function formatMinutes(seconds) {
@@ -588,7 +593,10 @@ function setupTransitDeparturesWidget(routes, stops, config) {
           departuresResponse.timestamp < minimumAge ||
           forceRefresh === true
         ) {
-          const departures = await fetchTripUpdates()
+          const departures = await fetchGtfsRealtime(
+            url.toString(),
+            config.headers,
+          )
 
           // Don't use new departure info if nothing is returned
           if (!departures) {
