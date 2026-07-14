@@ -24,8 +24,8 @@
   "scripts": {
     "build": "tsdown && node scripts/copy-browser-assets.js",
     "start": "node ./dist/app",
-    "prepare": "husky && npm run build",
-    "prepack": "husky && pnpm run build"
+    "prepare": "node .husky/install.mjs && npm run build",
+    "prepack": "pnpm run build"
   },
   "bin": {
     "transit-departures-widget": "dist/bin/transit-departures-widget.js"
