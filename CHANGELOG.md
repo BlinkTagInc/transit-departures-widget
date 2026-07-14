@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Fixed
 - Fix to include views folder
 
+## Updated
+- Dependency Updates
+
 ## [2.8.0] - 2026-06-18
 
 ## Updated
