@@ -34,7 +34,10 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "scripts",
+    "views/widget",
+    "config-sample.json"
   ],
   "dependencies": {
     "accessible-autocomplete": "^3.0.1",
