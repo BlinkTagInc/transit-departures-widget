@@ -18,7 +18,10 @@ import { Config } from '../types/global_interfaces.ts'
 /*
  * Attempt to parse the specified config JSON file.
  */
-export async function getConfig(argv) {
+export async function getConfig(argv: {
+  configPath: string
+  skipImport?: boolean
+}) {
   try {
     const data = await readFile(
       resolve(untildify(argv.configPath)),

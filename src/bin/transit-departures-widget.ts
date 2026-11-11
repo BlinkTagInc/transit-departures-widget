@@ -35,7 +35,7 @@ const handleError = (error: any) => {
 }
 
 const setupImport = async () => {
-  const config = await getConfig(argv)
+  const config = await getConfig({ configPath: argv.c, skipImport: argv.s })
   await transitDeparturesWidget(config)
   process.exit()
 }

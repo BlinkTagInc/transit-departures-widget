@@ -5,18 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## Updated
+
+- Upgraded to node-gtfs v5
+- Dependency Updates
+
 ## [2.8.1] - 2026-07-14
 
 ## Fixed
+
 - Fix to include views folder
 - Fix for prepare command when dev dependencies are not installed
 
 ## Updated
+
 - Dependency Updates
 
 ## [2.8.0] - 2026-06-18
 
 ## Updated
+
 - Dependency Updates
 - Switch to tsdown
 - New browser library copying - remove postinstall script
@@ -24,40 +34,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.7.3] - 2026-04-05
 
 ## Updated
+
 - Dependency Updates
 - Updated readme and config sample
 
 ## Added
+
 - Support for exclude option in agency config
 
 ## [2.7.2] - 2026-03-23
 
 ## Fixed
+
 - Fix for default template path
 
 ## [2.7.1]
 
 ## Fixed
+
 - arrayOfArrays to handle objects with different keys
 
 ## Updated
+
 - Dependency Updates
 
 ## [2.7.0] - 2026-01-27
 
 ## Changed
+
 - Use more compact data structure for routes.json and stops.json
 
 ## Updated
+
 - Dependency Updates
 - Style improvements for autocomplete
 
 ## Fixed
+
 - Handle unknown trip_ids
 
 ## [2.6.0] - 2026-01-19
 
 ## Updated
+
 - Improve error logging for missing calendars and stops
 - Optimize stop fetching with caching
 - Update route sorting logic for better handling of mixed numeric/alphanumeric IDs.
@@ -74,58 +93,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.5.5] - 2025-05-21
 
 ## Updated
+
 - Dependency Updates
 - Allow using in-memory database in demo app
 
 ## [2.5.4] - 2025-02-25
 
 ## Updated
+
 - Dependency Updates
 
 ## [2.5.3] - 2025-01-28
 
 ## Fixed
+
 - Issue with i18n library
 
 ## Updated
+
 - Dependency Updates
 
 ## [2.5.2] - 2024-12-10
 
 ## Updated
+
 - Dependency Updates
 
 ## [2.5.1] - 2024-11-18
 
 ## Updated
+
 - Dependency Updates
 
 ## [2.5.0] - 2024-11-14
 
 ## Fixed
+
 - Paths to views folder
 - Moved assets to views folder
 
 ## [2.4.4] - 2024-11-14
 
 ## Updated
+
 - Improvements to export path and logging
 - Dependency Updates
 
 ## [2.4.3] - 2024-10-01
 
 ## Updated
+
 - Dependency Updates
 - Use overlay mode in autocomplete
 
 ## [2.4.2] - 2024-07-10
 
 ## Added
+
 - `includeCoordinates` config option
 
 ## [2.4.1] - 2024-07-04
 
 ## Updated
+
 - Frontend dependency updates
 - Update to bootstrap 5
 - Typescript
@@ -133,13 +163,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.4.0] - 2024-07-03
 
 ## Updated
+
 - Store routes and stops in separate JSON file
 - Dependency updates
 
 ## Fixed
+
 - Copy img folder
 
 ## [2.3.0] - 2024-04-22
+
 ## Fixed
 
 - Better removing of last stoptime of trip
@@ -147,10 +180,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.2.1] - 2024-04-08
 
 ## Fixed
+
 - allow query param in config gtfsRtTripupdatesUrl
 
 ## Updated
- - Dependency updates
+
+- Dependency updates
 
 ## [2.2.0] - 2024-03-07
 
@@ -160,7 +195,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Updated
 
- - Dependency updates
+- Dependency updates
 
 ## [2.1.1] - 2023-12-04
 
@@ -170,7 +205,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Updated
 
- - Dependency updates
+- Dependency updates
 
 ## [2.1.0] - 2023-09-13
 
@@ -188,7 +223,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Updated
 
- - Dependency updates
+- Dependency updates
 
 ## [2.0.0] - 2023-09-14
 

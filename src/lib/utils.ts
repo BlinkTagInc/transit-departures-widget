@@ -1,10 +1,10 @@
-import { openDb, getDirections, getRoutes, getStops, getTrips } from 'gtfs'
+import type { Gtfs } from 'gtfs'
+import { getSourceId } from './gtfs.ts'
 import { groupBy, last, maxBy, size, sortBy, uniqBy } from 'lodash-es'
 import { renderFile } from './file-utils.ts'
-import sqlString from 'sqlstring-sqlite'
 import toposort from 'toposort'
 
-import { Config, SqlWhere, SqlValue } from '../types/global_interfaces.ts'
+import { Config } from '../types/global_interfaces.ts'
 import {
   ConfigWithI18n,
   GTFSCalendar,
@@ -19,24 +19,16 @@ export { setDefaultConfig } from './config/defaults.ts'
 /*
  * Get calendars for a specified date range
  */
-const getCalendarsForDateRange = (config: Config): GTFSCalendar[] => {
-  const db = openDb(config)
-  let whereClause = ''
-  const whereClauses = []
-
-  if (config.endDate) {
-    whereClauses.push(`start_date <= ${sqlString.escape(config.endDate)}`)
-  }
-
-  if (config.startDate) {
-    whereClauses.push(`end_date >= ${sqlString.escape(config.startDate)}`)
-  }
-
-  if (whereClauses.length > 0) {
-    whereClause = `WHERE ${whereClauses.join(' AND ')}`
-  }
-
-  return db.prepare(`SELECT * FROM calendar ${whereClause}`).all()
+const getCalendarsForDateRange = async (
+  config: Config,
+  gtfs: Gtfs,
+): Promise<GTFSCalendar[]> => {
+  const calendars = await gtfs.schedule.calendar.all()
+  return calendars.filter(
+    (calendar) =>
+      (!config.endDate || calendar.start_date <= Number(config.endDate)) &&
+      (!config.startDate || calendar.end_date >= Number(config.startDate)),
+  )
 }
 
 /*
@@ -63,22 +55,21 @@ function formatRouteName(route: GTFSRoute) {
 /*
  * Get directions for a route
  */
-function getDirectionsForRoute(route: GTFSRoute, config: ConfigWithI18n) {
+async function getDirectionsForRoute(
+  route: GTFSRoute,
+  config: ConfigWithI18n,
+  gtfs: Gtfs,
+) {
   const logger = createLogger(config)
-  const db = openDb(config)
 
   // Lookup direction names from non-standard directions.txt file
-  const directions = getDirections({ route_id: route.route_id }, [
-    'direction_id',
-    'direction',
-  ])
-    .filter((direction) => direction.direction_id !== undefined)
-    .map((direction) => ({
-      direction_id: direction.direction_id as number | string,
-      direction: direction.direction,
-    }))
+  const directions: { direction_id: number | null; direction: string }[] =
+    await gtfs.gtfsPlus.directions
+      .where({ route_id: route.route_id })
+      .select('direction_id', 'direction')
+      .all()
 
-  const calendars = getCalendarsForDateRange(config)
+  const calendars = await getCalendarsForDateRange(config, gtfs)
   if (calendars.length === 0) {
     logger.warn(messages.noActiveCalendarsForRoute(route.route_id))
     return []
@@ -86,20 +77,31 @@ function getDirectionsForRoute(route: GTFSRoute, config: ConfigWithI18n) {
 
   // Else use the most common headsigns as directions from trips.txt file
   if (directions.length === 0) {
-    const headsigns = db
-      .prepare(
-        `SELECT direction_id, trip_headsign, count(*) AS count FROM trips WHERE route_id = ? AND service_id IN (${calendars
-          .map((calendar: GTFSCalendar) => `'${calendar.service_id}'`)
-          .join(', ')}) GROUP BY direction_id, trip_headsign`,
-      )
-      .all(route.route_id)
+    const headsigns = await gtfs.database.withKysely({
+      callback: (db) =>
+        db
+          .selectFrom('trips')
+          .select(['direction_id', 'trip_headsign'])
+          .select((eb) => eb.fn.count<number>('trip_id').as('count'))
+          .where('source_id', '=', getSourceId(config))
+          .where('route_id', '=', route.route_id)
+          .where(
+            'service_id',
+            'in',
+            calendars.map((calendar) => calendar.service_id),
+          )
+          .groupBy(['direction_id', 'trip_headsign'])
+          .orderBy('direction_id')
+          .orderBy('trip_headsign')
+          .execute(),
+    })
 
     for (const group of Object.values(groupBy(headsigns, 'direction_id'))) {
-      const mostCommonHeadsign = maxBy(group, 'count')
+      const mostCommonHeadsign = maxBy(group, 'count')!
       directions.push({
         direction_id: mostCommonHeadsign.direction_id,
         direction: config.__('To {{{headsign}}}', {
-          headsign: mostCommonHeadsign.trip_headsign,
+          headsign: mostCommonHeadsign.trip_headsign ?? '',
         }),
       })
     }
@@ -111,7 +113,9 @@ function getDirectionsForRoute(route: GTFSRoute, config: ConfigWithI18n) {
 /*
  * Sort an array of stoptimes by stop_sequence using a directed graph
  */
-function sortStopIdsBySequence(stoptimes: Record<string, string>[]) {
+function sortStopIdsBySequence(
+  stoptimes: { trip_id: string; stop_id: string; stop_sequence: number }[],
+) {
   const stoptimesGroupedByTrip = groupBy(stoptimes, 'trip_id')
 
   // First, try using a directed graph to determine stop order.
@@ -152,36 +156,55 @@ function sortStopIdsBySequence(stoptimes: Record<string, string>[]) {
   return longestTripStoptimes.map((stoptime) => stoptime.stop_id)
 }
 
-function getStopsForDirection(
+async function getStopsForDirection(
   route: GTFSRoute,
   direction: GTFSRouteDirection,
   config: Config,
+  gtfs: Gtfs,
   stopCache?: Map<string, GTFSStop>,
 ) {
   const logger = createLogger(config)
-  const db = openDb(config)
-  const calendars = getCalendarsForDateRange(config)
+  const calendars = await getCalendarsForDateRange(config, gtfs)
   if (calendars.length === 0) {
     logger.warn(
       messages.noActiveCalendarsForDirection(
         route.route_id,
-        direction.direction_id,
+        direction.direction_id ?? 'null',
       ),
     )
     return []
   }
-  const whereClause = formatWhereClauses({
-    direction_id: direction.direction_id,
-    route_id: route.route_id,
-    service_id: calendars.map((calendar: GTFSCalendar) => calendar.service_id),
+  const stoptimes = await gtfs.database.withKysely({
+    callback: (db) =>
+      db
+        .selectFrom('stop_times as st')
+        .innerJoin('trips as t', (join) =>
+          join
+            .onRef('st.source_id', '=', 't.source_id')
+            .onRef('st.trip_id', '=', 't.trip_id'),
+        )
+        .select(['st.stop_id', 'st.stop_sequence', 'st.trip_id'])
+        .where('st.source_id', '=', getSourceId(config))
+        .where('t.route_id', '=', route.route_id)
+        .where(
+          't.direction_id',
+          direction.direction_id === null ? 'is' : '=',
+          direction.direction_id,
+        )
+        .where(
+          't.service_id',
+          'in',
+          calendars.map((calendar) => calendar.service_id),
+        )
+        .orderBy('st.stop_sequence', 'asc')
+        .execute(),
   })
-  const stoptimes = db
-    .prepare(
-      `SELECT stop_id, stop_sequence, trip_id FROM stop_times WHERE trip_id IN (SELECT trip_id FROM trips ${whereClause}) ORDER BY stop_sequence ASC`,
-    )
-    .all()
 
-  const sortedStopIds = sortStopIdsBySequence(stoptimes)
+  const sortedStopIds = sortStopIdsBySequence(
+    stoptimes.filter(
+      (row): row is typeof row & { stop_id: string } => row.stop_id !== null,
+    ),
+  )
 
   const deduplicatedStopIds = sortedStopIds.reduce(
     (memo: string[], stopId: string) => {
@@ -199,12 +222,14 @@ function getStopsForDirection(
   deduplicatedStopIds.pop()
 
   // Fetch stop details
-  const stopFields: (keyof GTFSStop)[] = [
-    'stop_id',
-    'stop_name',
-    'stop_code',
-    'parent_station',
-  ]
+  const stopFields: (
+    | 'stop_id'
+    | 'stop_name'
+    | 'stop_code'
+    | 'parent_station'
+    | 'stop_lat'
+    | 'stop_lon'
+  )[] = ['stop_id', 'stop_name', 'stop_code', 'parent_station']
 
   if (config.includeCoordinates) {
     stopFields.push('stop_lat', 'stop_lon')
@@ -215,10 +240,15 @@ function getStopsForDirection(
     : deduplicatedStopIds
 
   const fetchedStops = missingStopIds.length
-    ? (getStops as unknown as (query: any, fields?: any) => GTFSStop[])(
-        { stop_id: missingStopIds },
-        stopFields,
-      )
+    ? await gtfs.database.withKysely({
+        callback: (db) =>
+          db
+            .selectFrom('stops')
+            .select(stopFields)
+            .where('source_id', '=', getSourceId(config))
+            .where('stop_id', 'in', missingStopIds)
+            .execute(),
+      })
     : []
 
   if (stopCache) {
@@ -235,7 +265,11 @@ function getStopsForDirection(
 
       if (!stop) {
         logger.warn(
-          messages.stopNotFound(route.route_id, direction.direction_id, stopId),
+          messages.stopNotFound(
+            route.route_id,
+            direction.direction_id ?? 'null',
+            stopId,
+          ),
         )
       }
 
@@ -258,15 +292,34 @@ export function generateTransitDeparturesWidgetHtml(config: ConfigWithI18n) {
 /*
  * Generate JSON of routes and stops for transit departures widget.
  */
-export function generateTransitDeparturesWidgetJson(config: ConfigWithI18n) {
+export async function generateTransitDeparturesWidgetJson(
+  config: ConfigWithI18n,
+  gtfs: Gtfs,
+) {
   const logger = createLogger(config)
-  const calendars = getCalendarsForDateRange(config)
+  const calendars = await getCalendarsForDateRange(config, gtfs)
   if (calendars.length === 0) {
     logger.warn(messages.noActiveCalendarsGlobal)
     return { routes: [], stops: [] }
   }
 
-  const routes = getRoutes() as GTFSRoute[]
+  const routes = await gtfs.schedule.routes
+    .select(
+      'route_id',
+      'agency_id',
+      'route_short_name',
+      'route_long_name',
+      'route_desc',
+      'route_type',
+      'route_url',
+      'route_color',
+      'route_text_color',
+      'route_sort_order',
+      'continuous_pickup',
+      'continuous_drop_off',
+      'network_id',
+    )
+    .all()
   const stops: GTFSStop[] = []
   const filteredRoutes: GTFSRoute[] = []
   const stopCache = new Map<string, GTFSStop>()
@@ -277,7 +330,11 @@ export function generateTransitDeparturesWidgetJson(config: ConfigWithI18n) {
       route_full_name: formatRouteName(route),
     }
 
-    const directions = getDirectionsForRoute(routeWithFullName, config)
+    const directions = await getDirectionsForRoute(
+      routeWithFullName,
+      config,
+      gtfs,
+    )
 
     // Filter out routes with no directions
     if (directions.length === 0) {
@@ -285,39 +342,52 @@ export function generateTransitDeparturesWidgetJson(config: ConfigWithI18n) {
       continue
     }
 
-    const directionsWithData = directions
-      .map((direction) => {
-        const directionStops = getStopsForDirection(
-          routeWithFullName,
-          direction,
-          config,
-          stopCache,
-        )
+    const directionsWithData = (
+      await Promise.all(
+        directions.map(async (direction) => {
+          const directionStops = await getStopsForDirection(
+            routeWithFullName,
+            direction,
+            config,
+            gtfs,
+            stopCache,
+          )
 
-        if (directionStops.length === 0) {
-          return null
-        }
+          if (directionStops.length === 0) {
+            return null
+          }
 
-        stops.push(...directionStops)
+          stops.push(...directionStops)
 
-        const trips = getTrips(
-          {
-            route_id: route.route_id,
-            direction_id: direction.direction_id,
-            service_id: calendars.map(
-              (calendar: GTFSCalendar) => calendar.service_id,
-            ),
-          },
-          ['trip_id'],
-        )
+          const trips = await gtfs.database.withKysely({
+            callback: (db) =>
+              db
+                .selectFrom('trips')
+                .select('trip_id')
+                .where('source_id', '=', getSourceId(config))
+                .where('route_id', '=', route.route_id)
+                .where(
+                  'direction_id',
+                  direction.direction_id === null ? 'is' : '=',
+                  direction.direction_id,
+                )
+                .where(
+                  'service_id',
+                  'in',
+                  calendars.map((calendar) => calendar.service_id),
+                )
+                .orderBy('trip_id')
+                .execute(),
+          })
 
-        return {
-          ...direction,
-          stopIds: directionStops.map((stop) => stop.stop_id),
-          tripIds: trips.map((trip) => trip.trip_id),
-        }
-      })
-      .filter(Boolean) as GTFSRouteDirection[]
+          return {
+            ...direction,
+            stopIds: directionStops.map((stop) => stop.stop_id),
+            tripIds: trips.map((trip) => trip.trip_id),
+          }
+        }),
+      )
+    ).filter(Boolean) as GTFSRouteDirection[]
 
     if (directionsWithData.length === 0) {
       continue
@@ -355,12 +425,20 @@ export function generateTransitDeparturesWidgetJson(config: ConfigWithI18n) {
   })
 
   // Get Parent Station Stops
-  const parentStationIds = new Set(stops.map((stop) => stop.parent_station))
-
-  const parentStationStops = getStops(
-    { stop_id: Array.from(parentStationIds) },
-    ['stop_id', 'stop_name', 'stop_code', 'parent_station'],
-  )
+  const parentStationIds = [
+    ...new Set(stops.map((stop) => stop.parent_station)),
+  ].filter((id): id is string => Boolean(id))
+  const parentStationStops = parentStationIds.length
+    ? await gtfs.database.withKysely({
+        callback: (db) =>
+          db
+            .selectFrom('stops')
+            .select(['stop_id', 'stop_name', 'stop_code', 'parent_station'])
+            .where('source_id', '=', getSourceId(config))
+            .where('stop_id', 'in', parentStationIds)
+            .execute(),
+      })
+    : []
 
   stops.push(
     ...parentStationStops.map((stop) => ({
@@ -425,39 +503,4 @@ function arrayOfArrays(array: any[]): { fields: string[]; rows: any[][] } {
     fields,
     rows: array.map((item) => fields.map((field) => item?.[field] ?? null)),
   }
-}
-
-export function formatWhereClause(
-  key: string,
-  value: null | SqlValue | SqlValue[],
-) {
-  if (Array.isArray(value)) {
-    let whereClause = `${sqlString.escapeId(key)} IN (${value
-      .filter((v) => v !== null)
-      .map((v) => sqlString.escape(v))
-      .join(', ')})`
-
-    if (value.includes(null)) {
-      whereClause = `(${whereClause} OR ${sqlString.escapeId(key)} IS NULL)`
-    }
-
-    return whereClause
-  }
-
-  if (value === null) {
-    return `${sqlString.escapeId(key)} IS NULL`
-  }
-
-  return `${sqlString.escapeId(key)} = ${sqlString.escape(value)}`
-}
-
-export function formatWhereClauses(query: SqlWhere) {
-  if (Object.keys(query).length === 0) {
-    return ''
-  }
-
-  const whereClauses = Object.entries(query).map(([key, value]) =>
-    formatWhereClause(key, value),
-  )
-  return `WHERE ${whereClauses.join(' AND ')}`
 }

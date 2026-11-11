@@ -3,9 +3,8 @@ import { fileURLToPath } from 'node:url'
 import { readFileSync } from 'node:fs'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
-import { openDb, importGtfs, type ConfigAgency, TableNames } from 'gtfs'
+import { openGtfs } from '../lib/gtfs.ts'
 import express from 'express'
-import { clone, omit } from 'lodash-es'
 import untildify from 'untildify'
 
 import { getPathToViewsFolder } from '../lib/file-utils.js'
@@ -36,36 +35,7 @@ config.noHead = false
 config.assetPath = '/'
 config.logFunction = console.log
 
-try {
-  openDb(config)
-
-  // Import GTFS
-  const gtfsPath = config.agency.gtfs_static_path
-  const gtfsUrl = config.agency.gtfs_static_url
-
-  if (!gtfsPath && !gtfsUrl) {
-    throw new Error(
-      'Missing GTFS source. Set `agency.gtfs_static_path` or `agency.gtfs_static_url` in config.json.',
-    )
-  }
-
-  const agencyImportConfig: ConfigAgency = {
-    exclude: config.agency.exclude as TableNames[] | undefined,
-    ...(gtfsPath ? { path: gtfsPath } : { url: gtfsUrl as string }),
-  }
-
-  const gtfsImportConfig = {
-    ...clone(omit(config, 'agency')),
-    agencies: [agencyImportConfig],
-  }
-
-  await importGtfs(gtfsImportConfig)
-} catch (error: any) {
-  console.error(
-    `Unable to open sqlite database "${config.sqlitePath}" defined as \`sqlitePath\` config.json. Ensure the parent directory exists and run gtfs-to-html to import GTFS before running this app.`,
-  )
-  throw error
-}
+const gtfs = await openGtfs(config)
 
 app.set('views', getPathToViewsFolder(config))
 app.set('view engine', 'pug')
@@ -109,7 +79,7 @@ app.get('/', async (request, response, next) => {
  */
 app.get('/data/routes.json', async (request, response, next) => {
   try {
-    const { routes } = await generateTransitDeparturesWidgetJson(config)
+    const { routes } = await generateTransitDeparturesWidgetJson(config, gtfs)
     response.json(routes)
   } catch (error) {
     next(error)
@@ -118,7 +88,7 @@ app.get('/data/routes.json', async (request, response, next) => {
 
 app.get('/data/stops.json', async (request, response, next) => {
   try {
-    const { stops } = await generateTransitDeparturesWidgetJson(config)
+    const { stops } = await generateTransitDeparturesWidgetJson(config, gtfs)
     response.json(stops)
   } catch (error) {
     next(error)
@@ -149,7 +119,20 @@ const startServer = async (port: number): Promise<void> => {
       const server = app
         .listen(port)
         .once('listening', () => {
-          console.log(`Express server listening on port ${port}`)
+          for (const signal of ['SIGINT', 'SIGTERM'] as const) {
+            process.once(signal, () => {
+              server.close(async () => {
+                await gtfs.close()
+              })
+            })
+          }
+          server.once('close', () => {
+            void gtfs.close()
+          })
+          const address = server.address()
+          const listeningPort =
+            typeof address === 'object' && address ? address.port : port
+          console.log(`Express server listening on port ${listeningPort}`)
           resolve()
         })
         .once('error', (err: NodeJS.ErrnoException) => {
@@ -164,9 +147,10 @@ const startServer = async (port: number): Promise<void> => {
     })
   } catch (err) {
     console.error('Failed to start server:', err)
-    process.exit(1)
+    await gtfs.close()
+    process.exitCode = 1
   }
 }
 
 const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000
-startServer(port)
+await startServer(port)

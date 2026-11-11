@@ -1,6 +1,7 @@
 export interface Config {
   agency: {
     agency_key: string
+    sourceId?: string
     gtfs_static_path?: string
     gtfs_static_url?: string
     gtfs_rt_tripupdates_url: string
@@ -26,12 +27,6 @@ export interface Config {
 }
 
 export type SqlValue =
-  | undefined
-  | null
-  | string
-  | number
-  | boolean
-  | Date
-  | SqlValue[]
+  undefined | null | string | number | boolean | Date | SqlValue[]
 
 export type SqlWhere = Record<string, null | SqlValue | SqlValue[]>
