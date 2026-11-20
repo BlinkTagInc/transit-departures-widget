@@ -244,7 +244,7 @@ If `noHead` is `true`, you’ll embed the widget into an existing HTML page. See
 
 ### refreshIntervalSeconds
 
-{Integer} How often the widget should refresh departure data in seconds. Optional, defaults to 20 seconds.
+{Integer} How often the widget should refresh departure data in seconds. Use a whole number from 1 to 2,147,483. Defaults to 20 seconds.
 
 ```
     "refreshIntervalSeconds": 30
@@ -314,28 +314,25 @@ If `noHead` is `false` (default), `index.html` is a complete HTML page with link
 
 ### Headless embed (`noHead: true`)
 
-When `noHead` is `true`, you get only the widget markup. Include the generated CSS/JS and mount it in your page:
+Include the generated `index.html` fragment in the host page. Serve `data/routes.json` and `data/stops.json` relative to that page. The headless export contains only markup and data, so supply the matching browser assets separately. For the default widget, use these tags with the asset paths for your site:
 
 ```html
-<!doctype html>
-<html>
-  <head>
-    <link rel="stylesheet" href="/path/to/css/transit-departures-widget-styles.css" />
-  </head>
-  <body>
-    <div id="tdw-app"></div>
-    <script src="/path/to/js/transit-departures-widget.js"></script>
-    <script>
-      // Transit Departures Widget initializes itself on load using data/routes.json and data/stops.json
-    </script>
-  </body>
-</html>
+<link rel="stylesheet" href="/path/to/css/accessible-autocomplete.min.css" />
+<link rel="stylesheet" href="/path/to/css/transit-departures-widget-styles.css" />
+<script defer src="/path/to/js/pbf.js"></script>
+<script defer src="/path/to/js/gtfs-realtime.browser.proto.js"></script>
+<script defer src="/path/to/js/accessible-autocomplete.min.js"></script>
+<script defer src="/path/to/js/transit-departures-widget.js"></script>
 ```
+
+The widget reads its settings from the generated markup when the document is ready. Update the fragment and widget script together. For custom templates, use the dependencies listed in the matching layout.
 
 ## Notes
 
 `transit-departures-widget` uses the [`node-gtfs`](https://github.com/blinktaginc/node-gtfs) library to handle importing and querying GTFS data.
 
 ## Contributing
+
+Install Chromium with `pnpm exec playwright install chromium`, then run `pnpm test` to build the library and run its browser regression tests.
 
 Pull requests are welcome, as is feedback and [reporting issues](https://github.com/blinktaginc/transit-departures-widget/issues).
