@@ -21,10 +21,6 @@ async function transitDeparturesWidget(initialConfig: Config) {
   const config = setDefaultConfig(initialConfig)
   const logger = createLogger(config)
 
-  if (!config.agency) {
-    throw new Error('No agency defined in `config.json`')
-  }
-
   const timer = new Timer()
   const agencyKey = config.agency.agency_key ?? 'unknown'
 
