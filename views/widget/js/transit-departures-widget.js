@@ -35,7 +35,7 @@ function setupTransitDeparturesWidget(routes, stops, config) {
 
   function formatMinutes(seconds) {
     if (seconds < 60) {
-      return '&#60;1'
+      return '<1'
     }
 
     return Math.floor(seconds / 60)
@@ -321,7 +321,11 @@ function setupTransitDeparturesWidget(routes, stops, config) {
         timeContainer.classList.add('departure-result-time-container')
         const timeValue = document.createElement('div')
         timeValue.classList.add('departure-result-time')
-        timeValue.innerHTML = `${minutes}<span class="departure-result-time-label">${minutesLabel}</span>`
+        timeValue.textContent = String(minutes)
+        const label = document.createElement('span')
+        label.className = 'departure-result-time-label'
+        label.textContent = minutesLabel
+        timeValue.appendChild(label)
         timeContainer.appendChild(timeValue)
         departureTimesDiv.appendChild(timeContainer)
       }
@@ -353,7 +357,7 @@ function setupTransitDeparturesWidget(routes, stops, config) {
         setHidden(departureResultsError, true)
 
         if (departureResultsContainer) {
-          departureResultsContainer.innerHTML = ''
+          departureResultsContainer.replaceChildren()
           for (const departureGroup of sortedDepartureGroups) {
             departureResultsContainer.appendChild(
               formatDepartureGroup(departureGroup),
@@ -833,21 +837,25 @@ function setupTransitDeparturesWidget(routes, stops, config) {
               return
             }
 
+            const suggestion = document.createElement('span')
             if (typeof result === 'string') {
-              return result
+              suggestion.textContent = result
+              return suggestion.innerHTML
             }
 
             const stopCode = result.is_parent_station
               ? stopCodeContainer?.dataset?.stopCodeAll
               : result.stop_code
 
-            let formattedStopName = `<strong>${result.stop_name}</strong>`
+            const name = document.createElement('strong')
+            name.textContent = result.stop_name
+            suggestion.appendChild(name)
 
             if (stopCode) {
-              formattedStopName += ` (${stopCode})`
+              suggestion.append(` (${stopCode})`)
             }
 
-            return formattedStopName
+            return suggestion.innerHTML
           },
         },
         onConfirm(selectedStop) {
