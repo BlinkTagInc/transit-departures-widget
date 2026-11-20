@@ -26,7 +26,8 @@
     "start": "node ./dist/app",
     "prepare": "node .husky/install.mjs && npm run build",
     "prepack": "pnpm run build",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "pnpm run build && node --test"
   },
   "bin": {
     "transit-departures-widget": "dist/bin/transit-departures-widget.js"
@@ -46,9 +47,9 @@
     "gtfs": "5.0.0-beta.0",
     "gtfs-realtime-pbf-js-module": "^1.0.0",
     "i18n": "^0.15.4",
-    "js-beautify": "^2.0.3",
     "lodash-es": "^4.18.1",
     "pbf": "^5.1.2",
+    "prettier": "^3.9.10",
     "pretty-error": "^4.0.0",
     "pug": "^3.0.4",
     "sanitize-filename": "^1.6.5",
@@ -61,7 +62,6 @@
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/i18n": "^0.13.12",
-    "@types/js-beautify": "^1.14.3",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^26",
     "@types/pug": "^2.0.10",
@@ -70,7 +70,7 @@
     "@types/yargs": "^17.0.35",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.0",
-    "prettier": "^3.9.10",
+    "playwright": "1.61.1",
     "tsdown": "^0.23.7",
     "typescript": "^7.0.2"
   },

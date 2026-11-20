@@ -9,7 +9,6 @@ import {
   readFile,
   rm,
 } from 'node:fs/promises'
-import beautify from 'js-beautify'
 import pug from 'pug'
 import untildify from 'untildify'
 
@@ -188,7 +187,8 @@ export async function renderFile(
 
   // Beautify HTML if setting is set
   if (config.beautify === true) {
-    return beautify.html_beautify(html, { indent_size: 2 })
+    const { format } = await import('prettier')
+    return format(html, { parser: 'html', htmlWhitespaceSensitivity: 'strict' })
   }
 
   return html
