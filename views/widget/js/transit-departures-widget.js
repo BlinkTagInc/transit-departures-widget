@@ -867,3 +867,48 @@ function setupTransitDeparturesWidget(routes, stops, config) {
     }
   })
 }
+
+async function initializeTransitDeparturesWidget() {
+  const widget = document.querySelector(
+    '#real_time_departures[data-gtfs-rt-tripupdates-url]',
+  )
+  if (!widget) {
+    return
+  }
+
+  async function loadRows(path) {
+    const response = await fetch(path)
+    if (!response.ok) {
+      throw new Error(`Unable to load ${path} (HTTP ${response.status})`)
+    }
+    const data = await response.json()
+    if (Array.isArray(data)) {
+      return data
+    }
+    return data.rows.map((row) =>
+      Object.fromEntries(
+        data.fields.map((field, index) => [field, row[index]]),
+      ),
+    )
+  }
+
+  const [routes, stops] = await Promise.all([
+    loadRows('data/routes.json'),
+    loadRows('data/stops.json'),
+  ])
+  setupTransitDeparturesWidget(routes, stops, {
+    gtfsRtTripupdatesUrl: widget.dataset.gtfsRtTripupdatesUrl,
+    refreshIntervalSeconds: Number(widget.dataset.refreshIntervalSeconds),
+    timeFormat: widget.dataset.timeFormat,
+  })
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener(
+    'DOMContentLoaded',
+    initializeTransitDeparturesWidget,
+    { once: true },
+  )
+} else {
+  initializeTransitDeparturesWidget()
+}
