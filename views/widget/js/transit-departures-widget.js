@@ -2,7 +2,7 @@
 
 function setupTransitDeparturesWidget(routes, stops, config) {
   let departuresResponse
-  let departuresRequest
+  let refreshInProgress = false
   let nextRefresh = 0
   let departuresTimeout
   let initialStop
@@ -21,15 +21,22 @@ function setupTransitDeparturesWidget(routes, stops, config) {
       return null
     }
 
-    const response = await fetch(url, {
-      headers: { ...(headers ?? {}) },
-    })
-
-    if (!response.ok) {
-      throw new Error(response.status)
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 15_000)
+    let bufferRes
+    try {
+      const response = await fetch(url, {
+        headers: { ...(headers ?? {}) },
+        signal: controller.signal,
+      })
+      if (!response.ok) {
+        throw new Error(response.status)
+      }
+      bufferRes = await response.arrayBuffer()
+    } finally {
+      clearTimeout(timeout)
     }
 
-    const bufferRes = await response.arrayBuffer()
     const pbf = new Pbf.PbfReader(new Uint8Array(bufferRes))
     const obj = FeedMessage.read(pbf)
     return obj.entity
@@ -446,7 +453,7 @@ function setupTransitDeparturesWidget(routes, stops, config) {
 
     function scheduleDepartures() {
       clearTimeout(departuresTimeout)
-      if (!document.hidden && selectedParameters && !departuresRequest) {
+      if (!document.hidden && selectedParameters && !refreshInProgress) {
         departuresTimeout = setTimeout(
           updateDepartures,
           Math.max(0, nextRefresh - Date.now()),
@@ -594,9 +601,12 @@ function setupTransitDeparturesWidget(routes, stops, config) {
         nextRefresh = 0
         return
       }
+      if (refreshInProgress) {
+        return
+      }
+
+      refreshInProgress = true
       try {
-        const selection = selectedParameters
-        const { selectedStops, direction, route } = selection
         // Use existing data if less than the refresh interval seconds old
         const minimumAge = Date.now() - config.refreshIntervalSeconds * 1000
         if (
@@ -604,18 +614,10 @@ function setupTransitDeparturesWidget(routes, stops, config) {
           departuresResponse.timestamp <= minimumAge ||
           forceRefresh === true
         ) {
-          if (!departuresRequest) {
-            departuresRequest = fetchGtfsRealtime(
-              url.toString(),
-              config.headers,
-            ).finally(() => {
-              departuresRequest = undefined
-            })
-          }
-          const departures = await departuresRequest
-          if (selection !== selectedParameters) {
-            return
-          }
+          const departures = await fetchGtfsRealtime(
+            url.toString(),
+            config.headers,
+          )
 
           // Don't use new departure info if nothing is returned
           if (!departures) {
@@ -626,6 +628,11 @@ function setupTransitDeparturesWidget(routes, stops, config) {
           departuresResponse = { departures, timestamp: Date.now() }
         }
 
+        // A user can change or clear the selection while the feed is loading.
+        if (!selectedParameters) {
+          return
+        }
+        const { selectedStops, direction, route } = selectedParameters
         renderResults(
           selectedStops,
           filterDepartures(departuresResponse.departures, {
@@ -644,6 +651,7 @@ function setupTransitDeparturesWidget(routes, stops, config) {
           renderError(selectedParameters.selectedStops)
         }
       } finally {
+        refreshInProgress = false
         nextRefresh = Date.now() + config.refreshIntervalSeconds * 1000
         scheduleDepartures()
       }

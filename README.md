@@ -244,7 +244,7 @@ If `noHead` is `true`, you’ll embed the widget into an existing HTML page. See
 
 ### refreshIntervalSeconds
 
-{Integer} How often the widget should refresh departure data in seconds. Use a whole number from 1 to 2,147,483. Defaults to 20 seconds.
+{Integer} How often the widget should refresh departure data in seconds. Use a whole number from 1 to 2,147,483. Defaults to 20 seconds. The widget waits for the current refresh to finish before scheduling the next one. Realtime requests time out after 15 seconds, including time spent downloading the response body. After a timeout, the widget retries at the configured interval while the tab is visible.
 
 ```
     "refreshIntervalSeconds": 30
